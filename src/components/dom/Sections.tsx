@@ -191,7 +191,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 1: Hero */}
       <section
         id="section-1"
-        className="h-screen flex items-center justify-start px-12 md:px-24 relative overflow-hidden bg-[var(--background)]"
+        className="h-screen flex items-center justify-start px-12 md:px-24 relative overflow-hidden"
       >
 
         <div className="reveal-content max-w-2xl relative z-10">
@@ -231,7 +231,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 2: Experience */}
       <section
         id="section-2"
-        className="min-h-screen py-32 px-12 md:px-24 relative overflow-hidden flex items-center bg-[#10131a]"
+        className="min-h-screen py-32 px-12 md:px-24 relative overflow-hidden flex items-center"
       >
         <div className="reveal-content w-full max-w-7xl mx-auto relative z-10">
           <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--secondary)]/10 border border-[var(--secondary)]/20 text-[var(--secondary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md">
@@ -245,7 +245,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
             {t.experience.roles.map((item, i) => (
               <div
                 key={i}
-                className="stagger-item group p-6 md:p-8 lg:p-10 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/[0.08] hover:-translate-y-2 hover:border-white/20 transition-all duration-500 shadow-xl shadow-black/20 flex flex-col h-full relative overflow-hidden"
+                className="stagger-item group p-6 md:p-8 lg:p-10 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-2xl hover:bg-white/[0.07] hover:-translate-y-2 hover:border-white/20 transition-all duration-500 shadow-2xl flex flex-col h-full relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
                 
@@ -293,7 +293,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 3: Skills */}
       <section
         id="section-3"
-        className="min-h-screen py-24 px-12 md:px-24 relative overflow-hidden flex items-center bg-[var(--background)]"
+        className="min-h-screen py-24 px-12 md:px-24 relative overflow-hidden flex items-center"
       >
         <div className="reveal-content w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10">
           <div className="hidden md:block pointer-events-none">
@@ -349,7 +349,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 4: Projects */}
       <section
         id="section-4"
-        className="min-h-screen py-32 px-12 md:px-24 relative overflow-hidden flex items-center bg-[#161a21]"
+        className="min-h-screen py-32 px-12 md:px-24 relative overflow-hidden flex items-center"
       >
         <div className="reveal-content relative z-10 w-full max-w-6xl mx-auto">
           <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md">
@@ -384,7 +384,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
             ].map((project, i) => (
               <div
                 key={i}
-                className="stagger-item group relative p-10 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl hover:bg-white/10 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                className="stagger-item group relative p-10 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-2xl hover:bg-white/[0.07] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-2xl"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
                 
@@ -484,7 +484,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 5: Contact */}
       <section
         id="section-5"
-        className="h-screen flex items-center justify-start px-12 md:px-24 relative overflow-hidden bg-[var(--background)]"
+        className="min-h-screen flex items-center justify-start px-12 md:px-24 pb-48 relative overflow-hidden"
       >
         <div className="reveal-content max-w-xl relative z-10">
           <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--tertiary)]/10 border border-[var(--tertiary)]/20 text-[var(--tertiary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md">

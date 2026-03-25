@@ -63,7 +63,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
     // Faster fill at the end
     tl.to(paths, {
-      fill: "#8ff5ff",
+      fill: "white",
       duration: 0.2,
       ease: "power2.out"
     }, ">-0.03");

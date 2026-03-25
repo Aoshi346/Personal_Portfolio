@@ -5,6 +5,7 @@ precision highp float;
 uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_scroll;
+uniform vec2 u_mouse;
 
 // High-quality random
 float random(vec2 st) {
@@ -49,56 +50,45 @@ void main() {
     vec2 p = uv;
     p.x *= aspect;
 
-    // --- SKY LAYER ---
-    vec3 skyBottom = vec3(0.039, 0.043, 0.118); // #0a0b1e
-    vec3 skyTop = vec3(0.008, 0.012, 0.031);    // #020308
-    vec3 color = mix(skyBottom, skyTop, uv.y);
+    // --- SKY/AETHER LAYER ---
+    // Create a dynamic, moving noise field for the "Aether"
+    float time = u_time * 0.2;
+    vec2 noiseUV = uv * 2.0;
+    float n = fbm(noiseUV.x + time, 4);
+    float n2 = fbm(noiseUV.y - time * 0.5, 4);
+    
+    // Mouse Reactivity: Subtle distortion based on cursor distance
+    float dist = distance(uv, u_mouse / u_resolution);
+    float mouseInfluence = smoothstep(0.4, 0.0, dist) * 0.15;
+    n += mouseInfluence;
+
+    // Color Palette Shift based on Scroll (u_scroll)
+    // Section 1-2: Cyan/Blue
+    // Section 3-4: Purple
+    // Section 5: Pink/Deep Violet
+    vec3 colorA = mix(vec3(0.008, 0.012, 0.031), vec3(0.02, 0.08, 0.15), n); // Deep Base
+    
+    vec3 accentCyan = vec3(0.1, 0.4, 0.5);
+    vec3 accentPurple = vec3(0.3, 0.1, 0.5);
+    vec3 accentPink = vec3(0.5, 0.1, 0.4);
+    
+    vec3 activeAccent = mix(accentCyan, accentPurple, smoothstep(0.2, 0.5, u_scroll));
+    activeAccent = mix(activeAccent, accentPink, smoothstep(0.6, 0.9, u_scroll));
+    
+    vec3 color = mix(colorA, activeAccent, n2 * 0.4 * (1.0 - smoothstep(0.8, 1.0, u_scroll) * 0.5));
 
     // Stars (Procedural with flickering)
-    float stars = step(0.996, random(uv * 150.0));
+    float stars = step(0.998, random(uv * 180.0 + n * 0.01));
     float flicker = sin(u_time * 1.5 + random(uv) * 20.0) * 0.5 + 0.5;
-    color += stars * flicker * 0.35;
+    color += stars * flicker * 0.4;
 
-    // Adaptive Visibility Sinking
-    // Mountains disappear as we scroll past the Hero section (u_scroll > 0.4)
-    float sink = smoothstep(0.0, 0.5, u_scroll) * 0.9;
+    // Horizon Glow (Reactive tint)
+    float horizonY = 0.28 - (smoothstep(0.0, 0.5, u_scroll) * 0.9);
+    float glow = exp(-pow(abs(uv.y - horizonY), 2.0) * 40.0);
+    color += activeAccent * 0.2 * glow;
 
-    // --- LAYER 1: FAR-FIELD (MISTY) ---
-    float s1 = u_scroll * 0.1;
-    float h1 = fbm(p.x * 1.2 + s1 + 100.0, 3) * 0.3 + 0.2 - sink;
-    if (uv.y < h1) {
-        vec3 c1 = vec3(0.12, 0.15, 0.22); // Misty Grey-Blue
-        float mist = smoothstep(h1 - 0.2, h1, uv.y);
-        color = mix(c1, color, (1.0 - mist) * 0.5);
-    }
-
-    // --- LAYER 2: MID-GROUND (DETAIL) ---
-    float s2 = u_scroll * 0.25;
-    float h2 = fbm(p.x * 2.2 - s2 + 50.0, 4) * 0.25 + 0.12 - sink;
-    if (uv.y < h2) {
-        vec3 c2 = vec3(0.06, 0.08, 0.14); // Navy Slate
-        float highlight = getHighlight(p.x, h2, 2.2, 4);
-        c2 += highlight * vec3(0.4, 0.5, 0.7); // Moonlight highlight
-        color = mix(color, c2, smoothstep(h2 - 0.15, h2, uv.y));
-    }
-
-    // --- LAYER 3: FOREGROUND (SHARP SILHOUETTE) ---
-    float s3 = u_scroll * 0.5;
-    float h3 = fbm(p.x * 3.5 + s3 + 10.0, 6) * 0.2 + 0.05 - sink;
-    if (uv.y < h3) {
-        vec3 c3 = vec3(0.01, 0.012, 0.02); // Deep Obsidian
-        float highlight = getHighlight(p.x, h3, 3.5, 6);
-        c3 += highlight * vec3(0.2, 0.3, 0.5);
-        color = c3;
-    }
-
-    // Horizon Glow (Cyan/Emerald tint)
-    float glow = exp(-pow(abs(uv.y - (0.28 - sink)), 2.0) * 40.0);
-    color += vec3(0.05, 0.15, 0.2) * glow * (1.0 - smoothstep(0.4, 0.6, u_scroll));
- Randy
-
-    // Film Grain Noise
-    float grain = (random(uv + u_time * 0.01) - 0.5) * 0.035;
+    // Film Grain
+    float grain = (random(uv + u_time * 0.01) - 0.5) * 0.03;
     color += grain;
 
     gl_FragColor = vec4(color, 1.0);
@@ -164,9 +154,11 @@ export default function Background() {
     const timeLoc = gl.getUniformLocation(program, "u_time");
     const resLoc = gl.getUniformLocation(program, "u_resolution");
     const scrollLoc = gl.getUniformLocation(program, "u_scroll");
+    const mouseLoc = gl.getUniformLocation(program, "u_mouse");
 
     let animationFrame: number;
     let scrollPos = 0;
+    let mousePos = { x: 0, y: 0 };
 
     const handleResize = () => {
       canvas.width = window.innerWidth;
@@ -178,14 +170,20 @@ export default function Background() {
       scrollPos = window.scrollY / window.innerHeight;
     };
 
+    const handleMouseMove = (e: MouseEvent) => {
+      mousePos = { x: e.clientX, y: canvas.height - e.clientY };
+    };
+
     window.addEventListener("resize", handleResize);
     window.addEventListener("scroll", handleScroll);
+    window.addEventListener("mousemove", handleMouseMove);
     handleResize();
 
     const render = (time: number) => {
       gl.uniform1f(timeLoc, time * 0.001);
       gl.uniform2f(resLoc, canvas.width, canvas.height);
       gl.uniform1f(scrollLoc, scrollPos);
+      gl.uniform2f(mouseLoc, mousePos.x, mousePos.y);
       
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       animationFrame = requestAnimationFrame(render);
@@ -196,6 +194,7 @@ export default function Background() {
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(animationFrame);
     };
   }, []);
