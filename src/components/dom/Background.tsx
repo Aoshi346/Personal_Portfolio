@@ -50,45 +50,50 @@ void main() {
     vec2 p = uv;
     p.x *= aspect;
 
-    // --- SKY/AETHER LAYER ---
-    // Create a dynamic, moving noise field for the "Aether"
+    // --- LIQUID AETHER 2.0 (BOOSTED) ---
     float time = u_time * 0.2;
-    vec2 noiseUV = uv * 2.0;
-    float n = fbm(noiseUV.x + time, 4);
-    float n2 = fbm(noiseUV.y - time * 0.5, 4);
     
-    // Mouse Reactivity: Subtle distortion based on cursor distance
+    // Domain Warping for High Viscosity
+    vec2 q = vec2(0.0);
+    q.x = fbm(p + vec2(0.0, 0.0), 3);
+    q.y = fbm(p + vec2(1.0, 1.0), 3);
+
+    vec2 r = vec2(0.0);
+    r.x = fbm(p + 1.2 * q + vec2(1.7, 9.2) + 0.2 * time, 3);
+    r.y = fbm(p + 1.2 * q + vec2(8.3, 2.8) + 0.15 * time, 3);
+
+    float f = fbm(p + 1.2 * r, 5);
+
+    // Mouse Reactivity: Sharp, Cinematic Ripples
     float dist = distance(uv, u_mouse / u_resolution);
-    float mouseInfluence = smoothstep(0.4, 0.0, dist) * 0.15;
-    n += mouseInfluence;
+    float mouseRipple = exp(-dist * 8.0) * 0.55; // Wider, stronger ripple
+    f += mouseRipple;
 
-    // Color Palette Shift based on Scroll (u_scroll)
-    // Section 1-2: Cyan/Blue
-    // Section 3-4: Purple
-    // Section 5: Pink/Deep Violet
-    vec3 colorA = mix(vec3(0.008, 0.012, 0.031), vec3(0.02, 0.08, 0.15), n); // Deep Base
-    
-    vec3 accentCyan = vec3(0.1, 0.4, 0.5);
-    vec3 accentPurple = vec3(0.3, 0.1, 0.5);
-    vec3 accentPink = vec3(0.5, 0.1, 0.4);
-    
-    vec3 activeAccent = mix(accentCyan, accentPurple, smoothstep(0.2, 0.5, u_scroll));
-    activeAccent = mix(activeAccent, accentPink, smoothstep(0.6, 0.9, u_scroll));
-    
-    vec3 color = mix(colorA, activeAccent, n2 * 0.4 * (1.0 - smoothstep(0.8, 1.0, u_scroll) * 0.5));
+    // Vibrant Aether Palette
+    vec3 col1 = vec3(0.02, 0.04, 0.08); // Brighter Base Obsidian
+    vec3 col2 = vec3(0.2, 0.6, 1.0);    // Brighter Electric Cyan
+    vec3 col3 = vec3(0.6, 0.2, 1.0);    // Brighter Deep Purple
+    vec3 col4 = vec3(1.0, 0.2, 0.6);    // Brighter Vibrant Pink
 
-    // Stars (Procedural with flickering)
-    float stars = step(0.998, random(uv * 180.0 + n * 0.01));
-    float flicker = sin(u_time * 1.5 + random(uv) * 20.0) * 0.5 + 0.5;
-    color += stars * flicker * 0.4;
+    vec3 activeTheme = mix(col2, col3, smoothstep(0.1, 0.6, u_scroll));
+    activeTheme = mix(activeTheme, col4, smoothstep(0.5, 0.9, u_scroll));
 
-    // Horizon Glow (Reactive tint)
-    float horizonY = 0.28 - (smoothstep(0.0, 0.5, u_scroll) * 0.9);
+    // Denser, more visible liquid flow
+    vec3 color = mix(col1, activeTheme, pow(f, 2.8));
+    color += pow(f, 6.0) * activeTheme * 2.0; // Stronger Emissive Glow
+
+    // High-Resolution Stars
+    float stars = step(0.998, random(uv * 250.0 + f * 0.08));
+    float flicker = sin(time * 3.0 + random(uv) * 100.0) * 0.5 + 0.5;
+    color += stars * flicker * 0.8;
+
+    // Atmospheric Glow
+    float horizonY = 0.35 - (smoothstep(0.0, 0.5, u_scroll) * 0.75);
     float glow = exp(-pow(abs(uv.y - horizonY), 2.0) * 40.0);
-    color += activeAccent * 0.2 * glow;
+    color += activeTheme * 0.25 * glow;
 
-    // Film Grain
-    float grain = (random(uv + u_time * 0.01) - 0.5) * 0.03;
+    // Cinematic Film Grain
+    float grain = (random(uv * 15.0 + time) - 0.5) * 0.05;
     color += grain;
 
     gl_FragColor = vec4(color, 1.0);

@@ -129,28 +129,33 @@ export default function Sections({ language, loaded }: { language: Language, loa
     sections.forEach((section, index) => {
       const content = section.querySelector(".reveal-content");
       const items = section.querySelectorAll(".stagger-item");
-
-      if (!content) return;
+      const revealTexts = section.querySelectorAll(".reveal-text");
 
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
-          start: "top 60%",
-          end: "bottom 40%",
+          start: "top 70%",
+          toggleActions: "play none none reverse",
           onEnter: () => setActiveSection(index + 1),
           onEnterBack: () => setActiveSection(index + 1),
-          toggleActions: "play none none reverse",
         },
       });
 
-      tl.fromTo(content, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, ease: "expo.out" });
+      if (revealTexts.length > 0) {
+        tl.fromTo(revealTexts, 
+          { y: "110%", rotate: 3 }, 
+          { y: "0%", rotate: 0, duration: 0.9, stagger: 0.15, ease: "expo.out" }
+        );
+      }
+
+      tl.fromTo(content, { y: 100, opacity: 0, rotateX: -20 }, { y: 0, opacity: 1, rotateX: 0, duration: 0.8, ease: "expo.out" }, "-=0.6");
 
       if (items.length > 0) {
         tl.fromTo(
           items,
-          { y: 20, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1, stagger: 0.1, ease: "expo.out" },
-          "-=1",
+          { y: 60, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.7, stagger: 0.08, ease: "expo.out" },
+          "-=0.6",
         );
 
         // Animate Ghost Borders
@@ -195,20 +200,26 @@ export default function Sections({ language, loaded }: { language: Language, loa
       >
 
         <div className="reveal-content max-w-2xl relative z-10">
-          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md shadow-[0_0_20px_rgba(143,245,255,0.1)]">
-            <Laptop size={14} /> {translations[language].hero.tag}
-          </div>
-
-          <h1 className="stagger-item text-6xl md:text-8xl font-bold tracking-tighter text-white leading-tight">
-            Aoshi Blanco
+          <h1 className="stagger-item text-4xl md:text-5xl font-bold tracking-tight text-[var(--primary)] badge-font mb-4">
+            <div className="overflow-hidden">
+              <span className="block reveal-text uppercase italic">Aoshi Blanco</span>
+            </div>
           </h1>
+          <h2 className="stagger-item text-7xl md:text-9xl font-black tracking-tighter text-white leading-[0.85] badge-font mb-8">
+            <div className="overflow-hidden">
+               <span className="block reveal-text">CREATIVE</span>
+            </div>
+            <div className="overflow-hidden">
+               <span className="block reveal-text outline-text">ENGINEER</span>
+            </div>
+          </h2>
           <p className="stagger-item text-xl md:text-2xl text-white/50 mt-4 font-light leading-relaxed">
             {translations[language].hero.bio}
           </p>
           <div className="stagger-item mt-12 flex items-center gap-6">
             <button 
                onClick={() => document.getElementById('section-4')?.scrollIntoView({ behavior: 'smooth' })}
-               className="px-8 py-4 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] text-[#0b0e14] font-bold rounded-xl hover:scale-105 transition-all flex items-center gap-2 group shadow-[0_0_30px_rgba(143,245,255,0.2)]"
+               className="px-8 py-4 bg-white text-[#0b0e14] font-bold rounded-xl hover:scale-105 transition-all flex items-center gap-2 group shadow-2xl"
             >
               {translations[language].hero.viewWork}{" "}
               <ChevronRight
@@ -237,8 +248,10 @@ export default function Sections({ language, loaded }: { language: Language, loa
           <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--secondary)]/10 border border-[var(--secondary)]/20 text-[var(--secondary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md">
             <Briefcase size={14} /> {t.experience.tag}
           </div>
-          <h2 className="stagger-item text-4xl md:text-6xl font-bold text-white mb-16 tracking-tight">
-            {t.experience.title}
+          <h2 className="stagger-item text-5xl md:text-7xl font-bold text-white mb-16 tracking-tighter badge-font">
+            <div className="overflow-hidden">
+               <span className="block reveal-text uppercase italic">{t.experience.title}</span>
+            </div>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
@@ -317,8 +330,10 @@ export default function Sections({ language, loaded }: { language: Language, loa
             <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--tertiary)]/10 border border-[var(--tertiary)]/20 text-[var(--tertiary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md md:ml-0 ml-auto">
               <Cpu size={14} /> {t.skills.tag}
             </div>
-            <h2 className="stagger-item text-4xl md:text-6xl font-bold text-white mb-8 italic">
-              {t.skills.title}
+            <h2 className="stagger-item text-5xl md:text-7xl font-bold text-white mb-8 italic uppercase badge-font tracking-tighter">
+              <div className="overflow-hidden">
+                <span className="block reveal-text">{t.skills.title}</span>
+              </div>
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {SKILLS.map((skill) => {
@@ -355,8 +370,10 @@ export default function Sections({ language, loaded }: { language: Language, loa
           <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md">
             <Layout size={14} /> {t.projects.tag}
           </div>
-          <h2 className="stagger-item text-4xl md:text-6xl font-bold text-white mb-16 tracking-tight">
-            {t.projects.title}
+          <h2 className="stagger-item text-5xl md:text-7xl font-bold text-white mb-16 tracking-tighter badge-font uppercase italic">
+            <div className="overflow-hidden">
+              <span className="block reveal-text">{t.projects.title}</span>
+            </div>
           </h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
