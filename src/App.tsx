@@ -1,10 +1,8 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
-import gsap from 'gsap'
+import { useEffect, useState, useCallback } from 'react'
 import { ReactLenis } from '@studio-freight/react-lenis'
 import Sections from './components/dom/Sections'
 import Preloader from './components/dom/Preloader'
 import CustomCursor from './components/dom/CustomCursor'
-import RubikBackground from './components/canvas/RubikBackground'
 import { Language } from './constants/translations'
 
 function App() {
@@ -35,7 +33,6 @@ function App() {
     <>
       
       {!loaded && <Preloader onComplete={handleLoaded} language={lang} />}
-      <RubikBackground />
       <CustomCursor />
       
       {/* Floating Language Toggle */}
