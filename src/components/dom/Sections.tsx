@@ -172,7 +172,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
   }, []);
 
   return (
-    <div ref={containerRef} className="flex flex-col relative z-10 w-full">
+    <div ref={containerRef} className="flex flex-col relative z-10 w-full bg-transparent">
       {/* HUD Navigation - Floating Island at the bottom */}
       {typeof document !== 'undefined' && createPortal(
         <div className={`fixed left-1/2 -translate-x-1/2 bottom-8 flex items-center gap-1 p-1.5 rounded-2xl bg-[#1c2028]/80 border border-white/10 backdrop-blur-2xl z-[100] transition-all duration-1000 shadow-2xl ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
@@ -196,7 +196,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 1: Hero */}
       <section
         id="section-1"
-        className="h-screen flex items-center justify-start px-12 md:px-24 relative overflow-hidden"
+        className="h-screen flex items-center justify-start px-12 md:px-24 relative overflow-hidden bg-transparent"
       >
 
         <div className="reveal-content max-w-2xl relative z-10">
@@ -207,10 +207,10 @@ export default function Sections({ language, loaded }: { language: Language, loa
           </h1>
           <h2 className="stagger-item text-7xl md:text-9xl font-black tracking-tighter text-white leading-[0.85] badge-font mb-8">
             <div className="overflow-hidden">
-               <span className="block reveal-text">CREATIVE</span>
+               <span className="block reveal-text">{translations[language].hero.role.split(' ')[0]}</span>
             </div>
             <div className="overflow-hidden">
-               <span className="block reveal-text outline-text">ENGINEER</span>
+               <span className="block reveal-text outline-text">{translations[language].hero.role.split(' ').slice(1).join(' ')}</span>
             </div>
           </h2>
           <p className="stagger-item text-xl md:text-2xl text-white/50 mt-4 font-light leading-relaxed">
@@ -242,7 +242,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 2: Experience */}
       <section
         id="section-2"
-        className="min-h-screen py-32 px-12 md:px-24 relative overflow-hidden flex items-center"
+        className="min-h-screen py-32 px-12 md:px-24 relative overflow-hidden flex items-center bg-transparent"
       >
         <div className="reveal-content w-full max-w-7xl mx-auto relative z-10">
           <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--secondary)]/10 border border-[var(--secondary)]/20 text-[var(--secondary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md">
@@ -306,7 +306,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 3: Skills */}
       <section
         id="section-3"
-        className="min-h-screen py-24 px-12 md:px-24 relative overflow-hidden flex items-center"
+        className="min-h-screen py-24 px-12 md:px-24 relative overflow-hidden flex items-center bg-transparent"
       >
         <div className="reveal-content w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10">
           <div className="hidden md:block pointer-events-none">
@@ -364,7 +364,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 4: Projects */}
       <section
         id="section-4"
-        className="min-h-screen py-32 px-12 md:px-24 relative overflow-hidden flex items-center"
+        className="min-h-screen py-32 px-12 md:px-24 relative overflow-hidden flex items-center bg-transparent"
       >
         <div className="reveal-content relative z-10 w-full max-w-6xl mx-auto">
           <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md">
@@ -501,7 +501,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 5: Contact */}
       <section
         id="section-5"
-        className="min-h-screen flex items-center justify-start px-12 md:px-24 pb-48 relative overflow-hidden"
+        className="min-h-screen flex items-center justify-start px-12 md:px-24 pb-48 relative overflow-hidden bg-transparent"
       >
         <div className="reveal-content max-w-xl relative z-10">
           <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--tertiary)]/10 border border-[var(--tertiary)]/20 text-[var(--tertiary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md">

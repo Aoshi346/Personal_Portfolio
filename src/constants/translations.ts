@@ -4,6 +4,7 @@ export const translations = {
   en: {
     hero: {
       tag: "AVAILABLE FOR PROJECTS",
+      role: "FULL-STACK DEVELOPER",
       bio: "9th-semester Systems Engineering student specialized in building modern, high-performance web architectures. Focused on creating agile, stunning, and highly functional user interfaces with React, Django, and modern cloud technologies.",
       viewWork: "View Work",
       letsTalk: "Let's Talk",
@@ -79,6 +80,7 @@ export const translations = {
   es: {
     hero: {
       tag: "DISPONIBLE PARA PROYECTOS",
+      role: "DESARROLLADOR FULL-STACK",
       bio: "Estudiante de Ingeniería de Sistemas de 9no semestre, especializado en la construcción de arquitecturas web modernas y de alto rendimiento. Enfocado en crear interfaces de usuario ágiles, atractivas y altamente funcionales con React, Django y tecnologías modernas.",
       viewWork: "Ver Proyectos",
       letsTalk: "Hablemos",

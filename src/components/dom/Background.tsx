@@ -207,8 +207,8 @@ export default function Background() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full z-0 pointer-events-none opacity-80"
-      style={{ filter: "blur(0px)", backgroundColor: "#020308" }}
+      className="fixed inset-0 w-full h-full z-0 pointer-events-none opacity-100"
+      style={{ filter: "blur(0px)" }}
     />
   );
 }
