@@ -94,7 +94,8 @@ void main() {
 
     // Horizon Glow (Cyan/Emerald tint)
     float glow = exp(-pow(abs(uv.y - (0.28 - sink)), 2.0) * 40.0);
-    color += vec3(0.02, 0.08, 0.1) * glow * (1.0 - smoothstep(0.4, 0.6, u_scroll));
+    color += vec3(0.05, 0.15, 0.2) * glow * (1.0 - smoothstep(0.4, 0.6, u_scroll));
+ Randy
 
     // Film Grain Noise
     float grain = (random(uv + u_time * 0.01) - 0.5) * 0.035;

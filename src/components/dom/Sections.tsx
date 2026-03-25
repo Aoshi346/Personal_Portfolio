@@ -143,24 +143,34 @@ export default function Sections({ language, loaded }: { language: Language, loa
         },
       });
 
-      tl.fromTo(content, { y: 30 }, { y: 0, duration: 1, ease: "power4.out" });
+      tl.fromTo(content, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, ease: "expo.out" });
 
       if (items.length > 0) {
         tl.fromTo(
           items,
-          { y: 20 },
-          { y: 0, duration: 0.8, stagger: 0.1, ease: "power3.out" },
-          "-=0.6",
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1, stagger: 0.1, ease: "expo.out" },
+          "-=1",
         );
+
+        // Animate Ghost Borders
+        const ghostBorders = section.querySelectorAll(".ghost-border");
+        if (ghostBorders.length > 0) {
+          tl.fromTo(ghostBorders, 
+            { strokeDashoffset: 1000, opacity: 0 }, 
+            { strokeDashoffset: 0, opacity: 1, duration: 2, ease: "slow(0.7, 0.7, false)" }, 
+            "-=1.2"
+          );
+        }
       }
     });
   }, []);
 
   return (
     <div ref={containerRef} className="flex flex-col relative z-10 w-full">
-      {/* Navigation Dots - Using Portal to escape transformed parent container */}
+      {/* HUD Navigation - Floating Island at the bottom */}
       {typeof document !== 'undefined' && createPortal(
-        <div className={`fixed right-6 top-1/2 -translate-y-1/2 flex flex-col gap-5 z-[100] pointer-events-auto mix-blend-difference hidden md:flex transition-all duration-1000 ${loaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10 pointer-events-none'}`}>
+        <div className={`fixed left-1/2 -translate-x-1/2 bottom-8 flex items-center gap-1 p-1.5 rounded-2xl bg-[#1c2028]/80 border border-white/10 backdrop-blur-2xl z-[100] transition-all duration-1000 shadow-2xl ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
           {[1, 2, 3, 4, 5].map((num) => (
             <button
               key={num}
@@ -168,9 +178,11 @@ export default function Sections({ language, loaded }: { language: Language, loa
                 const section = document.getElementById(`section-${num}`);
                 if (section) section.scrollIntoView({ behavior: "smooth" });
               }}
-              className={`w-3 h-3 rounded-full transition-all duration-500 ease-out border border-white/50 hover:bg-white hover:scale-150 cursor-pointer ${activeSection === num ? "bg-white scale-125" : "bg-transparent"}`}
+              className={`px-4 py-2 rounded-xl transition-all duration-500 ease-out text-[10px] font-bold tracking-widest badge-font uppercase hover:bg-white/5 ${activeSection === num ? "bg-[var(--primary)] text-[#0b0e14]" : "text-white/40"}`}
               aria-label={`Scroll to section ${num}`}
-            />
+            >
+              {num === 1 ? (language === 'en' ? 'HOME' : 'INICIO') : num === 2 ? t.experience.tag : num === 3 ? t.skills.tag : num === 4 ? t.projects.tag : t.contact.tag}
+            </button>
           ))}
         </div>,
         document.body
@@ -179,11 +191,11 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 1: Hero */}
       <section
         id="section-1"
-        className="h-screen flex items-center justify-start px-12 md:px-24 relative overflow-hidden"
+        className="h-screen flex items-center justify-start px-12 md:px-24 relative overflow-hidden bg-[var(--background)]"
       >
 
         <div className="reveal-content max-w-2xl relative z-10">
-          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md shadow-[0_0_20px_rgba(52,211,153,0.05)]">
+          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md shadow-[0_0_20px_rgba(143,245,255,0.1)]">
             <Laptop size={14} /> {translations[language].hero.tag}
           </div>
 
@@ -196,7 +208,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
           <div className="stagger-item mt-12 flex items-center gap-6">
             <button 
                onClick={() => document.getElementById('section-4')?.scrollIntoView({ behavior: 'smooth' })}
-               className="px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-white/90 transition-all flex items-center gap-2 group"
+               className="px-8 py-4 bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] text-[#0b0e14] font-bold rounded-xl hover:scale-105 transition-all flex items-center gap-2 group shadow-[0_0_30px_rgba(143,245,255,0.2)]"
             >
               {translations[language].hero.viewWork}{" "}
               <ChevronRight
@@ -219,10 +231,10 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 2: Experience */}
       <section
         id="section-2"
-        className="min-h-screen py-32 px-12 md:px-24 relative overflow-hidden flex items-center"
+        className="min-h-screen py-32 px-12 md:px-24 relative overflow-hidden flex items-center bg-[#10131a]"
       >
         <div className="reveal-content w-full max-w-7xl mx-auto relative z-10">
-          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md shadow-[0_0_20px_rgba(52,211,153,0.05)]">
+          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--secondary)]/10 border border-[var(--secondary)]/20 text-[var(--secondary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md">
             <Briefcase size={14} /> {t.experience.tag}
           </div>
           <h2 className="stagger-item text-4xl md:text-6xl font-bold text-white mb-16 tracking-tight">
@@ -235,10 +247,23 @@ export default function Sections({ language, loaded }: { language: Language, loa
                 key={i}
                 className="stagger-item group p-6 md:p-8 lg:p-10 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/[0.08] hover:-translate-y-2 hover:border-white/20 transition-all duration-500 shadow-xl shadow-black/20 flex flex-col h-full relative overflow-hidden"
               >
-                <div className="absolute -inset-full bg-gradient-to-tr from-emerald-500/0 via-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-2xl pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                
+                {/* Ghost Border SVG */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
+                  <rect 
+                    x="0" y="0" width="100%" height="100%" 
+                    rx="24" ry="24"
+                    fill="none" 
+                    stroke="var(--primary)" 
+                    strokeWidth="1" 
+                    className="ghost-border opacity-20"
+                    style={{ strokeDasharray: 1000, strokeDashoffset: 1000 }}
+                  />
+                </svg>
 
                 <div className="mb-auto relative z-10">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] md:text-xs tracking-[0.15em] font-bold uppercase badge-font mb-6 shadow-[0_0_15px_rgba(52,211,153,0.05)]">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/20 text-[10px] md:text-xs tracking-[0.15em] font-bold uppercase badge-font mb-6 shadow-[0_0_15px_rgba(143,245,255,0.05)]">
                     {item.company}
                   </div>
                   <h3 className="text-xl md:text-2xl font-bold text-white mb-4 tracking-tight leading-snug">
@@ -253,8 +278,8 @@ export default function Sections({ language, loaded }: { language: Language, loa
                   <span>{item.date}</span>
                   <span className="flex items-center gap-2">
                     <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--primary)]"></span>
                     </span>
                     {t.experience.active}
                   </span>
@@ -268,7 +293,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 3: Skills */}
       <section
         id="section-3"
-        className="min-h-screen py-24 px-12 md:px-24 relative overflow-hidden flex items-center"
+        className="min-h-screen py-24 px-12 md:px-24 relative overflow-hidden flex items-center bg-[var(--background)]"
       >
         <div className="reveal-content w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10">
           <div className="hidden md:block pointer-events-none">
@@ -289,7 +314,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
           </div>
 
           <div className="text-right md:text-left max-w-xl md:max-w-none md:ml-auto pointer-events-auto">
-            <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md shadow-[0_0_20px_rgba(52,211,153,0.05)] md:ml-0 ml-auto">
+            <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--tertiary)]/10 border border-[var(--tertiary)]/20 text-[var(--tertiary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md md:ml-0 ml-auto">
               <Cpu size={14} /> {t.skills.tag}
             </div>
             <h2 className="stagger-item text-4xl md:text-6xl font-bold text-white mb-8 italic">
@@ -324,10 +349,10 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 4: Projects */}
       <section
         id="section-4"
-        className="min-h-screen py-32 px-12 md:px-24 relative overflow-hidden flex items-center"
+        className="min-h-screen py-32 px-12 md:px-24 relative overflow-hidden flex items-center bg-[#161a21]"
       >
         <div className="reveal-content relative z-10 w-full max-w-6xl mx-auto">
-          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md shadow-[0_0_20px_rgba(52,211,153,0.05)]">
+          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md">
             <Layout size={14} /> {t.projects.tag}
           </div>
           <h2 className="stagger-item text-4xl md:text-6xl font-bold text-white mb-16 tracking-tight">
@@ -359,8 +384,22 @@ export default function Sections({ language, loaded }: { language: Language, loa
             ].map((project, i) => (
               <div
                 key={i}
-                className="stagger-item group relative p-10 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl hover:bg-white/10 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+                className="stagger-item group relative p-10 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl hover:bg-white/10 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden"
               >
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                
+                {/* Ghost Border SVG */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
+                  <rect 
+                    x="0" y="0" width="100%" height="100%" 
+                    rx="24" ry="24"
+                    fill="none" 
+                    stroke="var(--primary)" 
+                    strokeWidth="1" 
+                    className="ghost-border opacity-20"
+                    style={{ strokeDasharray: 1000, strokeDashoffset: 1000 }}
+                  />
+                </svg>
                 <div>
                   <div className="flex justify-between items-start mb-6">
                     <h3 className="text-3xl font-bold text-white group-hover:text-white/80 transition-colors">
@@ -398,10 +437,10 @@ export default function Sections({ language, loaded }: { language: Language, loa
               <div className="text-left max-w-2xl relative z-10">
                 <div className="inline-flex items-center gap-4 mb-8">
                   <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--primary)]"></span>
                   </span>
-                  <span className="text-white/60 text-sm font-semibold uppercase tracking-widest group-hover:text-emerald-400/80 transition-colors">
+                  <span className="text-white/60 text-sm font-semibold uppercase tracking-widest group-hover:text-[var(--primary)] transition-colors">
                     {t.projects.personalized.status}
                   </span>
                 </div>
@@ -423,7 +462,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
                       key={label}
                       className="flex items-center gap-2 text-white/40 text-xs md:text-sm font-bold tracking-[0.1em] border border-white/10 px-4 py-2 rounded-full bg-white/5 group-hover:bg-white/10 group-hover:border-white/20 group-hover:text-white/90 transition-all duration-300 badge-font"
                     >
-                      <Icon size={16} className="text-emerald-400/50 group-hover:text-emerald-400 transition-colors" />
+                      <Icon size={16} className="text-[var(--primary)]/50 group-hover:text-[var(--primary)] transition-colors" />
                       {label}
                     </span>
                   ))}
@@ -432,7 +471,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
 
               <button 
                 onClick={() => document.getElementById('section-5')?.scrollIntoView({ behavior: 'smooth' })}
-                className="relative z-10 whitespace-nowrap px-8 py-5 bg-white text-black text-lg font-semibold rounded-full hover:scale-105 hover:bg-white/90 transition-transform flex items-center gap-3 shadow-lg shadow-white/5"
+                className="relative z-10 whitespace-nowrap px-8 py-5 bg-gradient-to-br from-[var(--secondary)] to-[var(--tertiary)] text-black text-lg font-bold rounded-xl hover:scale-105 transition-transform flex items-center gap-3 shadow-lg shadow-[var(--secondary)]/10"
               >
                 {translations[language].hero.letsTalk}{" "}
                 <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
@@ -445,10 +484,10 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 5: Contact */}
       <section
         id="section-5"
-        className="h-screen flex items-center justify-start px-12 md:px-24 relative overflow-hidden"
+        className="h-screen flex items-center justify-start px-12 md:px-24 relative overflow-hidden bg-[var(--background)]"
       >
         <div className="reveal-content max-w-xl relative z-10">
-          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md shadow-[0_0_20px_rgba(52,211,153,0.05)]">
+          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--tertiary)]/10 border border-[var(--tertiary)]/20 text-[var(--tertiary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md">
             <Mail size={14} /> {t.contact.tag}
           </div>
           <h2 className="stagger-item text-4xl md:text-6xl font-bold text-white mb-8">
@@ -466,7 +505,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
               <span className={`block transition-all duration-500 ${copied ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"}`}>
                 aoshi_blanco@outlook.com
               </span>
-              <span className={`absolute left-0 top-0 text-emerald-400 block transition-all duration-500 ${copied ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}`}>
+              <span className={`absolute left-0 top-0 text-[var(--primary)] block transition-all duration-500 ${copied ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}`}>
                 {t.contact.copied} ✓
               </span>
               <div className="absolute bottom-0 left-0 w-full h-[1px] bg-white/10 group-hover:bg-white/40 transition-colors" />
@@ -491,8 +530,8 @@ export default function Sections({ language, loaded }: { language: Language, loa
         <div className="absolute bottom-8 left-12 md:left-24 right-12 md:right-24 flex flex-col md:flex-row justify-between items-center gap-4 text-white/30 text-xs md:text-sm font-semibold tracking-widest uppercase z-10 pointer-events-none">
           <div className="flex items-center justify-center md:justify-start gap-3 md:flex-1">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--primary)]"></span>
             </span>
             {t.contact.based}{" "}
             {Intl.DateTimeFormat(language === 'en' ? "en-US" : "es-ES")

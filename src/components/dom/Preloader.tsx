@@ -63,7 +63,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
     // Faster fill at the end
     tl.to(paths, {
-      fill: "white",
+      fill: "#8ff5ff",
       duration: 0.2,
       ease: "power2.out"
     }, ">-0.03");
@@ -84,7 +84,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   }, [onComplete]);
 
   return (
-    <div className="preloader-bg fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center pointer-events-none">
+    <div className="preloader-bg fixed inset-0 z-[100] bg-[#0b0e14] flex flex-col items-center justify-center pointer-events-none">
       {/* Preloader background that fades out when the application is ready */}
       
       <div className="mb-12 select-none px-4">
@@ -112,9 +112,9 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       </div>
 
       {/* Optional: Very subtle progress indicator at the bottom */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 overflow-hidden w-48 h-[1px] bg-white/5">
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 overflow-hidden w-48 h-[1px] bg-[#8ff5ff]/10">
         <div 
-          className="h-full bg-white/40 transition-all duration-300 ease-out"
+          className="h-full bg-[#8ff5ff]/60 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(143,245,255,0.4)]"
           style={{ width: `${progress}%` }}
         />
       </div>

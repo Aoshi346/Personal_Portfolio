@@ -46,7 +46,7 @@ function App() {
       >
         <div className="flex items-center gap-3">
           {/* US Flag Icon */}
-          <div className={`relative w-5 h-5 rounded-full overflow-hidden border transition-all duration-500 ${lang === 'en' ? 'border-emerald-400 scale-110 shadow-[0_0_10px_rgba(52,211,153,0.3)]' : 'border-white/10 opacity-40 grayscale group-hover:opacity-80 group-hover:grayscale-0'}`}>
+          <div className={`relative w-5 h-5 rounded-full overflow-hidden border transition-all duration-500 ${lang === 'en' ? 'border-[var(--primary)] scale-110 shadow-[0_0_10px_rgba(143,245,255,0.3)]' : 'border-white/10 opacity-40 grayscale group-hover:opacity-80 group-hover:grayscale-0'}`}>
             <svg viewBox="0 0 100 100" className="w-full h-full">
               <rect width="100" height="100" fill="#B22234"/>
               <rect width="100" height="7.69" y="15.38" fill="#fff"/>
@@ -68,7 +68,7 @@ function App() {
           <div className="w-[1px] h-3 bg-white/10" />
 
           {/* Spain Flag Icon */}
-          <div className={`relative w-5 h-5 rounded-full overflow-hidden border transition-all duration-500 ${lang === 'es' ? 'border-emerald-400 scale-110 shadow-[0_0_10px_rgba(52,211,153,0.3)]' : 'border-white/10 opacity-40 grayscale group-hover:opacity-80 group-hover:grayscale-0'}`}>
+          <div className={`relative w-5 h-5 rounded-full overflow-hidden border transition-all duration-500 ${lang === 'es' ? 'border-[var(--primary)] scale-110 shadow-[0_0_10px_rgba(143,245,255,0.3)]' : 'border-white/10 opacity-40 grayscale group-hover:opacity-80 group-hover:grayscale-0'}`}>
             <svg viewBox="0 0 100 100" className="w-full h-full">
               <rect width="100" height="25" fill="#AD1519"/>
               <rect width="100" height="50" y="25" fill="#FABD00"/>
@@ -80,7 +80,7 @@ function App() {
         </div>
         
         {/* Subtle sliding background indicator for active language */}
-        <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--primary)]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       </button>
 
       <ReactLenis root options={{ lerp: 0.1, duration: 1.5, smoothWheel: true }}>
