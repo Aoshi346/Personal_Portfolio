@@ -183,7 +183,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
       >
 
         <div className="reveal-content max-w-2xl relative z-10">
-          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 text-[10px] md:text-xs tracking-widest uppercase">
+          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md shadow-[0_0_20px_rgba(52,211,153,0.05)]">
             <Laptop size={14} /> {translations[language].hero.tag}
           </div>
 
@@ -222,7 +222,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
         className="min-h-screen py-32 px-12 md:px-24 relative overflow-hidden flex items-center"
       >
         <div className="reveal-content w-full max-w-7xl mx-auto relative z-10">
-          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 text-xs uppercase tracking-widest">
+          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md shadow-[0_0_20px_rgba(52,211,153,0.05)]">
             <Briefcase size={14} /> {t.experience.tag}
           </div>
           <h2 className="stagger-item text-4xl md:text-6xl font-bold text-white mb-16 tracking-tight">
@@ -238,7 +238,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
                 <div className="absolute -inset-full bg-gradient-to-tr from-emerald-500/0 via-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-2xl pointer-events-none" />
 
                 <div className="mb-auto relative z-10">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] md:text-xs tracking-widest font-semibold uppercase mb-6">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] md:text-xs tracking-[0.15em] font-bold uppercase badge-font mb-6 shadow-[0_0_15px_rgba(52,211,153,0.05)]">
                     {item.company}
                   </div>
                   <h3 className="text-xl md:text-2xl font-bold text-white mb-4 tracking-tight leading-snug">
@@ -289,7 +289,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
           </div>
 
           <div className="text-right md:text-left max-w-xl md:max-w-none md:ml-auto pointer-events-auto">
-            <div className="stagger-item mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 text-xs md:ml-0 ml-auto">
+            <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md shadow-[0_0_20px_rgba(52,211,153,0.05)] md:ml-0 ml-auto">
               <Cpu size={14} /> {t.skills.tag}
             </div>
             <h2 className="stagger-item text-4xl md:text-6xl font-bold text-white mb-8 italic">
@@ -327,7 +327,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
         className="min-h-screen py-32 px-12 md:px-24 relative overflow-hidden flex items-center"
       >
         <div className="reveal-content relative z-10 w-full max-w-6xl mx-auto">
-          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 text-xs">
+          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md shadow-[0_0_20px_rgba(52,211,153,0.05)]">
             <Layout size={14} /> {t.projects.tag}
           </div>
           <h2 className="stagger-item text-4xl md:text-6xl font-bold text-white mb-16 tracking-tight">
@@ -380,7 +380,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
                     return (
                       <span
                         key={tag.name}
-                        className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full bg-white/5 text-white/50 border border-white/10 hover:bg-white/10 hover:text-white transition-colors cursor-default"
+                        className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] px-3 py-1.5 rounded-full bg-white/5 text-white/50 border border-white/10 hover:bg-white/10 hover:text-white transition-colors cursor-default badge-font"
                       >
                         <TagIcon size={12} />
                         {tag.name}
@@ -421,7 +421,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
                   ].map(({ label, Icon }) => (
                     <span
                       key={label}
-                      className="flex items-center gap-2 text-white/40 text-sm md:text-base font-light tracking-wide border border-white/10 px-4 py-2 rounded-full bg-white/5 group-hover:bg-white/10 group-hover:border-white/20 group-hover:text-white/90 transition-all duration-300"
+                      className="flex items-center gap-2 text-white/40 text-xs md:text-sm font-bold tracking-[0.1em] border border-white/10 px-4 py-2 rounded-full bg-white/5 group-hover:bg-white/10 group-hover:border-white/20 group-hover:text-white/90 transition-all duration-300 badge-font"
                     >
                       <Icon size={16} className="text-emerald-400/50 group-hover:text-emerald-400 transition-colors" />
                       {label}
@@ -448,7 +448,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
         className="h-screen flex items-center justify-start px-12 md:px-24 relative overflow-hidden"
       >
         <div className="reveal-content max-w-xl relative z-10">
-          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 text-xs">
+          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md shadow-[0_0_20px_rgba(52,211,153,0.05)]">
             <Mail size={14} /> {t.contact.tag}
           </div>
           <h2 className="stagger-item text-4xl md:text-6xl font-bold text-white mb-8">

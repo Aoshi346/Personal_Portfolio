@@ -15,7 +15,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     // Initial entrance for background
     gsap.to(".preloader-bg", {
       opacity: 1,
-      duration: 0.5,
+      duration: 0.3,
     });
 
     // Simulate progress and animate text
@@ -31,16 +31,16 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         exitTl.to(".hello-char", {
           opacity: 0,
           y: -20,
-          stagger: 0.02,
-          duration: 0.5,
+          stagger: 0.015,
+          duration: 0.3,
           ease: "power2.in"
         });
 
         exitTl.to(".preloader-bg", {
           opacity: 0,
-          duration: 0.8,
+          duration: 0.5,
           ease: "power4.inOut"
-        }, "-=0.3");
+        }, "-=0.2");
       }
     });
 
@@ -56,20 +56,20 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     tl.to(paths, {
       opacity: 1,
       strokeDashoffset: 0,
-      duration: 0.3,
-      stagger: 0.15, // Faster, overlapping sequential starts
+      duration: 0.2,
+      stagger: 0.08, // Faster, overlapping sequential starts
       ease: "power1.inOut",
-    }, 0.2);
+    }, 0.15);
 
     // Faster fill at the end
     tl.to(paths, {
       fill: "white",
-      duration: 0.4,
+      duration: 0.2,
       ease: "power2.out"
-    }, ">-0.05");
+    }, ">-0.03");
 
     tl.to({}, {
-      duration: 3.2, // Snappy overall duration
+      duration: 1.8, // Snappy overall duration
       onUpdate: function() {
         if (!isCancelled) {
           setProgress(Math.round(this.progress() * 100));
