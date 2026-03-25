@@ -111,6 +111,12 @@ export default function Sections({ language, loaded }: { language: Language, loa
       })
     : "Loading...";
 
+  const desktopPreviewSkill =
+    hoveredSkill ?? {
+      ...SKILLS[0],
+      desc: t.skillDescriptions[SKILLS[0].name as keyof typeof t.skillDescriptions] || "",
+    };
+
   const handleCopyEmail = () => {
     navigator.clipboard.writeText("aoshi_blanco@outlook.com");
     setCopied(true);
@@ -262,60 +268,55 @@ export default function Sections({ language, loaded }: { language: Language, loa
       {/* Section 3: Skills */}
       <section
         id="section-3"
-        className="h-screen flex items-center justify-end px-12 md:px-24 relative overflow-hidden"
+        className="min-h-screen py-24 px-12 md:px-24 relative overflow-hidden flex items-center"
       >
-        <div
-          className="absolute left-12 md:left-24 top-1/2 -translate-y-1/2 w-1/3 pointer-events-none transition-all duration-700 ease-out hidden md:block"
-          style={{
-            opacity: hoveredSkill ? 1 : 0,
-            transform: `translateY(${hoveredSkill ? "-50%" : "-45%"}) blur(${hoveredSkill ? "0px" : "10px"})`,
-          }}
-        >
-          {hoveredSkill &&
-            (() => {
-              const Icon = hoveredSkill.icon;
+        <div className="reveal-content w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10">
+          <div className="hidden md:block pointer-events-none">
+            {(() => {
+              const Icon = desktopPreviewSkill.icon;
               return (
-                <>
-                  <Icon size={80} className="text-white/10 mb-8" />
-                  <h3 className="text-5xl font-bold text-white mb-6">
-                    {hoveredSkill.name}
+                <div className="transition-all duration-500 ease-out">
+                  <Icon size={86} className="text-white/12 mb-8" />
+                  <h3 className="text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
+                    {desktopPreviewSkill.name}
                   </h3>
-                  <p className="text-white/40 text-2xl font-light leading-relaxed">
-                    {hoveredSkill.desc}
+                  <p className="text-white/45 text-xl lg:text-2xl font-light leading-relaxed max-w-xl">
+                    {desktopPreviewSkill.desc}
                   </p>
-                </>
-              );
-            })()}
-        </div>
-
-        <div className="reveal-content text-right max-w-xl relative z-10 ml-auto pointer-events-auto">
-          <div className="stagger-item mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 text-xs ml-auto">
-            <Cpu size={14} /> {t.skills.tag}
-          </div>
-          <h2 className="stagger-item text-4xl md:text-6xl font-bold text-white mb-8 italic">
-            {t.skills.title}
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {SKILLS.map((skill) => {
-              const Icon = skill.icon;
-              const skillDesc = t.skillDescriptions[skill.name as keyof typeof t.skillDescriptions] || "";
-              return (
-                <div
-                  key={skill.name}
-                  onMouseEnter={() => setHoveredSkill({ ...skill, desc: skillDesc })}
-                  onMouseLeave={() => setHoveredSkill(null)}
-                  className="stagger-item group p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/30 transition-all cursor-pointer flex flex-col items-center justify-center gap-4 backdrop-blur-md"
-                >
-                  <Icon
-                    size={32}
-                    className="text-white/40 group-hover:text-white transition-colors duration-300"
-                  />
-                  <span className="text-white/60 group-hover:text-white text-sm font-semibold tracking-wide transition-colors duration-300">
-                    {skill.name}
-                  </span>
                 </div>
               );
-            })}
+            })()}
+          </div>
+
+          <div className="text-right md:text-left max-w-xl md:max-w-none md:ml-auto pointer-events-auto">
+            <div className="stagger-item mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 text-xs md:ml-0 ml-auto">
+              <Cpu size={14} /> {t.skills.tag}
+            </div>
+            <h2 className="stagger-item text-4xl md:text-6xl font-bold text-white mb-8 italic">
+              {t.skills.title}
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {SKILLS.map((skill) => {
+                const Icon = skill.icon;
+                const skillDesc = t.skillDescriptions[skill.name as keyof typeof t.skillDescriptions] || "";
+                return (
+                  <div
+                    key={skill.name}
+                    onMouseEnter={() => setHoveredSkill({ ...skill, desc: skillDesc })}
+                    onMouseLeave={() => setHoveredSkill(null)}
+                    className="stagger-item group p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/30 transition-all cursor-pointer flex flex-col items-center justify-center gap-4 backdrop-blur-md"
+                  >
+                    <Icon
+                      size={32}
+                      className="text-white/40 group-hover:text-white transition-colors duration-300"
+                    />
+                    <span className="text-white/60 group-hover:text-white text-sm font-semibold tracking-wide transition-colors duration-300">
+                      {skill.name}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
