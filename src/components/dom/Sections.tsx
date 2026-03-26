@@ -52,13 +52,29 @@ const MagneticButton = ({
 }) => {
   const rootRef = useRef<HTMLAnchorElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const xToRef = useRef<((value: number) => void) | null>(null);
+  const yToRef = useRef<((value: number) => void) | null>(null);
+
+  useEffect(() => {
+    if (!contentRef.current) return;
+
+    xToRef.current = gsap.quickTo(contentRef.current, "x", {
+      duration: 0.22,
+      ease: "power3.out",
+    });
+    yToRef.current = gsap.quickTo(contentRef.current, "y", {
+      duration: 0.22,
+      ease: "power3.out",
+    });
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     const rect = rootRef.current?.getBoundingClientRect();
     if (!rect || !contentRef.current) return;
-    const x = (e.clientX - (rect.left + rect.width / 2)) * 0.4;
-    const y = (e.clientY - (rect.top + rect.height / 2)) * 0.4;
-    gsap.to(contentRef.current, { x, y, duration: 0.8, ease: "power3.out" });
+    const x = (e.clientX - (rect.left + rect.width / 2)) * 0.28;
+    const y = (e.clientY - (rect.top + rect.height / 2)) * 0.28;
+    xToRef.current?.(x);
+    yToRef.current?.(y);
   };
 
   const handleMouseLeave = () => {
@@ -66,8 +82,8 @@ const MagneticButton = ({
     gsap.to(contentRef.current, {
       x: 0,
       y: 0,
-      duration: 0.8,
-      ease: "elastic.out(1, 0.3)",
+      duration: 0.42,
+      ease: "elastic.out(1, 0.5)",
     });
   };
 
@@ -124,52 +140,81 @@ export default function Sections({ language, loaded }: { language: Language, loa
   };
 
   useEffect(() => {
-    const sections = gsap.utils.toArray<HTMLElement>("section");
+    if (!containerRef.current) return;
 
-    sections.forEach((section, index) => {
-      const content = section.querySelector(".reveal-content");
-      const items = section.querySelectorAll(".stagger-item");
-      const revealTexts = section.querySelectorAll(".reveal-text");
+    const ctx = gsap.context(() => {
+      const sections = Array.from(containerRef.current?.querySelectorAll("section") ?? []);
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-          start: "top 70%",
-          toggleActions: "play none none reverse",
-          onEnter: () => setActiveSection(index + 1),
-          onEnterBack: () => setActiveSection(index + 1),
-        },
-      });
+      sections.forEach((section, index) => {
+        const content = section.querySelector(".reveal-content");
+        const items = section.querySelectorAll(".stagger-item");
+        const revealTexts = section.querySelectorAll(".reveal-text");
 
-      if (revealTexts.length > 0) {
-        tl.fromTo(revealTexts, 
-          { y: "110%", rotate: 3 }, 
-          { y: "0%", rotate: 0, duration: 0.9, stagger: 0.15, ease: "expo.out" }
-        );
-      }
+        const tl = gsap.timeline({
+          defaults: { ease: "power3.out" },
+          scrollTrigger: {
+            trigger: section,
+            start: "top 78%",
+            toggleActions: "play none none reverse",
+            fastScrollEnd: true,
+            onEnter: () => setActiveSection(index + 1),
+            onEnterBack: () => setActiveSection(index + 1),
+          },
+        });
 
-      tl.fromTo(content, { y: 100, opacity: 0, rotateX: -20 }, { y: 0, opacity: 1, rotateX: 0, duration: 0.8, ease: "expo.out" }, "-=0.6");
-
-      if (items.length > 0) {
-        tl.fromTo(
-          items,
-          { y: 60, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.7, stagger: 0.08, ease: "expo.out" },
-          "-=0.6",
-        );
-
-        // Animate Ghost Borders
-        const ghostBorders = section.querySelectorAll(".ghost-border");
-        if (ghostBorders.length > 0) {
-          tl.fromTo(ghostBorders, 
-            { strokeDashoffset: 1000, opacity: 0 }, 
-            { strokeDashoffset: 0, opacity: 1, duration: 2, ease: "slow(0.7, 0.7, false)" }, 
-            "-=1.2"
+        if (revealTexts.length > 0) {
+          tl.fromTo(
+            revealTexts,
+            { y: "110%", rotate: 2.5 },
+            { y: "0%", rotate: 0, duration: 0.58, stagger: 0.09, ease: "back.out(1.35)" },
           );
         }
+
+        if (content) {
+          tl.fromTo(
+            content,
+            { y: 72, opacity: 0, rotateX: -10 },
+            { y: 0, opacity: 1, rotateX: 0, duration: 0.48 },
+            "-=0.28",
+          );
+        }
+
+        if (items.length > 0) {
+          tl.fromTo(
+            items,
+            { y: 40, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.42, stagger: 0.05, ease: "power2.out" },
+            "-=0.28",
+          );
+
+          const ghostBorders = section.querySelectorAll(".ghost-border");
+          if (ghostBorders.length > 0) {
+            tl.fromTo(
+              ghostBorders,
+              { strokeDashoffset: 1000, opacity: 0 },
+              { strokeDashoffset: 0, opacity: 0.6, duration: 0.95, ease: "power2.out" },
+              "-=0.36",
+            );
+          }
+        }
+      });
+
+      if (loaded && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        gsap.to(".hero-cta", {
+          y: -5,
+          duration: 1.2,
+          ease: "sine.inOut",
+          repeat: -1,
+          yoyo: true,
+        });
       }
-    });
-  }, []);
+    }, containerRef);
+
+    return () => {
+      ctx.revert();
+      ScrollTrigger.clearScrollMemory();
+    };
+  }, [loaded]);
 
   return (
     <div ref={containerRef} className="flex flex-col relative z-10 w-full bg-transparent">
@@ -205,7 +250,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
               <span className="block reveal-text uppercase italic">Aoshi Blanco</span>
             </div>
           </h1>
-          <h2 className="stagger-item text-7xl md:text-9xl font-black tracking-tighter text-white leading-[0.85] badge-font mb-8">
+          <h2 className="stagger-item text-[clamp(2.75rem,6.9vw,5.6rem)] font-black tracking-tighter text-white leading-[0.88] badge-font mb-8 max-w-[11ch]">
             <div className="overflow-hidden">
                <span className="block reveal-text">{translations[language].hero.role.split(' ')[0]}</span>
             </div>
@@ -219,7 +264,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
           <div className="stagger-item mt-12 flex items-center gap-6">
             <button 
                onClick={() => document.getElementById('section-4')?.scrollIntoView({ behavior: 'smooth' })}
-               className="px-8 py-4 bg-white text-[#0b0e14] font-bold rounded-xl hover:scale-105 transition-all flex items-center gap-2 group shadow-2xl"
+              className="hero-cta px-8 py-4 bg-white text-[#0b0e14] font-bold rounded-xl hover:scale-105 transition-all flex items-center gap-2 group shadow-2xl"
             >
               {translations[language].hero.viewWork}{" "}
               <ChevronRight

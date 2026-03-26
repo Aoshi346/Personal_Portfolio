@@ -14,7 +14,7 @@
 
   color-scheme: dark;
   color: var(--text);
-  background-color: transparent;
+  background-color: var(--background);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -39,7 +39,7 @@ h1, h2, h3, h4, h5, h6 {
 
 body {
   margin: 0;
-  background-color: transparent;
+  background-color: var(--background);
   min-width: 320px;
   min-height: 100vh;
   overflow-x: hidden;

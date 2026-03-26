@@ -31,7 +31,6 @@ function App() {
 
   return (
     <>
-      
       {!loaded && <Preloader onComplete={handleLoaded} language={lang} />}
       <CustomCursor />
       
