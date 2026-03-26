@@ -139,6 +139,22 @@ const MagneticButton = ({
   );
 };
 
+const SplitText = ({ text, className = "" }: { text: string; className?: string }) => {
+  return (
+    <span className={`inline-block whitespace-nowrap ${className}`}>
+      {text.split("").map((char, i) => (
+        <span
+          key={i}
+          className="reveal-text inline-block"
+          style={{ display: char === " " ? "inline" : "inline-block" }}
+        >
+          {char === " " ? "\u00A0" : char}
+        </span>
+      ))}
+    </span>
+  );
+};
+
 export default function Sections({ language, loaded }: { language: Language, loaded: boolean }) {
   const t = translations[language].sections;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -185,51 +201,92 @@ export default function Sections({ language, loaded }: { language: Language, loa
         const items = section.querySelectorAll(".stagger-item");
         const revealTexts = section.querySelectorAll(".reveal-text");
 
+        // Main section timeline
         const tl = gsap.timeline({
-          defaults: { ease: "power3.out" },
           scrollTrigger: {
             trigger: section,
-            start: "top 82%",
+            start: "top 88%", // Trigger a bit later to ensure it's in view
             toggleActions: "play none none none",
             once: true,
-            fastScrollEnd: true,
             onEnter: () => setActiveSection(index + 1),
-            onEnterBack: () => setActiveSection(index + 1),
           },
         });
 
         if (revealTexts.length > 0) {
+          // Enhanced Text Reveal
           tl.fromTo(
             revealTexts,
-            { y: "105%", rotate: 2 },
-            { y: "0%", rotate: 0, duration: 0.54, stagger: 0.085, ease: "expo.out" },
+            { 
+              y: "120%", 
+              rotate: 3,
+              opacity: 0,
+              skewY: 7
+            },
+            { 
+              y: "0%", 
+              rotate: 0, 
+              opacity: 1,
+              skewY: 0,
+              duration: 1.2, 
+              stagger: 0.1, 
+              ease: "expo.out" 
+            }
           );
 
           if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
             tl.call(() => {
               revealTexts.forEach((node, i) => {
                 const el = node as HTMLElement;
-                gsap.delayedCall(i * 0.06, () => scrambleText(el, 0.58));
+                // Only scramble if it's not too long to keep it readable
+                if (el.textContent && el.textContent.length < 50) {
+                  gsap.delayedCall(i * 0.1, () => scrambleText(el, 0.8));
+                }
               });
-            }, [], 0.08);
+            }, [], 0.2);
           }
         }
 
         if (content) {
           tl.fromTo(
             content,
-            { y: 54, opacity: 0, rotateX: -8 },
-            { y: 0, opacity: 1, rotateX: 0, duration: 0.44, ease: "power3.out" },
-            "-=0.24",
+            { 
+              y: 80, 
+              opacity: 0, 
+              rotateX: -15,
+              scale: 0.98
+            },
+            { 
+              y: 0, 
+              opacity: 1, 
+              rotateX: 0, 
+              scale: 1,
+              duration: 1.4, 
+              ease: "power4.out" 
+            },
+            "-=0.9"
           );
         }
 
         if (items.length > 0) {
           tl.fromTo(
             items,
-            { y: 28, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.4, stagger: 0.045, ease: "power3.out" },
-            "-=0.26",
+            { 
+              y: 40, 
+              opacity: 0,
+              scale: 0.95
+            },
+            { 
+              y: 0, 
+              opacity: 1, 
+              scale: 1,
+              duration: 1, 
+              stagger: {
+                amount: 0.6,
+                ease: "power2.out"
+              }, 
+              ease: "power3.out" 
+            },
+            "-=1.1"
           );
 
           const ghostBorders = section.querySelectorAll(".ghost-border");
@@ -237,33 +294,45 @@ export default function Sections({ language, loaded }: { language: Language, loa
             tl.fromTo(
               ghostBorders,
               { strokeDashoffset: 1000, opacity: 0 },
-              { strokeDashoffset: 0, opacity: 0.5, duration: 0.82, ease: "power2.out" },
-              "-=0.34",
+              { 
+                strokeDashoffset: 0, 
+                opacity: 0.6, 
+                duration: 1.8, 
+                ease: "power2.inOut" 
+              },
+              "-=1.2"
             );
           }
         }
       });
 
+      // Special Floating Animation for Hero CTA
       if (loaded && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         gsap.to(".hero-cta", {
-          y: -5,
-          duration: 0.75,
+          y: -8,
+          duration: 2,
           ease: "sine.inOut",
           repeat: -1,
           yoyo: true,
-          scrollTrigger: {
-            trigger: "#section-1",
-            start: "top bottom",
-            end: "bottom top",
-            toggleActions: "play pause resume pause",
-          },
         });
       }
+
+      // Smooth scroll parallax for background accents if they exist
+      gsap.to(".bg-accent", {
+        y: (i, target) => -100 * (i + 1),
+        ease: "none",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: true
+        }
+      });
+
     }, containerRef);
 
     return () => {
       ctx.revert();
-      ScrollTrigger.clearScrollMemory();
     };
   }, [loaded]);
 
@@ -298,15 +367,15 @@ export default function Sections({ language, loaded }: { language: Language, loa
         <div className="reveal-content max-w-2xl relative z-10">
           <h1 className="stagger-item text-4xl md:text-5xl font-bold tracking-tight text-[var(--primary)] badge-font mb-4">
             <div className="overflow-hidden">
-              <span className="block reveal-text uppercase italic">Aoshi Blanco</span>
+              <SplitText text="Aoshi Blanco" className="uppercase italic" />
             </div>
           </h1>
           <h2 className="stagger-item text-[clamp(2.2rem,6.4vw,4.8rem)] md:text-[clamp(2.9rem,7.5vw,5.75rem)] font-black tracking-tighter text-white leading-[1] badge-font mb-8 max-w-[min(90vw,18ch)] md:max-w-[min(90vw,22ch)]">
             <div className="overflow-hidden">
-               <span className="block reveal-text text-[inherit] md:text-[inherit] whitespace-nowrap">{translations[language].hero.role.split(' ')[0]}</span>
+               <SplitText text={translations[language].hero.role.split(' ')[0]} />
             </div>
             <div className="overflow-hidden">
-               <span className="block reveal-text outline-text text-[inherit] md:text-[inherit] whitespace-nowrap">{translations[language].hero.role.split(' ').slice(1).join(' ')}</span>
+               <SplitText text={translations[language].hero.role.split(' ').slice(1).join(' ')} className="outline-text" />
             </div>
           </h2>
           <p className="stagger-item text-xl md:text-2xl text-white/50 mt-4 font-light leading-relaxed">
@@ -346,7 +415,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
           </div>
           <h2 className="stagger-item text-5xl md:text-7xl font-bold text-white mb-16 tracking-tighter badge-font">
             <div className="overflow-hidden">
-               <span className="block reveal-text uppercase italic">{t.experience.title}</span>
+               <SplitText text={t.experience.title} className="uppercase italic" />
             </div>
           </h2>
 
@@ -428,7 +497,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
             </div>
             <h2 className="stagger-item text-5xl md:text-7xl font-bold text-white mb-8 italic uppercase badge-font tracking-tighter">
               <div className="overflow-hidden">
-                <span className="block reveal-text">{t.skills.title}</span>
+                <SplitText text={t.skills.title} />
               </div>
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -468,7 +537,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
           </div>
           <h2 className="stagger-item text-5xl md:text-7xl font-bold text-white mb-16 tracking-tighter badge-font uppercase italic">
             <div className="overflow-hidden">
-              <span className="block reveal-text">{t.projects.title}</span>
+              <SplitText text={t.projects.title} />
             </div>
           </h2>
 

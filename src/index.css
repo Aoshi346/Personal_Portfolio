@@ -31,6 +31,28 @@
   color: transparent;
 }
 
+/* Character & Word Stagger Utilities */
+.char-wrap {
+  display: inline-block;
+}
+
+.word-wrap {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.line-mask {
+  overflow: hidden;
+  display: block;
+}
+
+.animate-reveal {
+  display: inline-block;
+  transform: translateY(110%) rotate(4deg);
+  opacity: 0;
+  transform-origin: left bottom;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
