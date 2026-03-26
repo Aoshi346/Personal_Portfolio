@@ -588,9 +588,9 @@ export default function Sections({ language, loaded }: { language: Language, loa
       </section>
 
       {/* Spacing & Live Footer */}
-      <div className="h-[20vh] relative">
-        <div className="absolute bottom-8 left-12 md:left-24 right-12 md:right-24 flex flex-col md:flex-row justify-between items-center gap-4 text-white/30 text-xs md:text-sm font-semibold tracking-widest uppercase z-10 pointer-events-none">
-          <div className="flex items-center justify-center md:justify-start gap-3 md:flex-1">
+      <div className="h-[26vh] relative">
+        <div className="fixed bottom-14 left-4 md:bottom-16 md:left-8 right-4 md:right-8 flex flex-row flex-wrap justify-between items-center gap-3 text-white/50 text-xs md:text-sm font-semibold tracking-widest uppercase z-[210] pointer-events-none">
+          <span className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--primary)]"></span>
@@ -601,15 +601,9 @@ export default function Sections({ language, loaded }: { language: Language, loa
               .timeZone.split("/")
               .pop()
               ?.replace("_", " ") || "Your City"}
-          </div>
+          </span>
 
-          <div className="md:flex-1 text-center text-white/50 lowercase">
-            {t.contact.developedBy} Aoshi Blanco
-          </div>
-
-          <div className="md:flex-1 text-center md:text-right">
-            {formattedTime} {t.contact.time}
-          </div>
+          <span>{formattedTime} {t.contact.time}</span>
         </div>
       </div>
     </div>
