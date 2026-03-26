@@ -80,7 +80,7 @@ export const translations = {
   es: {
     hero: {
       tag: "DISPONIBLE PARA PROYECTOS",
-      role: "DESARROLLADOR FULL-STACK",
+      role: "FULL-STACK DEVELOPER",
       bio: "Estudiante de Ingeniería de Sistemas de 9no semestre, especializado en la construcción de arquitecturas web modernas y de alto rendimiento. Enfocado en crear interfaces de usuario ágiles, atractivas y altamente funcionales con React, Django y tecnologías modernas.",
       viewWork: "Ver Proyectos",
       letsTalk: "Hablemos",

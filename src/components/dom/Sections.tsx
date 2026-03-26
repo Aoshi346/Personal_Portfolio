@@ -250,12 +250,12 @@ export default function Sections({ language, loaded }: { language: Language, loa
               <span className="block reveal-text uppercase italic">Aoshi Blanco</span>
             </div>
           </h1>
-          <h2 className="stagger-item text-[clamp(2.75rem,6.9vw,5.6rem)] font-black tracking-tighter text-white leading-[0.88] badge-font mb-8 max-w-[11ch]">
+          <h2 className="stagger-item text-[clamp(2.2rem,6.4vw,4.8rem)] md:text-[clamp(2.9rem,7.5vw,5.75rem)] font-black tracking-tighter text-white leading-[1] badge-font mb-8 max-w-[min(90vw,18ch)] md:max-w-[min(90vw,22ch)]">
             <div className="overflow-hidden">
-               <span className="block reveal-text">{translations[language].hero.role.split(' ')[0]}</span>
+               <span className="block reveal-text text-[inherit] md:text-[inherit] whitespace-nowrap">{translations[language].hero.role.split(' ')[0]}</span>
             </div>
             <div className="overflow-hidden">
-               <span className="block reveal-text outline-text">{translations[language].hero.role.split(' ').slice(1).join(' ')}</span>
+               <span className="block reveal-text outline-text text-[inherit] md:text-[inherit] whitespace-nowrap">{translations[language].hero.role.split(' ').slice(1).join(' ')}</span>
             </div>
           </h2>
           <p className="stagger-item text-xl md:text-2xl text-white/50 mt-4 font-light leading-relaxed">
