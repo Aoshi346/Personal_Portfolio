@@ -31,6 +31,40 @@ import { Language, translations } from "../../constants/translations";
 
 gsap.registerPlugin(ScrollTrigger);
 
+const SCRAMBLE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+const scrambleText = (element: HTMLElement, duration = 0.62) => {
+  const finalText = element.dataset.finalText ?? element.textContent ?? "";
+  element.dataset.finalText = finalText;
+
+  const state = { progress: 0 };
+  gsap.to(state, {
+    progress: 1,
+    duration,
+    ease: "power2.out",
+    onUpdate: () => {
+      const revealCount = Math.floor(finalText.length * state.progress);
+      let output = "";
+
+      for (let i = 0; i < finalText.length; i++) {
+        const ch = finalText[i];
+        const isFixed = ch === " " || ch === "-" || ch === "_";
+
+        if (isFixed || i < revealCount) {
+          output += ch;
+        } else {
+          output += SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+        }
+      }
+
+      element.textContent = output;
+    },
+    onComplete: () => {
+      element.textContent = finalText;
+    },
+  });
+};
+
 const SKILLS = [
   { name: "React", icon: SiReact },
   { name: "Next.js", icon: SiNextdotjs },
@@ -59,12 +93,12 @@ const MagneticButton = ({
     if (!contentRef.current) return;
 
     xToRef.current = gsap.quickTo(contentRef.current, "x", {
-      duration: 0.22,
-      ease: "power3.out",
+      duration: 0.16,
+      ease: "power4.out",
     });
     yToRef.current = gsap.quickTo(contentRef.current, "y", {
-      duration: 0.22,
-      ease: "power3.out",
+      duration: 0.16,
+      ease: "power4.out",
     });
   }, []);
 
@@ -82,8 +116,8 @@ const MagneticButton = ({
     gsap.to(contentRef.current, {
       x: 0,
       y: 0,
-      duration: 0.42,
-      ease: "elastic.out(1, 0.5)",
+      duration: 0.28,
+      ease: "back.out(1.8)",
     });
   };
 
@@ -143,6 +177,7 @@ export default function Sections({ language, loaded }: { language: Language, loa
     if (!containerRef.current) return;
 
     const ctx = gsap.context(() => {
+      gsap.defaults({ overwrite: "auto" });
       const sections = Array.from(containerRef.current?.querySelectorAll("section") ?? []);
 
       sections.forEach((section, index) => {
@@ -154,8 +189,9 @@ export default function Sections({ language, loaded }: { language: Language, loa
           defaults: { ease: "power3.out" },
           scrollTrigger: {
             trigger: section,
-            start: "top 78%",
-            toggleActions: "play none none reverse",
+            start: "top 82%",
+            toggleActions: "play none none none",
+            once: true,
             fastScrollEnd: true,
             onEnter: () => setActiveSection(index + 1),
             onEnterBack: () => setActiveSection(index + 1),
@@ -165,26 +201,35 @@ export default function Sections({ language, loaded }: { language: Language, loa
         if (revealTexts.length > 0) {
           tl.fromTo(
             revealTexts,
-            { y: "110%", rotate: 2.5 },
-            { y: "0%", rotate: 0, duration: 0.58, stagger: 0.09, ease: "back.out(1.35)" },
+            { y: "105%", rotate: 2 },
+            { y: "0%", rotate: 0, duration: 0.54, stagger: 0.085, ease: "expo.out" },
           );
+
+          if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            tl.call(() => {
+              revealTexts.forEach((node, i) => {
+                const el = node as HTMLElement;
+                gsap.delayedCall(i * 0.06, () => scrambleText(el, 0.58));
+              });
+            }, [], 0.08);
+          }
         }
 
         if (content) {
           tl.fromTo(
             content,
-            { y: 72, opacity: 0, rotateX: -10 },
-            { y: 0, opacity: 1, rotateX: 0, duration: 0.48 },
-            "-=0.28",
+            { y: 54, opacity: 0, rotateX: -8 },
+            { y: 0, opacity: 1, rotateX: 0, duration: 0.44, ease: "power3.out" },
+            "-=0.24",
           );
         }
 
         if (items.length > 0) {
           tl.fromTo(
             items,
-            { y: 40, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.42, stagger: 0.05, ease: "power2.out" },
-            "-=0.28",
+            { y: 28, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.4, stagger: 0.045, ease: "power3.out" },
+            "-=0.26",
           );
 
           const ghostBorders = section.querySelectorAll(".ghost-border");
@@ -192,8 +237,8 @@ export default function Sections({ language, loaded }: { language: Language, loa
             tl.fromTo(
               ghostBorders,
               { strokeDashoffset: 1000, opacity: 0 },
-              { strokeDashoffset: 0, opacity: 0.6, duration: 0.95, ease: "power2.out" },
-              "-=0.36",
+              { strokeDashoffset: 0, opacity: 0.5, duration: 0.82, ease: "power2.out" },
+              "-=0.34",
             );
           }
         }
@@ -202,10 +247,16 @@ export default function Sections({ language, loaded }: { language: Language, loa
       if (loaded && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         gsap.to(".hero-cta", {
           y: -5,
-          duration: 1.2,
+          duration: 0.75,
           ease: "sine.inOut",
           repeat: -1,
           yoyo: true,
+          scrollTrigger: {
+            trigger: "#section-1",
+            start: "top bottom",
+            end: "bottom top",
+            toggleActions: "play pause resume pause",
+          },
         });
       }
     }, containerRef);
