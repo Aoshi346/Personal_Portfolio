@@ -80,6 +80,69 @@ canvas {
   height: auto;
 }
 
+/* Masking & Clipping */
+.mask-reveal {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+  display: block;
+  overflow: hidden;
+}
+
+/* Horizontal Scroll Support */
+.horizontal-scroll-section {
+  width: 100%;
+  overflow: hidden;
+}
+
+.horizontal-scroll-container {
+  display: flex;
+  flex-wrap: nowrap;
+  width: fit-content;
+}
+
+.project-card-horizontal {
+  width: 90vw;
+  flex-shrink: 0;
+  padding: 0 5vw;
+}
+
+/* Footer Reveal Architecture */
+.main-wrapper {
+  position: relative;
+  z-index: 2;
+  background-color: var(--background);
+  margin-bottom: 100vh; /* Replaced by GSAP padding but good for fallback */
+}
+
+.footer-reveal-section {
+  position: sticky;
+  bottom: 0;
+  height: 100vh;
+  z-index: 1;
+}
+
+/* Document Parsing Effect (TesisFar) */
+.scanning-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  box-shadow: 0 0 15px var(--primary);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tesisfar-card:hover .scanning-overlay {
+  animation: scanning 2s linear infinite;
+  opacity: 0.8;
+}
+
+@keyframes scanning {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+
 .lenis.lenis-smooth [data-lenis-prevent] {
   overscroll-behavior: contain;
 }
