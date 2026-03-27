@@ -43,10 +43,11 @@ export default function Sections({
   useEffect(() => {
     if (!containerRef.current) return;
 
+    const mm = gsap.matchMedia();
     const ctx = gsap.context(() => {
       gsap.defaults({ overwrite: "auto" });
       const sections = Array.from(
-        containerRef.current?.querySelectorAll("section") ?? []
+        containerRef.current?.querySelectorAll("section") ?? [],
       );
 
       sections.forEach((section, index) => {
@@ -77,7 +78,7 @@ export default function Sections({
               duration: 0.54,
               stagger: 0.085,
               ease: "expo.out",
-            }
+            },
           );
 
           if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -89,7 +90,7 @@ export default function Sections({
                 });
               },
               [],
-              0.08
+              0.08,
             );
           }
         }
@@ -98,8 +99,14 @@ export default function Sections({
           tl.fromTo(
             content,
             { y: 54, opacity: 0, rotateX: -8 },
-            { y: 0, opacity: 1, rotateX: 0, duration: 0.44, ease: "power3.out" },
-            "-=0.24"
+            {
+              y: 0,
+              opacity: 1,
+              rotateX: 0,
+              duration: 0.44,
+              ease: "power3.out",
+            },
+            "-=0.24",
           );
         }
 
@@ -114,7 +121,7 @@ export default function Sections({
               stagger: 0.045,
               ease: "power3.out",
             },
-            "-=0.26"
+            "-=0.26",
           );
 
           const ghostBorders = section.querySelectorAll(".ghost-border");
@@ -128,7 +135,7 @@ export default function Sections({
                 duration: 0.82,
                 ease: "power2.out",
               },
-              "-=0.34"
+              "-=0.34",
             );
           }
         }
@@ -156,7 +163,7 @@ export default function Sections({
 
     return () => {
       ctx.revert();
-      ScrollTrigger.clearScrollMemory();
+      mm.revert();
     };
   }, [loaded]);
 
@@ -192,16 +199,16 @@ export default function Sections({
                     ? "HOME"
                     : "INICIO"
                   : num === 2
-                  ? t.experience.tag
-                  : num === 3
-                  ? t.skills.tag
-                  : num === 4
-                  ? t.projects.tag
-                  : t.contact.tag}
+                    ? t.experience.tag
+                    : num === 3
+                      ? t.skills.tag
+                      : num === 4
+                        ? t.projects.tag
+                        : t.contact.tag}
               </button>
             ))}
           </div>,
-          document.body
+          document.body,
         )}
 
       <Hero language={language} />
@@ -231,6 +238,38 @@ export default function Sections({
           </span>
         </div>
       </div>
+
+      {typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className={`fixed left-1/2 -translate-x-1/2 bottom-8 flex items-center gap-1 p-1.5 rounded-2xl bg-[#1c2028]/80 border border-white/10 backdrop-blur-2xl z-[100] transition-all duration-1000 shadow-2xl ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+          >
+            {[1, 2, 3, 4, 5].map((num) => (
+              <button
+                key={num}
+                onClick={() => {
+                  const section = document.getElementById(`section-${num}`);
+                  if (section) section.scrollIntoView({ behavior: "smooth" });
+                }}
+                className={`px-4 py-2 rounded-xl transition-all duration-500 ease-out text-[10px] font-bold tracking-widest badge-font uppercase hover:bg-white/5 ${activeSection === num ? "bg-[var(--primary)] text-[#0b0e14]" : "text-white/40"}`}
+                aria-label={`Scroll to section ${num}`}
+              >
+                {num === 1
+                  ? language === "en"
+                    ? "HOME"
+                    : "INICIO"
+                  : num === 2
+                    ? t.experience.tag
+                    : num === 3
+                      ? t.skills.tag
+                      : num === 4
+                        ? t.projects.tag
+                        : t.contact.tag}
+              </button>
+            ))}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
