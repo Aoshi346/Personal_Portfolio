@@ -37,24 +37,51 @@ const FILE_EXT: Record<string, string> = {
   "Tailwind": "styles.css",
 };
 
-// Code snippets per skill (2 lines, syntax-hinted as plain strings)
-const CODE_SNIPPETS: Record<string, { lines: { token: string; color: string }[][] }> = {
-  "React":    { lines: [[{ token: "const", color: "#c678dd" }, { token: " App ", color: "#abb2bf" }, { token: "=", color: "#56b6c2" }, { token: " () =>", color: "#c678dd" }, { token: " <Root />", color: "#e06c75" }], [{ token: "export default", color: "#c678dd" }, { token: " App", color: "#61afef" }]] },
-  "Next.js":  { lines: [[{ token: "export default", color: "#c678dd" }, { token: " function", color: "#c678dd" }, { token: " Page", color: "#61afef" }, { token: "()", color: "#abb2bf" }, { token: " {}", color: "#abb2bf" }], [{ token: "// App Router · RSC", color: "#5c6370" }]] },
-  "Three.js": { lines: [[{ token: "const", color: "#c678dd" }, { token: " scene ", color: "#abb2bf" }, { token: "=", color: "#56b6c2" }, { token: " new", color: "#c678dd" }, { token: " THREE.Scene()", color: "#61afef" }], [{ token: "renderer", color: "#abb2bf" }, { token: ".render(", color: "#56b6c2" }, { token: "scene, camera", color: "#e5c07b" }, { token: ")", color: "#abb2bf" }]] },
-  "GSAP":     { lines: [[{ token: "gsap", color: "#61afef" }, { token: ".to(", color: "#56b6c2" }, { token: "el", color: "#e5c07b" }, { token: ", { x:", color: "#abb2bf" }, { token: " 100", color: "#d19a66" }, { token: ", ease:", color: "#abb2bf" }, { token: ' "power3"', color: "#98c379" }, { token: " })", color: "#abb2bf" }], [{ token: "// 120fps · GPU composited", color: "#5c6370" }]] },
-  "Node.js":  { lines: [[{ token: "app", color: "#61afef" }, { token: ".get(", color: "#56b6c2" }, { token: '"/api"', color: "#98c379" }, { token: ", (req, res) =>", color: "#abb2bf" }, { token: " {}", color: "#abb2bf" }], [{ token: "// Express · REST · async", color: "#5c6370" }]] },
-  "Python":   { lines: [[{ token: "def", color: "#c678dd" }, { token: " solve", color: "#61afef" }, { token: "(n: int)", color: "#abb2bf" }, { token: " -> list:", color: "#c678dd" }], [{ token: "    return", color: "#c678dd" }, { token: " dp[n]", color: "#e5c07b" }, { token: "  # O(n)", color: "#5c6370" }]] },
-  "SQL":      { lines: [[{ token: "SELECT", color: "#c678dd" }, { token: " u.name", color: "#abb2bf" }, { token: ", COUNT(*)", color: "#56b6c2" }, { token: " AS total", color: "#abb2bf" }], [{ token: "FROM", color: "#c678dd" }, { token: " users u", color: "#61afef" }, { token: " JOIN", color: "#c678dd" }, { token: " orders", color: "#61afef" }, { token: " USING(id);", color: "#abb2bf" }]] },
-  "Django":   { lines: [[{ token: "class", color: "#c678dd" }, { token: " PostView", color: "#61afef" }, { token: "(", color: "#abb2bf" }, { token: "APIView", color: "#e5c07b" }, { token: "):", color: "#abb2bf" }], [{ token: "    serializer_class", color: "#abb2bf" }, { token: " = ", color: "#56b6c2" }, { token: "PostSerializer", color: "#61afef" }]] },
-  "Tailwind": { lines: [[{ token: '<div', color: "#e06c75" }, { token: ' className=', color: "#abb2bf" }, { token: '"flex', color: "#98c379" }, { token: " gap-4", color: "#98c379" }, { token: ' rounded-2xl">', color: "#98c379" }], [{ token: "  // utility-first · zero runtime", color: "#5c6370" }]] },
+// Code snippets per skill — idiomatic "core feature" snippets, One Dark Pro colors
+const CODE_SNIPPETS: Record<string, { lines: { token: string; color: string; italic?: boolean }[][] }> = {
+  "React":    { lines: [
+    [{ token: "const", color: "#c678dd" }, { token: " [count, setCount]", color: "#abb2bf" }, { token: " = ", color: "#56b6c2" }, { token: "useState", color: "#61afef" }, { token: "(", color: "#abb2bf" }, { token: "0", color: "#d19a66" }, { token: ")", color: "#abb2bf" }],
+    [{ token: "useEffect", color: "#61afef" }, { token: "(() => ", color: "#abb2bf" }, { token: "document", color: "#e5c07b" }, { token: ".title = count", color: "#abb2bf" }, { token: ", [", color: "#abb2bf" }, { token: "count", color: "#e5c07b" }, { token: "])", color: "#abb2bf" }],
+  ]},
+  "Next.js":  { lines: [
+    [{ token: "export default async function", color: "#c678dd" }, { token: " Page", color: "#61afef" }, { token: "() {", color: "#abb2bf" }],
+    [{ token: "  const", color: "#c678dd" }, { token: " data ", color: "#abb2bf" }, { token: "= await", color: "#c678dd" }, { token: " fetch", color: "#61afef" }, { token: "(", color: "#abb2bf" }, { token: "'/api'", color: "#98c379" }, { token: ")  ", color: "#abb2bf" }, { token: "// RSC", color: "#5c6370", italic: true }],
+  ]},
+  "Three.js": { lines: [
+    [{ token: "function", color: "#c678dd" }, { token: " animate", color: "#61afef" }, { token: "() {", color: "#abb2bf" }],
+    [{ token: "  requestAnimationFrame", color: "#61afef" }, { token: "(animate);", color: "#abb2bf" }, { token: "  renderer", color: "#e5c07b" }, { token: ".render(", color: "#56b6c2" }, { token: "scene, cam", color: "#abb2bf" }, { token: ")", color: "#abb2bf" }],
+  ]},
+  "GSAP":     { lines: [
+    [{ token: "gsap", color: "#61afef" }, { token: ".to(", color: "#56b6c2" }, { token: '".card"', color: "#98c379" }, { token: ", {", color: "#abb2bf" }, { token: " y:", color: "#abb2bf" }, { token: " -20", color: "#d19a66" }, { token: ",", color: "#abb2bf" }],
+    [{ token: "  stagger:", color: "#abb2bf" }, { token: " 0.1", color: "#d19a66" }, { token: ", ease:", color: "#abb2bf" }, { token: " 'power3.out'", color: "#98c379" }, { token: " })", color: "#abb2bf" }, { token: "  // 120fps", color: "#5c6370", italic: true }],
+  ]},
+  "Node.js":  { lines: [
+    [{ token: "app", color: "#61afef" }, { token: ".get(", color: "#56b6c2" }, { token: "'/api/users'", color: "#98c379" }, { token: ", async (req, res) => {", color: "#abb2bf" }],
+    [{ token: "  res", color: "#e5c07b" }, { token: ".json(", color: "#56b6c2" }, { token: "await", color: "#c678dd" }, { token: " User", color: "#61afef" }, { token: ".findAll()", color: "#56b6c2" }, { token: ")", color: "#abb2bf" }],
+  ]},
+  "Python":   { lines: [
+    [{ token: "squares", color: "#e5c07b" }, { token: " = [", color: "#abb2bf" }, { token: "x", color: "#e06c75" }, { token: "**", color: "#56b6c2" }, { token: "2", color: "#d19a66" }, { token: " for", color: "#c678dd" }, { token: " x", color: "#e06c75" }, { token: " in", color: "#c678dd" }, { token: " range(", color: "#61afef" }, { token: "10", color: "#d19a66" }, { token: ")", color: "#abb2bf" }],
+    [{ token: "         if", color: "#c678dd" }, { token: " x ", color: "#abb2bf" }, { token: "%", color: "#56b6c2" }, { token: " 2", color: "#d19a66" }, { token: " ==", color: "#56b6c2" }, { token: " 0]  ", color: "#abb2bf" }, { token: "# list comprehension", color: "#5c6370", italic: true }],
+  ]},
+  "SQL":      { lines: [
+    [{ token: "SELECT", color: "#c678dd" }, { token: " dept", color: "#61afef" }, { token: ", COUNT(*) AS", color: "#56b6c2" }, { token: " total", color: "#e5c07b" }],
+    [{ token: "FROM", color: "#c678dd" }, { token: " users", color: "#61afef" }, { token: " GROUP BY", color: "#c678dd" }, { token: " dept", color: "#61afef" }, { token: " ORDER BY", color: "#c678dd" }, { token: " total DESC;", color: "#abb2bf" }],
+  ]},
+  "Django":   { lines: [
+    [{ token: "class", color: "#c678dd" }, { token: " Post", color: "#61afef" }, { token: "(models.", color: "#abb2bf" }, { token: "Model", color: "#e5c07b" }, { token: "):", color: "#abb2bf" }],
+    [{ token: "  title", color: "#abb2bf" }, { token: " = models.", color: "#56b6c2" }, { token: "CharField", color: "#61afef" }, { token: "(", color: "#abb2bf" }, { token: "max_length", color: "#e5c07b" }, { token: "=", color: "#56b6c2" }, { token: "200", color: "#d19a66" }, { token: ")", color: "#abb2bf" }],
+  ]},
+  "Tailwind": { lines: [
+    [{ token: "<div", color: "#e06c75" }, { token: " className", color: "#61afef" }, { token: "=", color: "#56b6c2" }, { token: '"flex items-center', color: "#98c379" }],
+    [{ token: '      gap-4 backdrop-blur-md', color: "#98c379" }, { token: ' rounded-2xl"', color: "#98c379" }, { token: ">  ", color: "#e06c75" }, { token: "// utility-first", color: "#5c6370", italic: true }],
+  ]},
 };
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type SkillData = { name: string; icon: any; desc: string };
 type CardHandle = { dim: () => void; undim: () => void };
 
-// ─── Card styles ─────────────────────────────────────────────────────────────
+// ─── Card + terminal styles ───────────────────────────────────────────────────
 const CARD_STYLES = `
   .skc { position: relative; perspective: 600px; }
   .skc-inner { transform-style: preserve-3d; will-change: transform; }
@@ -68,9 +95,11 @@ const CARD_STYLES = `
   }
   .skc:hover::before { opacity: 1; }
   @keyframes blink-cursor {
-    0%, 100% { opacity: 1; } 50% { opacity: 0; }
+    0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; }
   }
-  .term-cursor { animation: blink-cursor 0.8s step-end infinite; }
+  .term-cursor { animation: blink-cursor 1.1s step-end infinite; }
+  .term-body { font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'Courier New', monospace; }
+  .term-comment { font-style: italic; }
 `;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -271,19 +300,25 @@ const TerminalWindow = ({
           <span className="term-cursor text-[11px] font-mono text-[#28c840]">█</span>
         </div>
         {/* Spacer + skill badge */}
-        <div className="ml-auto text-[10px] font-mono text-white/20 tracking-widest uppercase">
+        <div 
+          className="ml-auto text-[10px] font-mono text-white/20 tracking-widest uppercase"
+          data-final-text={skill.name}
+        >
           {skill.name}
         </div>
       </div>
 
       {/* ── Terminal body ──────────────────────────────────────────────────── */}
-      <div className="relative p-6 font-mono overflow-hidden" style={{ minHeight: "330px" }}>
+      <div
+        className="term-body relative overflow-hidden"
+        style={{ padding: "clamp(16px, 2vw, 24px)", minHeight: "clamp(280px, 36vh, 420px)" }}
+      >
 
         {/* Watermark icon */}
         <div
           ref={watermarkRef}
-          className="absolute inset-0 flex items-center justify-end pr-6 pointer-events-none"
-          style={{ opacity: 0.045 }}
+          className="absolute inset-0 flex items-center justify-end pr-6 pointer-events-none select-none"
+          style={{ opacity: 0.04 }}
         >
           <Icon size={160} style={{ transform: "rotate(-12deg)" }} />
         </div>
@@ -292,20 +327,36 @@ const TerminalWindow = ({
         <div ref={contentRef} className="relative z-10" style={{ willChange: "transform, opacity" }}>
 
           {/* Prompt + title */}
-          <div ref={titleLineRef} className="flex items-baseline gap-2 mb-3" style={{ willChange: "transform, opacity" }}>
-            <span className="text-[#28c840] text-sm select-none">❯</span>
-            <span className="text-[10px] text-white/30 font-mono select-none">root@aoshi:~$</span>
-            <span className="text-white font-mono text-sm font-bold tracking-wider uppercase">
+          <div ref={titleLineRef} className="flex items-baseline gap-2 mb-4" style={{ willChange: "transform, opacity" }}>
+            <span className="text-[#28c840] select-none" style={{ fontSize: "clamp(11px, 1.1vw, 14px)" }}>❯</span>
+            <span className="text-white/30 select-none" style={{ fontSize: "clamp(9px, 0.8vw, 11px)" }}>root@aoshi:~$</span>
+            <span
+              className="skill-title-text text-white font-bold tracking-wider uppercase"
+              data-final-text={skill.name}
+              style={{ fontSize: "clamp(11px, 1.1vw, 14px)" }}
+            >
               {skill.name}
             </span>
           </div>
 
-          {/* Description lines */}
-          <div ref={descLinesRef} className="pl-5 mb-5 space-y-0.5" style={{ willChange: "transform, opacity" }}>
+          {/* Description lines — piped output style */}
+          <div
+            ref={descLinesRef}
+            className="mb-5 overflow-hidden"
+            style={{ willChange: "transform, opacity" }}
+          >
             {skill.desc.split(". ").filter(Boolean).map((sentence, i) => (
-              <div key={i} className="flex gap-2 text-[13px] leading-relaxed">
-                <span className="text-white/20 select-none text-[11px] mt-[2px] shrink-0">{String(i + 1).padStart(2, "0")}</span>
-                <span className="text-white/55">{sentence}{i < skill.desc.split(". ").filter(Boolean).length - 1 ? "." : ""}</span>
+              <div
+                key={i}
+                className="flex gap-3 leading-relaxed border-l-2 border-white/[0.08] pl-3 mb-1"
+                style={{ fontSize: "clamp(11px, 1vw, 13px)" }}
+              >
+                <span className="text-white/20 select-none shrink-0 mt-px" style={{ fontSize: "clamp(9px, 0.75vw, 10px)" }}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="text-white/55 leading-[1.7] line-clamp-2">
+                  {sentence}{i < skill.desc.split(". ").filter(Boolean).length - 1 ? "." : ""}
+                </span>
               </div>
             ))}
           </div>
@@ -314,14 +365,29 @@ const TerminalWindow = ({
           {snippet && (
             <div
               ref={snippetRef}
-              className="pl-5 rounded-lg bg-white/[0.03] border border-white/[0.06] p-3"
-              style={{ willChange: "transform, opacity" }}
+              className="rounded-lg bg-white/[0.03] border border-white/[0.06] overflow-hidden"
+              style={{ padding: "clamp(8px, 1vw, 12px)", willChange: "transform, opacity" }}
             >
               {snippet.lines.map((line, li) => (
-                <div key={li} className="flex items-center gap-0 text-[12px] leading-[1.8]">
-                  <span className="text-white/20 select-none text-[10px] mr-3 shrink-0">{li + 1}</span>
+                <div
+                  key={li}
+                  className="flex items-start gap-0 leading-[1.9] whitespace-pre"
+                  style={{ fontSize: "clamp(10px, 0.9vw, 12px)" }}
+                >
+                  <span
+                    className="text-white/20 select-none mr-3 shrink-0"
+                    style={{ fontSize: "clamp(9px, 0.75vw, 10px)", marginTop: "1px" }}
+                  >
+                    {li + 1}
+                  </span>
                   {line.map((token, ti) => (
-                    <span key={ti} style={{ color: token.color }}>{token.token}</span>
+                    <span
+                      key={ti}
+                      style={{ color: token.color }}
+                      className={token.italic ? "term-comment" : ""}
+                    >
+                      {token.token}
+                    </span>
                   ))}
                 </div>
               ))}
@@ -430,7 +496,7 @@ export const Skills = ({ language }: { language: Language }) => {
 
   // ── PHASE 1: handleHover — only triggers fade-out then setRenderedSkill ───
   const handleHover = useCallback((skillData: SkillData) => {
-    // Always write latest pending target synchronously
+    // Always update pendingSkillRef synchronously
     pendingSkillRef.current = skillData;
     setActiveSkillName(skillData.name);
 
@@ -439,10 +505,11 @@ export const Skills = ({ language }: { language: Language }) => {
       if (name === skillData.name) h.undim(); else h.dim();
     });
 
-    // If already fading, just update pendingSkillRef — onComplete will pick up latest
-    if (isFadingRef.current) return;
+    // If hovering the same skill that is already rendered, skip animation
     if (skillData.name === renderedSkill.name) return;
 
+    // Interrupt any active transitions
+    gsap.killTweensOf([titleLineRef.current, descLinesRef.current, snippetRef.current]);
     isFadingRef.current = true;
 
     // Fade OUT content
@@ -459,7 +526,6 @@ export const Skills = ({ language }: { language: Language }) => {
         // isFadingRef stays true — reset in phase 2's useLayoutEffect
       },
     });
-  // renderedSkill.name is used for same-skill early exit guard only
   }, [renderedSkill.name]);
 
   // ── PHASE 2: Entrance animation — fires after React re-renders new data ───
@@ -467,29 +533,36 @@ export const Skills = ({ language }: { language: Language }) => {
   useLayoutEffect(() => {
     if (isFirstRender.current) { isFirstRender.current = false; return; }
 
-    // Swap watermark icon (instant — it's behind content)
-    // React has already rendered new RenderedIcon by this point ✓
+    // React has already rendered new icon/text by this point ✓
+    // Scramble title text immediately
+    const titleEl = titleLineRef.current?.querySelector(".skill-title-text") as HTMLElement | null;
+    if (titleEl) scrambleText(titleEl);
 
-    // Animate content IN
+    // Title prompt line — instant
     gsap.fromTo(
-      [titleLineRef.current, descLinesRef.current, snippetRef.current],
+      titleLineRef.current,
+      { opacity: 0, x: -16 },
+      { opacity: 1, x: 0, duration: 0.22, ease: "power3.out", overwrite: "auto" }
+    );
+
+    // Description — 60ms after title ("system is reading")
+    gsap.fromTo(
+      descLinesRef.current,
+      { opacity: 0, x: -20 },
+      { opacity: 1, x: 0, duration: 0.28, ease: "power3.out", overwrite: "auto", delay: 0.06 }
+    );
+
+    // Code snippet — 150ms after title ("system is compiling output")
+    gsap.fromTo(
+      snippetRef.current,
       { opacity: 0, x: -20 },
       {
-        opacity: 1,
-        x: 0,
-        stagger: 0.06,
-        duration: 0.28,
-        ease: "power3.out",
-        overwrite: "auto",
+        opacity: 1, x: 0, duration: 0.3, ease: "power3.out", overwrite: "auto", delay: 0.15,
         onComplete: () => { isFadingRef.current = false; },
       }
     );
 
-    // Scramble title
-    const titleEl = titleLineRef.current?.querySelector(".skill-title-text") as HTMLElement | null;
-    if (titleEl) scrambleText(titleEl);
-
-  }, [renderedSkill.name]); // ← fires every time renderedSkill changes
+  }, [renderedSkill.name]); // ← fires every time renderedSkill changes after re-render
 
   const handleGridLeave = useCallback(() => {
     Object.values(cardHandles.current).forEach(h => h.undim());
