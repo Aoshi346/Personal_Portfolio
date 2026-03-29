@@ -99,36 +99,38 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
 
   // ── Phase 0 – FOUC guard ─────────────────────────────────────────────────
   useLayoutEffect(() => {
+    if (!sectionRef.current) return;
     const ctx = gsap.context(() => {
       // Text lines hidden below their masks
-      gsap.set([nameLineRef.current, roleLine1Ref.current, roleLine2Ref.current],
+      gsap.set([nameLineRef.current, roleLine1Ref.current, roleLine2Ref.current].filter(Boolean),
         { yPercent: 110, rotate: 2 });
-      gsap.set([tagRef.current, ctaGroupRef.current, scrollHintRef.current],
+      gsap.set([tagRef.current, ctaGroupRef.current, scrollHintRef.current].filter(Boolean),
         { autoAlpha: 0, y: 20 });
-      gsap.set(ctaBtnRef.current, { scale: 0.85, autoAlpha: 0 });
+      if (ctaBtnRef.current) gsap.set(ctaBtnRef.current, { scale: 0.85, autoAlpha: 0 });
 
       // Atmospheric layers
-      gsap.set(glowRef.current, { scale: 0.6, autoAlpha: 0 });
-      gsap.set(meshRef.current, { scale: 1.15, autoAlpha: 0, transformOrigin: "center" });
+      if (glowRef.current) gsap.set(glowRef.current, { scale: 0.6, autoAlpha: 0 });
+      if (meshRef.current) gsap.set(meshRef.current, { scale: 1.15, autoAlpha: 0, transformOrigin: "center" });
 
       // Signature: invisible until the preloader SVG "lands"
-      gsap.set(sigRef.current, { autoAlpha: 0, scale: 0.88 });
+      if (sigRef.current) gsap.set(sigRef.current, { autoAlpha: 0, scale: 0.88 });
 
       // Name starts offset toward viewport center (preloader position)
-      gsap.set(nameLineRef.current, { y: "26vh", yPercent: 0, rotate: 0 });
+      if (nameLineRef.current) gsap.set(nameLineRef.current, { y: "26vh", yPercent: 0, rotate: 0 });
 
       // HUD elements
-      gsap.set(
-        [hudTRRef.current, hudBRRef.current, hudBracketTRef.current, hudBracketBRef.current],
-        { autoAlpha: 0 }
-      );
-    }, sectionRef);
+      const hudElements = [
+        hudTRRef.current, hudBRRef.current, 
+        hudBracketTRef.current, hudBracketBRef.current
+      ].filter(Boolean);
+      if (hudElements.length) gsap.set(hudElements, { autoAlpha: 0 });
+    }, sectionRef.current);
     return () => ctx.revert();
   }, []);
 
   // ── Entrance timeline (fires when isStarted = true) ──────────────────────
   useEffect(() => {
-    if (!isStarted) return;
+    if (!isStarted || !sectionRef.current) return;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
@@ -270,7 +272,7 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
           });
         });
 
-      }, sectionRef);
+      }, sectionRef.current || undefined);
 
       // Cleanup needs to be captured by the timer's closure
       const cleanup = () => ctx.revert();
@@ -474,8 +476,9 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
             >
               {HELLO_PATHS.map((d, i) => (
                 <path key={i} className="hero-sig-path" d={d}
-                  stroke="rgba(255,255,255,0.35)" strokeWidth="1"
-                  fill="rgba(255,255,255,0.14)"
+                  stroke="white"
+                  strokeWidth="1"
+                  fill="white"
                   fillRule="evenodd"
                   style={{ willChange: "opacity, filter" }}
                 />
@@ -486,6 +489,14 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
       </div>
 
       {/* ── HUD elements ─────────────────────────────────────────────── */}
+      <div ref={hudTRRef} aria-hidden="true"
+        className="pointer-events-none absolute top-8 right-14 hidden md:flex flex-col items-end gap-1
+                   text-[10px] tracking-[0.18em] text-white/15 badge-font uppercase"
+        style={{ willChange: "transform, opacity" }}>
+        <span>Systems Eng.</span>
+        <span className="text-[var(--primary)]/30">9th Semester</span>
+      </div>
+
       <div ref={hudBRRef} aria-hidden="true"
         className="pointer-events-none absolute bottom-12 right-14 hidden md:block
                    badge-font text-[10px] tracking-[0.18em] text-white/10 uppercase"

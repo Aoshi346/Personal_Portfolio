@@ -11,6 +11,8 @@ interface PreloaderProps {
 export default function Preloader({ onComplete, onHeroStart }: PreloaderProps) {
   const [progress, setProgress] = useState(0);
 
+    // ── Preloader background ref for direct targeting ──────────────────
+  const bgRef = useRef<HTMLDivElement>(null);
   const shutterTopRef = useRef<HTMLDivElement>(null);
   const shutterBotRef = useRef<HTMLDivElement>(null);
   const svgWrapRef    = useRef<HTMLDivElement>(null);
@@ -21,25 +23,27 @@ export default function Preloader({ onComplete, onHeroStart }: PreloaderProps) {
     const tl = gsap.timeline();
 
     // ── Step 0 – Initial state ──────────────────────────────────────────────
-    gsap.set(".preloader-bg", { opacity: 1 });
+    if (bgRef.current) gsap.set(bgRef.current, { opacity: 1 });
     gsap.set(shutterTopRef.current, { yPercent: 0 });
     gsap.set(shutterBotRef.current, { yPercent: 0 });
     gsap.set(svgWrapRef.current,    { scale: 1, opacity: 0, x: 0, y: 0, filter: "none" });
 
     // ── Step 1 – SVG stroke-draw entrance ───────────────────────────────────
-    const paths = document.querySelectorAll(".hello-path");
-    tl.set(paths, {
-      strokeDasharray:  (_, t: SVGGeometryElement) => t.getTotalLength(),
-      strokeDashoffset: (_, t: SVGGeometryElement) => t.getTotalLength(),
-      opacity: 0,
-      fill:    "none",
-    });
-    tl.to(svgWrapRef.current, { opacity: 1, duration: 0.25 });
-    tl.to(paths, {
-      opacity: 1, strokeDashoffset: 0,
-      duration: 0.22, stagger: 0.08, ease: "power1.inOut",
-    }, "<0.1");
-    tl.to(paths, { fill: "white", duration: 0.2, ease: "power2.out" }, ">-0.03");
+    const paths = svgWrapRef.current?.querySelectorAll(".hello-path");
+    if (paths?.length) {
+      tl.set(paths, {
+        strokeDasharray:  (_, t: SVGGeometryElement) => t.getTotalLength(),
+        strokeDashoffset: (_, t: SVGGeometryElement) => t.getTotalLength(),
+        opacity: 0,
+        fill:    "none",
+      });
+      tl.to(svgWrapRef.current, { opacity: 1, duration: 0.25 });
+      tl.to(paths, {
+        opacity: 1, strokeDashoffset: 0,
+        duration: 0.22, stagger: 0.08, ease: "power1.inOut",
+      }, "<0.1");
+      tl.to(paths, { fill: "white", duration: 0.2, ease: "power2.out" }, ">-0.03");
+    }
 
     // ── Step 2 – Fake progress ──────────────────────────────────────────────
     tl.to({}, {
@@ -97,16 +101,23 @@ export default function Preloader({ onComplete, onHeroStart }: PreloaderProps) {
     tl.to(shutterBotRef.current, { yPercent:  100, duration: 0.68, ease: "power4.inOut" }, "exitStart+=0.22");
 
     // 3e. Final cleanup
-    tl.to(".preloader-bg", {
-      opacity: 0, duration: 0.12, ease: "none",
-      onComplete() { if (!isCancelled) onComplete(); },
-    }, ">");
+    if (bgRef.current) {
+      tl.to(bgRef.current, {
+        opacity: 0, duration: 0.12, ease: "none",
+        onComplete() { if (!isCancelled) onComplete(); },
+      }, ">");
+    } else {
+      tl.add(() => { if (!isCancelled) onComplete(); });
+    }
 
     return () => { isCancelled = true; tl.kill(); };
   }, [onComplete, onHeroStart]);
 
   return (
-    <div className="preloader-bg fixed inset-0 z-[200] bg-[#0b0e14] flex flex-col items-center justify-center pointer-events-none">
+    <div 
+      ref={bgRef}
+      className="preloader-bg fixed inset-0 z-[200] bg-[#0b0e14] flex flex-col items-center justify-center pointer-events-none"
+    >
       <div ref={shutterTopRef} aria-hidden="true"
         className="absolute inset-x-0 top-0 h-1/2 bg-[#0b0e14] z-10"
         style={{ transformOrigin: "top center" }} />
