@@ -32,14 +32,14 @@ const MagneticIcon = ({
   ariaLabel: string;
   children: React.ReactNode;
 }) => {
-  const wrapRef  = useRef<HTMLAnchorElement>(null);
+  const wrapRef = useRef<HTMLAnchorElement>(null);
   const innerRef = useRef<HTMLSpanElement>(null);
 
   const onMove = useCallback((e: React.MouseEvent) => {
     const rect = wrapRef.current?.getBoundingClientRect();
     if (!rect || !innerRef.current) return;
-    const dx = e.clientX - (rect.left + rect.width  / 2);
-    const dy = e.clientY - (rect.top  + rect.height / 2);
+    const dx = e.clientX - (rect.left + rect.width / 2);
+    const dy = e.clientY - (rect.top + rect.height / 2);
     if (Math.hypot(dx, dy) < 42)
       gsap.to(innerRef.current, { x: dx * 0.36, y: dy * 0.36, duration: 0.28, ease: "power2.out", overwrite: "auto" });
   }, []);
@@ -50,7 +50,7 @@ const MagneticIcon = ({
 
   return (
     <a ref={wrapRef} href={href} aria-label={ariaLabel} target="_blank" rel="noopener noreferrer"
-       onMouseMove={onMove} onMouseLeave={onLeave} className="p-3 -m-3 group">
+      onMouseMove={onMove} onMouseLeave={onLeave} className="p-3 -m-3 group">
       <span ref={innerRef}
         className="flex items-center justify-center text-white/40 group-hover:text-[var(--primary)] transition-colors duration-300">
         {children}
@@ -61,7 +61,7 @@ const MagneticIcon = ({
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 interface HeroProps {
-  language:  Language;
+  language: Language;
   isStarted: boolean;
 }
 
@@ -69,29 +69,29 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
   const t = translations[language].hero;
 
   // ── Refs ──────────────────────────────────────────────────────────────────
-  const sectionRef      = useRef<HTMLElement>(null);
-  const glowRef         = useRef<HTMLDivElement>(null);
-  const meshRef         = useRef<SVGSVGElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
+  const meshRef = useRef<SVGSVGElement>(null);
 
   // Left col — text stack
-  const textColRef      = useRef<HTMLDivElement>(null);
-  const nameLineRef     = useRef<HTMLSpanElement>(null);
-  const roleLine1Ref    = useRef<HTMLSpanElement>(null);
-  const roleLine2Ref    = useRef<HTMLSpanElement>(null);
-  const tagRef          = useRef<HTMLDivElement>(null);
-  const ctaGroupRef     = useRef<HTMLDivElement>(null);
-  const ctaBtnRef       = useRef<HTMLButtonElement>(null);
-  const scrollHintRef   = useRef<HTMLDivElement>(null);
+  const textColRef = useRef<HTMLDivElement>(null);
+  const nameLineRef = useRef<HTMLSpanElement>(null);
+  const roleLine1Ref = useRef<HTMLSpanElement>(null);
+  const roleLine2Ref = useRef<HTMLSpanElement>(null);
+  const tagRef = useRef<HTMLDivElement>(null);
+  const ctaGroupRef = useRef<HTMLDivElement>(null);
+  const ctaBtnRef = useRef<HTMLButtonElement>(null);
+  const scrollHintRef = useRef<HTMLDivElement>(null);
 
   // Right col — Hello World SVG
-  const sigRef          = useRef<HTMLDivElement>(null);   // the wrapping div
-  const sigSvgRef       = useRef<SVGSVGElement>(null);    // the actual SVG
+  const sigRef = useRef<HTMLDivElement>(null);   // the wrapping div
+  const sigSvgRef = useRef<SVGSVGElement>(null);    // the actual SVG
 
   // HUD
-  const hudTRRef        = useRef<HTMLDivElement>(null);
-  const hudBRRef        = useRef<HTMLDivElement>(null);
-  const hudBracketTRef  = useRef<SVGSVGElement>(null);
-  const hudBracketBRef  = useRef<SVGSVGElement>(null);
+  const hudTRRef = useRef<HTMLDivElement>(null);
+  const hudBRRef = useRef<HTMLDivElement>(null);
+  const hudBracketTRef = useRef<SVGSVGElement>(null);
+  const hudBracketBRef = useRef<SVGSVGElement>(null);
 
   // ── Phase 0: FOUC guard — set all to invisible immediately ───────────────
   useLayoutEffect(() => {
@@ -100,12 +100,12 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
         { yPercent: 110, rotate: 2 });
       gsap.set([tagRef.current, ctaGroupRef.current, scrollHintRef.current],
         { autoAlpha: 0, y: 20 });
-      gsap.set(ctaBtnRef.current,  { scale: 0.85, autoAlpha: 0 });
-      gsap.set(glowRef.current,    { scale: 0.6,  autoAlpha: 0 });
-      gsap.set(meshRef.current,    { scale: 1.15, autoAlpha: 0, transformOrigin: "center center" });
+      gsap.set(ctaBtnRef.current, { scale: 0.85, autoAlpha: 0 });
+      gsap.set(glowRef.current, { scale: 0.6, autoAlpha: 0 });
+      gsap.set(meshRef.current, { scale: 1.15, autoAlpha: 0, transformOrigin: "center center" });
 
       // Signature SVG: starts invisible; will fade in after arriving
-      gsap.set(sigRef.current,    { autoAlpha: 0, y: 18 });
+      gsap.set(sigRef.current, { autoAlpha: 0, y: 18 });
       // Name sits at center-screen offset — slides down to natural pos
       gsap.set(nameLineRef.current, { y: "26vh", yPercent: 0, rotate: 0 });
 
@@ -151,16 +151,16 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
       const sigPaths = sigSvgRef.current?.querySelectorAll(".hero-sig-path");
       if (sigPaths?.length) {
         gsap.set(sigPaths, {
-          strokeDasharray:  (_, el: SVGGeometryElement) => el.getTotalLength(),
+          strokeDasharray: (_, el: SVGGeometryElement) => el.getTotalLength(),
           strokeDashoffset: (_, el: SVGGeometryElement) => el.getTotalLength(),
-          fill:             "none",
-          opacity:          1,
+          fill: "none",
+          opacity: 1,
         });
         tl.to(sigPaths, {
           strokeDashoffset: 0,
-          duration:         0.28,
-          stagger:          0.055,
-          ease:             "power1.inOut",
+          duration: 0.28,
+          stagger: 0.055,
+          ease: "power1.inOut",
         }, 0.4);
         // Fill in — reveal the filled letterforms slightly after strokes complete
         tl.to(sigPaths, {
@@ -199,10 +199,10 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
           y: "-12%",
           ease: "none",
           scrollTrigger: {
-            trigger:   sectionRef.current,
-            start:     "top top",
-            end:       "bottom top",
-            scrub:     1.2,
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: 1.2,
           },
         });
 
@@ -210,23 +210,23 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
           y: "-6%",
           ease: "none",
           scrollTrigger: {
-            trigger:   sectionRef.current,
-            start:     "top top",
-            end:       "bottom top",
-            scrub:     1.2,
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: 1.2,
           },
         });
 
         // ── Hero exit: content scales + fades as user leaves section-1 ───────
         gsap.to(sectionRef.current, {
           opacity: 0,
-          scale:   0.97,
-          ease:    "none",
+          scale: 0.97,
+          ease: "none",
           scrollTrigger: {
-            trigger:   sectionRef.current,
-            start:     "center top",     // starts fading when section center hits top
-            end:       "bottom top",
-            scrub:     0.8,
+            trigger: sectionRef.current,
+            start: "center top",     // starts fading when section center hits top
+            end: "bottom top",
+            scrub: 0.8,
           },
         });
 
@@ -235,13 +235,13 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
         if (sigPaths?.length) {
           gsap.to(sigPaths, {
             opacity: 0.04,
-            filter:  "drop-shadow(0 0 6px rgba(143,245,255,0.6))",
-            ease:    "none",
+            filter: "drop-shadow(0 0 6px rgba(143,245,255,0.6))",
+            ease: "none",
             scrollTrigger: {
               trigger: sectionRef.current,
-              start:   "40% top",
-              end:     "bottom top",
-              scrub:   0.6,
+              start: "40% top",
+              end: "bottom top",
+              scrub: 0.6,
             },
           });
         }
@@ -257,7 +257,7 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
   useLayoutEffect(() => {
     let rafId = 0, tx = 0, ty = 0, cx = 0, cy = 0;
     const onMove = (e: MouseEvent) => {
-      tx = e.clientX / window.innerWidth  - 0.5;
+      tx = e.clientX / window.innerWidth - 0.5;
       ty = e.clientY / window.innerHeight - 0.5;
     };
     const tick = () => {
@@ -310,20 +310,20 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
         style={{ willChange: "transform, opacity", transformOrigin: "center center" }}>
         <defs>
           <pattern id="hero-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.6"/>
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.6" />
           </pattern>
           <radialGradient id="hero-fade" cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="white" stopOpacity="1"/>
-            <stop offset="100%" stopColor="white" stopOpacity="0"/>
+            <stop offset="0%" stopColor="white" stopOpacity="1" />
+            <stop offset="100%" stopColor="white" stopOpacity="0" />
           </radialGradient>
           <mask id="hero-gridmask">
-            <rect width="680" height="640" fill="url(#hero-fade)"/>
+            <rect width="680" height="640" fill="url(#hero-fade)" />
           </mask>
         </defs>
-        <rect width="680" height="640" fill="url(#hero-grid)" mask="url(#hero-gridmask)" opacity="0.04"/>
-        <circle cx="340" cy="320" r="200" stroke="rgba(143,245,255,0.11)" strokeWidth="0.8" fill="none"/>
-        <circle cx="340" cy="320" r="280" stroke="rgba(191,129,255,0.06)" strokeWidth="0.6" fill="none" strokeDasharray="4 10"/>
-        <circle cx="340" cy="320" r="340" stroke="rgba(255,89,227,0.035)" strokeWidth="0.5" fill="none"/>
+        <rect width="680" height="640" fill="url(#hero-grid)" mask="url(#hero-gridmask)" opacity="0.04" />
+        <circle cx="340" cy="320" r="200" stroke="rgba(143,245,255,0.11)" strokeWidth="0.8" fill="none" />
+        <circle cx="340" cy="320" r="280" stroke="rgba(191,129,255,0.06)" strokeWidth="0.6" fill="none" strokeDasharray="4 10" />
+        <circle cx="340" cy="320" r="340" stroke="rgba(255,89,227,0.035)" strokeWidth="0.5" fill="none" />
       </svg>
 
       {/* ── Two-column layout ────────────────────────────────────────────── */}
@@ -332,15 +332,15 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
 
         {/* ── Left column: text ────────────────────────────────────────── */}
         <div ref={textColRef} className="flex flex-col justify-center max-w-2xl flex-shrink-0"
-             style={{ willChange: "transform" }}>
+          style={{ willChange: "transform" }}>
 
           {/* Availability tag */}
           <div ref={tagRef}
             className="inline-flex items-center gap-2 mb-7 px-3.5 py-1.5 rounded-full
                        border border-[var(--primary)]/25 bg-[var(--primary)]/5 backdrop-blur-sm self-start">
             <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-75"/>
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--primary)]"/>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--primary)]" />
             </span>
             <span className="text-[10px] font-bold tracking-[0.2em] text-[var(--primary)]/80 badge-font uppercase">
               {t.tag}
@@ -358,7 +358,7 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
 
           {/* Role — two-line masked reveal */}
           <h2 className="badge-font font-black tracking-tighter text-white leading-[0.9] mb-10"
-              style={{ fontSize: "clamp(2.8rem,8vw,6.5rem)" }}>
+            style={{ fontSize: "clamp(2.8rem,8vw,6.5rem)" }}>
             <span className="block overflow-hidden">
               <span ref={roleLine1Ref} className="block will-change-transform">{roleLine1}</span>
             </span>
@@ -384,23 +384,23 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
                            transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent"/>
               <span className="relative z-10 flex items-center gap-2">
                 {t.viewWork}
-                <ChevronRight size={17} className="group-hover:translate-x-1 transition-transform duration-200"/>
+                <ChevronRight size={17} className="group-hover:translate-x-1 transition-transform duration-200" />
               </span>
             </button>
 
-            <span aria-hidden="true" className="h-8 w-px bg-white/10"/>
+            <span aria-hidden="true" className="h-8 w-px bg-white/10" />
 
             <div className="flex items-center gap-5">
-              <MagneticIcon href="https://github.com"   ariaLabel="GitHub Profile"><Github   size={22}/></MagneticIcon>
-              <MagneticIcon href="https://linkedin.com" ariaLabel="LinkedIn Profile"><Linkedin size={22}/></MagneticIcon>
+              <MagneticIcon href="https://github.com" ariaLabel="GitHub Profile"><Github size={22} /></MagneticIcon>
+              <MagneticIcon href="https://linkedin.com" ariaLabel="LinkedIn Profile"><Linkedin size={22} /></MagneticIcon>
             </div>
           </div>
 
           {/* Scroll hint */}
           <div ref={scrollHintRef} aria-hidden="true" className="mt-14 flex items-center gap-3 text-white/20">
             <div className="flex flex-col gap-[3px]">
-              {[0,1,2].map(i => (
-                <span key={i} className="block w-4 h-[1.5px] bg-current rounded-full" style={{ opacity: 1 - i * 0.3 }}/>
+              {[0, 1, 2].map(i => (
+                <span key={i} className="block w-4 h-[1.5px] bg-current rounded-full" style={{ opacity: 1 - i * 0.3 }} />
               ))}
             </div>
             <span className="text-[10px] tracking-[0.22em] badge-font uppercase">Scroll</span>
@@ -458,12 +458,6 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
       </div>
 
       {/* ── HUD decorations — steps() flicker ────────────────────────────── */}
-      <div ref={hudTRRef} aria-hidden="true"
-        className="pointer-events-none absolute top-8 right-14 hidden md:flex flex-col items-end gap-1
-                   text-[10px] tracking-[0.18em] text-white/15 badge-font uppercase">
-        <span>Systems Eng.</span>
-        <span className="text-[var(--primary)]/30">9th Semester</span>
-      </div>
 
       <div ref={hudBRRef} aria-hidden="true"
         className="pointer-events-none absolute bottom-12 right-14 hidden md:block
@@ -474,13 +468,13 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
       <svg ref={hudBracketTRef} aria-hidden="true"
         className="pointer-events-none absolute top-8 left-8"
         width="28" height="28" viewBox="0 0 28 28">
-        <path d="M0 28 L0 0 L28 0" stroke="var(--primary)" strokeWidth="1.5" fill="none" opacity="0.12"/>
+        <path d="M0 28 L0 0 L28 0" stroke="var(--primary)" strokeWidth="1.5" fill="none" opacity="0.12" />
       </svg>
 
       <svg ref={hudBracketBRef} aria-hidden="true"
         className="pointer-events-none absolute bottom-8 right-8"
         width="28" height="28" viewBox="0 0 28 28">
-        <path d="M28 0 L28 28 L0 28" stroke="var(--primary)" strokeWidth="1.5" fill="none" opacity="0.12"/>
+        <path d="M28 0 L28 28 L0 28" stroke="var(--primary)" strokeWidth="1.5" fill="none" opacity="0.12" />
       </svg>
     </section>
   );
