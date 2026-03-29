@@ -27,8 +27,31 @@
 }
 
 .outline-text {
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.4);
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.35);
   color: transparent;
+}
+
+/* ── Hero reveal: GPU-accelerated clip containers ──────────────────────── */
+.hero-line-mask {
+  display: block;
+  overflow: hidden;
+  /* ensure the overflowing child is invisible, not clipped by layout */
+  contain: layout paint;
+}
+
+/* ── CTA button: prevent GSAP float fighting hover scale ──────────────── */
+.hero-cta {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* ── Grain pulse (very slow drift so it never feels static) ────────────── */
+@keyframes grain-drift {
+  0%   { background-position: 0 0; }
+  100% { background-position: 180px 180px; }
+}
+.grain-layer {
+  animation: grain-drift 8s steps(1) infinite;
 }
 
 /* Character & Word Stagger Utilities */

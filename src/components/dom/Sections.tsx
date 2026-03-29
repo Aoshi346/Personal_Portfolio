@@ -17,9 +17,11 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Sections({
   language,
   loaded,
+  heroReady,
 }: {
-  language: Language;
-  loaded: boolean;
+  language:  Language;
+  loaded:    boolean;
+  heroReady: boolean;
 }) {
   const t = translations[language].sections;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -211,7 +213,7 @@ export default function Sections({
           document.body,
         )}
 
-      <Hero language={language} />
+      <Hero language={language} isStarted={heroReady} />
       <Experience language={language} />
       <Skills language={language} />
       <Projects language={language} />
