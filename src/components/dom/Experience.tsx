@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Briefcase } from "lucide-react";
+import { Briefcase, Database, Terminal, Code2, Network, Blocks, Globe, Palette, Binary } from "lucide-react";
 import { Language, translations } from "../../constants/translations";
 import { scrambleText } from "../../utils/textEffects";
 
@@ -13,14 +13,33 @@ const ROLE_STACK: string[][] = [
   ["React", "Next.js", "Django", "REST", "Tailwind"],
 ];
 
+const SKILL_ICONS: Record<string, React.ElementType> = {
+  "Algorithms": Binary,
+  "SQL": Database,
+  "C++": Terminal,
+  "Python": Terminal,
+  "Architecture": Network,
+  "Django": Blocks,
+  "React": Code2,
+  "TypeScript": Code2,
+  "Linux": Terminal,
+  "Next.js": Code2,
+  "REST": Globe,
+  "Tailwind": Palette,
+};
+
 const MagneticElement = ({
   children,
   className = "",
   onHoverAction,
+  radius = 44,
+  strength = 0.38,
 }: {
   children: React.ReactNode;
   className?: string;
   onHoverAction?: () => void;
+  radius?: number;
+  strength?: number;
 }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
@@ -31,10 +50,10 @@ const MagneticElement = ({
     const dx = e.clientX - (rect.left + rect.width / 2);
     const dy = e.clientY - (rect.top + rect.height / 2);
 
-    if (Math.hypot(dx, dy) < 44) {
+    if (Math.hypot(dx, dy) < radius) {
       gsap.to(innerRef.current, {
-        x: dx * 0.38,
-        y: dy * 0.38,
+        x: dx * strength,
+        y: dy * strength,
         duration: 0.26,
         ease: "power2.out",
         overwrite: "auto",
@@ -143,21 +162,12 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
 
     cardsRef.current.forEach((card) => {
       if (!card) return;
-      const ghost = card.querySelector(".ghost-border");
-      const activeBorder = card.querySelector(".active-outer-border");
       const body = card.querySelectorAll(".card-body > *");
       const badges = card.querySelectorAll(".skill-badge");
-      const pulse = card.querySelector(".active-pulse");
 
-      gsap.set(ghost, { strokeDashoffset: 100 });
-      gsap.set(activeBorder, { opacity: 0 });
       gsap.set(body, { opacity: 0, y: 30 });
-      gsap.set(badges, { autoAlpha: 0, scale: 0.2, y: 15 });
-      gsap.set(card, { opacity: 0.35, scale: 0.88, filter: "blur(4px)" });
-
-      if (pulse) {
-        gsap.to(pulse, { scale: 2.5, opacity: 0, duration: 1.6, repeat: -1, ease: "power2.out" });
-      }
+      gsap.set(badges, { autoAlpha: 0, y: 20 });
+      gsap.set(card, { opacity: 0.35, scale: 0.95, filter: "blur(4px)" });
     });
 
     // ── Desktop (1024px+): High-Performance Pinned Horizontal Scroll ───────────
@@ -183,15 +193,14 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
         },
       });
 
-      // ── Phase 2: The Recess (Title Watermark) ──────────────────────────────
-      // Title expands and fades to form a watermark over the first 15% of scrub
+      // ── Phase 2: The Departure (Stage-Clear) ──────────────────────────────
+      // Title fades and scales to 0 to completely vacate the screen
       tlPrimary.to(
         titleWrapRef.current,
         {
-          opacity: 0.05,
-          scale: 1.6, // Massive screen-filling watermark
-          xPercent: 5, // Slight drift right
-          duration: 0.15, // 15% of timeline duration
+          opacity: 0,
+          scale: 0.8,
+          duration: 0.15, // Handover in first 15% of timeline
           ease: "power2.inOut",
         },
         0
@@ -242,8 +251,8 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
       const proxy = { skew: 0, scaleX: 1 };
       const skewSetter = gsap.quickSetter(cards, "skewX", "deg");
       const scaleXSetter = gsap.quickSetter(cards, "scaleX");
-      const clamp = gsap.utils.clamp(-8, 8);
-      const clampSX = gsap.utils.clamp(0.96, 1);
+      const clamp = gsap.utils.clamp(-4, 4);
+      const clampSX = gsap.utils.clamp(0.98, 1);
 
       ScrollTrigger.create({
         trigger: sectionRef.current,
@@ -252,7 +261,7 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
         onUpdate: (self) => {
           const raw = self.getVelocity() / -250;
           const skewVal = clamp(raw);
-          const scaleVal = clampSX(1 - Math.abs(raw) * 0.005);
+          const scaleVal = clampSX(1 - Math.abs(raw) * 0.002);
 
           if (Math.abs(skewVal) > 0.05) {
             gsap.to(proxy, {
@@ -280,12 +289,48 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
         },
       });
 
+      const cleanups: (() => void)[] = [];
+
       // ── DOF & Hardware Initialization ──────────────────────────────────────
       cards.forEach((card) => {
-        const ghost = card.querySelector(".ghost-border");
-        const activeBorder = card.querySelector(".active-outer-border");
         const body = card.querySelectorAll(".card-body > *");
         const badges = card.querySelectorAll(".skill-badge");
+        const inner = card.querySelector(".card-inner") as HTMLDivElement;
+
+        // ── Spotlight & Tilt Hover Effect ──
+        if (inner) {
+          const setX = gsap.quickTo(inner, "rotateY", { ease: "power3", duration: 0.5 });
+          const setY = gsap.quickTo(inner, "rotateX", { ease: "power3", duration: 0.5 });
+          
+          const onMove = (e: MouseEvent) => {
+            if (!window.matchMedia("(hover: hover)").matches) return;
+            const rect = inner.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            inner.style.setProperty("--mouse-x", `${x}px`);
+            inner.style.setProperty("--mouse-y", `${y}px`);
+
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            setX(((x - centerX) / centerX) * 2);
+            setY(((y - centerY) / centerY) * -2);
+          };
+
+          const onLeave = () => {
+            if (!window.matchMedia("(hover: hover)").matches) return;
+            setX(0);
+            setY(0);
+          };
+
+          inner.addEventListener("mousemove", onMove);
+          inner.addEventListener("mouseleave", onLeave);
+          cleanups.push(() => {
+            inner.removeEventListener("mousemove", onMove);
+            inner.removeEventListener("mouseleave", onLeave);
+          });
+        }
 
         ScrollTrigger.create({
           trigger: card,
@@ -293,44 +338,42 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
           start: "left 75%",
           end: "right 25%",
           onEnter: () => {
-            gsap.to(ghost, { strokeDashoffset: 0, duration: 1.6, ease: "power3.inOut" });
             gsap.to(body, { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.08, ease: "power3.out", delay: 0.1 });
-            gsap.to(activeBorder, { opacity: 0.4, duration: 1.2, ease: "power2.inOut", delay: 0.4 });
             gsap.to(badges, {
               autoAlpha: 1,
               y: 0,
-              scale: 1,
               duration: 0.6,
               stagger: 0.05,
-              ease: "back.out(2.2)",
+              ease: "power3.out",
               delay: 0.45,
             });
             gsap.to(card, {
               opacity: 1,
-              scale: 1.02,
-              filter: "blur(0px) drop-shadow(0 0 45px rgba(143,245,255,0.12)) drop-shadow(0 20px 40px rgba(0,0,0,0.6))",
+              scale: 1,
+              boxShadow: "0 0 80px rgba(143,245,255,0.05)",
+              filter: "blur(0px)",
               duration: 0.6,
               ease: "power3.out",
             });
           },
           onLeave: () => {
-            gsap.to(activeBorder, { opacity: 0, duration: 0.4 });
-            gsap.to(card, { opacity: 0.35, scale: 0.88, filter: "blur(4px) drop-shadow(none)", duration: 0.5, ease: "power2.in" });
+            gsap.to(card, { opacity: 0.35, scale: 0.95, boxShadow: "none", filter: "blur(4px)", duration: 0.5, ease: "power2.in" });
           },
           onEnterBack: () => {
-            gsap.to(activeBorder, { opacity: 0.4, duration: 0.4 });
-            gsap.to(card, { opacity: 1, scale: 1.02, filter: "blur(0px) drop-shadow(0 0 45px rgba(143,245,255,0.12)) drop-shadow(0 20px 40px rgba(0,0,0,0.6))", duration: 0.6, ease: "power3.out" });
+            gsap.to(card, { opacity: 1, scale: 1, boxShadow: "0 0 80px rgba(143,245,255,0.05)", filter: "blur(0px)", duration: 0.6, ease: "power3.out" });
           },
           onLeaveBack: () => {
-             gsap.to(activeBorder, { opacity: 0, duration: 0.4 });
-             gsap.to(card, { opacity: 0.35, scale: 0.88, filter: "blur(4px) drop-shadow(none)", duration: 0.5, ease: "power2.in" });
+             gsap.to(card, { opacity: 0.35, scale: 0.95, boxShadow: "none", filter: "blur(4px)", duration: 0.5, ease: "power2.in" });
           },
         });
       });
 
       const onResize = () => ScrollTrigger.refresh();
       window.addEventListener("resize", onResize, { passive: true });
-      return () => window.removeEventListener("resize", onResize);
+      return () => {
+        window.removeEventListener("resize", onResize);
+        cleanups.forEach(fn => fn());
+      };
     });
 
     // ── Mobile: Vertical Cinematic Slide (<1024px) ───────────────────────────
@@ -375,8 +418,6 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
       });
 
       cards.forEach((card) => {
-        const ghost = card.querySelector(".ghost-border");
-        const activeBorder = card.querySelector(".active-outer-border");
         const body = card.querySelectorAll(".card-body > *");
         const badges = card.querySelectorAll(".skill-badge");
 
@@ -385,10 +426,9 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
           start: "top 85%",
           once: true,
           onEnter: () => {
-            gsap.to(ghost, { strokeDashoffset: 0, duration: 1.5, ease: "power3.inOut" });
-            gsap.to(activeBorder, { opacity: 0.3, duration: 1.0 });
+            gsap.to(card, { boxShadow: "0 0 80px rgba(143,245,255,0.05)", duration: 1.0 });
             gsap.to(body, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.08, ease: "power3.out", delay: 0.1 });
-            gsap.to(badges, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.05, ease: "back.out(2.2)", delay: 0.45 });
+            gsap.to(badges, { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "power3.out", delay: 0.45 });
           },
         });
       });
@@ -481,7 +521,7 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
         ref={scrollContainerRef}
         className="flex flex-col lg:flex-row flex-nowrap
                    gap-10 lg:gap-[6vw]
-                   px-8 lg:pl-[50vw] lg:pr-[25vw]
+                   px-8 lg:pl-[100vw] lg:pr-[25vw]
                    pb-24 lg:pb-0
                    w-full lg:w-max
                    lg:h-[76vh] lg:items-center
@@ -500,85 +540,48 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                 height: "clamp(480px, 74vh, 840px)",
                 transformOrigin: "center center",
                 willChange: "transform, opacity, filter",
+                perspective: "1200px",
               }}
             >
               <div
-                className="active-outer-border absolute inset-[-1.5px] rounded-[30px] z-0 pointer-events-none"
+                className="card-inner relative w-full h-full flex flex-col rounded-[28px] bg-[#0d1117] border border-white/10"
                 style={{
-                  background: "linear-gradient(to bottom right, var(--primary), rgba(143,245,255,0.05) 40%, transparent)",
-                  opacity: 0,
-                }}
-              />
-              
-              <div
-                className="relative w-full h-full flex flex-col rounded-[28px] overflow-hidden bg-[#0b0e14]"
-                style={{
-                  background: "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.012) 100%)",
-                  border: "1px solid rgba(255,255,255,0.04)",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
-                  backdropFilter: "blur(30px)",
+                  willChange: "transform",
+                  transformStyle: "preserve-3d",
                 }}
               >
+                {/* Spotlight Background */}
                 <div
-                  className="absolute inset-x-0 h-[40%] bg-gradient-to-b from-transparent via-[var(--primary)]/10 to-transparent pointer-events-none animate-scanline mix-blend-screen opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                />
-
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 pointer-events-none"
+                  className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100 rounded-[28px] overflow-hidden"
                   style={{
-                    backgroundImage: `
-                      linear-gradient(rgba(143,245,255,0.02) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(143,245,255,0.02) 1px, transparent 1px)
-                    `,
-                    backgroundSize: "36px 36px",
-                    backgroundPosition: "center center",
-                    transition: "background-position 0.8s ease-out",
+                    background: "radial-gradient(circle 500px at var(--mouse-x, -1000px) var(--mouse-y, -1000px), rgba(255,255,255,0.06) 0%, transparent 60%)",
                   }}
                 />
 
-                <svg
-                  className="absolute inset-0 w-full h-full pointer-events-none"
-                  preserveAspectRatio="none"
-                >
-                  <rect
-                    x="2" y="2"
-                    width="calc(100% - 4px)"
-                    height="calc(100% - 4px)"
-                    rx="26" ry="26"
-                    fill="none"
-                    stroke="var(--primary)"
-                    strokeWidth="1.5"
-                    pathLength="100"
-                    className="ghost-border"
-                    style={{ strokeDasharray: "100", strokeDashoffset: "100", opacity: 0.35 }}
-                  />
-                </svg>
+                {/* Border Glow Mask */}
+                <div
+                  className="pointer-events-none absolute inset-[-1px] z-10 rounded-[28px] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  style={{
+                    background: "radial-gradient(circle 300px at var(--mouse-x, -1000px) var(--mouse-y, -1000px), rgba(255,255,255,0.2) 0%, transparent 70%)",
+                    WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                    WebkitMaskComposite: "xor",
+                    maskComposite: "exclude",
+                    padding: "1px",
+                  }}
+                />
 
-                <div className="absolute top-6 right-6 flex flex-col items-end gap-[2px] pointer-events-none badge-font opacity-40 mix-blend-plus-lighter">
-                  <span className="text-[9px] text-[var(--primary)] tracking-[0.2em]">SYS-MODULE: 0x0{i + 1}</span>
-                  <span className="text-[7.5px] text-white/60 tracking-[0.1em]" style={{ fontFamily: "monospace" }}>T-INDEX {Math.random().toString(36).substring(2,8).toUpperCase()}</span>
-                </div>
-
-                <div aria-hidden="true" className="absolute top-5 left-5 pointer-events-none">
-                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                    <path d="M0 22 L0 0 L22 0" stroke="rgba(143,245,255,0.2)" strokeWidth="1.5"/>
-                  </svg>
-                </div>
-                <div aria-hidden="true" className="absolute bottom-5 right-5 pointer-events-none">
-                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                    <path d="M22 0 L22 22 L0 22" stroke="rgba(143,245,255,0.2)" strokeWidth="1.5"/>
-                  </svg>
-                </div>
+                <div
+                  className="absolute inset-0 pointer-events-none mix-blend-overlay rounded-[28px] overflow-hidden"
+                  style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 100%)" }}
+                />
 
                 <div className="card-body relative z-[15] flex flex-col h-full p-8 lg:p-12 gap-6">
                   <div className="self-start mt-2">
                     <div
                       className="inline-flex items-center gap-2 px-4 py-2 rounded-full
-                                 bg-[var(--primary)]/10 text-[var(--primary)]
-                                 border border-[var(--primary)]/30
+                                 bg-white/[0.03] text-white/70
+                                 border border-white/10
                                  text-[10px] lg:text-[11px] tracking-[0.2em] font-bold uppercase badge-font
-                                 shadow-[0_0_20px_rgba(143,245,255,0.08)]
                                  select-none cursor-default"
                     >
                       {item.company}
@@ -586,33 +589,42 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                   </div>
 
                   <h3
-                    className="text-3xl md:text-4xl lg:text-[2.2rem] font-black text-white
-                               tracking-tight leading-[1.1] mt-2 drop-shadow-md"
+                    className="text-5xl lg:text-[2.5rem] font-black text-white
+                                tracking-tighter leading-[1.1] badge-font mt-2"
                   >
                     {item.role}
                   </h3>
 
                   <p
-                    className="text-white/45 leading-[1.8] text-[13.5px] lg:text-[14.5px] flex-1 mt-1 pr-4"
-                    style={{ fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace" }}
+                    className="text-white/50 leading-relaxed text-[16px] flex-1 mt-1 pr-4"
                   >
                     {item.desc}
                   </p>
 
-                  <div className="flex flex-wrap gap-2.5 pt-4 pb-2">
-                    {stack.map((skill) => (
-                      <span
-                        key={skill}
-                        className="skill-badge inline-flex items-center px-3.5 py-1.5 rounded-full
-                                   bg-[#0b0e14] border-[1.2px] border-[var(--primary)]
-                                   text-[var(--primary)] text-[11px] font-bold uppercase
-                                   tracking-[0.2em] badge-font
-                                   shadow-[0_4px_12px_rgba(0,0,0,0.6),_inset_0_0_8px_rgba(143,245,255,0.1)]
-                                   select-none"
-                      >
-                        {skill}
-                      </span>
-                    ))}
+                  <div className="flex flex-wrap gap-2.5 pt-4 pb-2 relative z-20">
+                    {stack.map((skill) => {
+                      const Icon = SKILL_ICONS[skill] || Database;
+                      return (
+                      <MagneticElement key={skill} radius={60} strength={0.25}>
+                        <span
+                          className="skill-badge inline-flex items-center gap-2 px-4 py-2 rounded-full
+                                     bg-[#0b0e14] border border-white/10
+                                     text-white/60 text-[13px] font-medium uppercase
+                                     select-none cursor-pointer transition-colors"
+                          onMouseEnter={(e) => {
+                            gsap.to(e.currentTarget, { backgroundColor: "rgba(255,255,255,0.1)", color: "#ffffff", scale: 1.05, duration: 0.3, ease: "power2.out" });
+                            const icon = e.currentTarget.querySelector("svg");
+                            if (icon) gsap.fromTo(icon, { scale: 0.8 }, { scale: 1, duration: 0.4, ease: "back.out(2)" });
+                          }}
+                          onMouseLeave={(e) => {
+                            gsap.to(e.currentTarget, { backgroundColor: "#0b0e14", color: "rgba(255,255,255,0.6)", scale: 1, duration: 0.3, ease: "power2.out" });
+                          }}
+                        >
+                          <Icon size={14} className="opacity-80 transition-transform" />
+                          {skill}
+                        </span>
+                      </MagneticElement>
+                    )})}
                   </div>
 
                   <div
@@ -620,12 +632,8 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                                justify-between text-white/30 text-[9px] md:text-[10px] font-semibold
                                uppercase tracking-[0.2em]"
                   >
-                    <span>{item.date}</span>
-                    <span className="flex items-center gap-3">
-                      <span className="relative flex h-[10px] w-[10px]">
-                        <span className="active-pulse absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-75" />
-                        <span className="relative inline-flex rounded-full h-[10px] w-[10px] bg-[var(--primary)]" />
-                      </span>
+                    <span className="text-white/50">{item.date}</span>
+                    <span className="flex items-center gap-3 text-white/50">
                       {t.experience.active}
                     </span>
                   </div>
