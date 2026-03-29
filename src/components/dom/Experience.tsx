@@ -18,39 +18,70 @@ const ROLE_STACK: string[][] = [
 const MagneticElement = ({
   children,
   className = "",
+  onHoverAction,
 }: {
   children: React.ReactNode;
   className?: string;
+  onHoverAction?: () => void;
 }) => {
-  const wrapRef  = useRef<HTMLDivElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
 
   const onMove = useCallback((e: React.MouseEvent) => {
     const rect = wrapRef.current?.getBoundingClientRect();
     if (!rect || !innerRef.current) return;
     const dx = e.clientX - (rect.left + rect.width / 2);
-    const dy = e.clientY - (rect.top  + rect.height / 2);
+    const dy = e.clientY - (rect.top + rect.height / 2);
+
     if (Math.hypot(dx, dy) < 44) {
       gsap.to(innerRef.current, {
-        x: dx * 0.38, y: dy * 0.38, duration: 0.26, ease: "power2.out", overwrite: "auto",
+        x: dx * 0.38,
+        y: dy * 0.38,
+        duration: 0.26,
+        ease: "power2.out",
+        overwrite: "auto",
       });
     } else {
-      gsap.to(innerRef.current, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1,0.4)", overwrite: "auto" });
+      gsap.to(innerRef.current, {
+        x: 0,
+        y: 0,
+        duration: 0.5,
+        ease: "elastic.out(1,0.4)",
+        overwrite: "auto",
+      });
     }
   }, []);
 
+  const onEnter = useCallback(() => {
+    if (onHoverAction) onHoverAction();
+  }, [onHoverAction]);
+
   const onLeave = useCallback(() => {
-    gsap.to(innerRef.current, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1,0.4)", overwrite: "auto" });
+    gsap.to(innerRef.current, {
+      x: 0,
+      y: 0,
+      duration: 0.5,
+      ease: "elastic.out(1,0.4)",
+      overwrite: "auto",
+    });
   }, []);
 
   return (
-    <div ref={wrapRef} onMouseMove={onMove} onMouseLeave={onLeave} className={`inline-block ${className}`}>
-      <div ref={innerRef} className="origin-center">{children}</div>
+    <div
+      ref={wrapRef}
+      onMouseMove={onMove}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      className={`inline-block ${className}`}
+    >
+      <div ref={innerRef} className="origin-center">
+        {children}
+      </div>
     </div>
   );
 };
 
-// ─── Experience Engineering Timeline ──────────────────────────────────────────
+// ─── Experience Cinematic Industrial Module ────────────────────────────────────
 interface ExperienceProps {
   language: Language;
   onActive?: () => void;
@@ -59,15 +90,14 @@ interface ExperienceProps {
 export const Experience = ({ language, onActive }: ExperienceProps) => {
   const t = translations[language].sections;
 
-  const sectionRef         = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const titleRef           = useRef<HTMLSpanElement>(null);
-  const tagRef             = useRef<HTMLDivElement>(null);
-  const cardsRef           = useRef<(HTMLDivElement | null)[]>([]);
+  const titleBlockRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLSpanElement>(null);
+  const tagRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  // ── onActive stabilization — only fires when index actually changes ─────────
-  // This prevents the Sections parent from re-rendering on every scroll tick
-  // which would cause the GSAP context to tear down and re-mount (the "refresh glitch").
+  // ── Stable onActive logic ───────────────────────────────────────────────────
   const onActiveRef = useRef(onActive);
   onActiveRef.current = onActive;
   const activeCalledRef = useRef(false);
@@ -79,200 +109,288 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
     }
   }, []);
 
+  // ── Magnetic Anchor Global Pulse ────────────────────────────────────────────
+  // Triggers a flash across all ghost borders concurrently
+  const triggerGlobalPulse = useCallback(() => {
+    gsap.fromTo(
+      ".ghost-border",
+      { strokeWidth: 3, filter: "drop-shadow(0 0 10px rgba(143,245,255,0.8))", opacity: 0.9 },
+      {
+        strokeWidth: 1.5,
+        filter: "none",
+        opacity: 0.35,
+        duration: 1.4,
+        ease: "power4.out",
+        stagger: 0.1,
+        overwrite: "auto",
+      }
+    );
+  }, []);
+
   useLayoutEffect(() => {
     if (!sectionRef.current || !scrollContainerRef.current) return;
 
     let tlPrimary: gsap.core.Timeline | null = null;
     const mm = gsap.matchMedia();
 
-    // ── FOUC guard — set all invisible before first paint ───────────────────
+    // ── Pre-boot Initial States ───────────────────────────────────────────────
     gsap.set(titleRef.current, { yPercent: 110 });
     gsap.set(tagRef.current, { autoAlpha: 0, y: 20 });
+    gsap.set(titleBlockRef.current, { transformOrigin: "left center" });
 
     cardsRef.current.forEach((card) => {
       if (!card) return;
-      const ghost  = card.querySelector(".ghost-border");
-      const body   = card.querySelectorAll(".card-body > *");
+      const ghost = card.querySelector(".ghost-border");
+      const activeBorder = card.querySelector(".active-outer-border");
+      const body = card.querySelectorAll(".card-body > *");
       const badges = card.querySelectorAll(".skill-badge");
-      const pulse  = card.querySelector(".active-pulse");
+      const pulse = card.querySelector(".active-pulse");
 
-      gsap.set(ghost,  { strokeDashoffset: 100 });
-      gsap.set(body,   { opacity: 0, y: 28 });
-      gsap.set(badges, { opacity: 0, y: 16, scale: 0.82 });
-      // Default de-focused state
-      gsap.set(card, { opacity: 0.5, scale: 0.92 });
+      gsap.set(ghost, { strokeDashoffset: 100 });
+      gsap.set(activeBorder, { opacity: 0 }); // Ultra-thin active outer border
+      gsap.set(body, { opacity: 0, y: 30 });
+      // Aero-badges start fully scaled down and invisible
+      gsap.set(badges, { autoAlpha: 0, scale: 0.2, y: 15 });
+      
+      // DOF state off-center default: Scaled down, blurred heavily
+      gsap.set(card, { opacity: 0.35, scale: 0.88, filter: "blur(4px)" });
 
-      // Pulse — simple GSAP repeat, minimal main-thread cost
       if (pulse) {
-        gsap.to(pulse, { scale: 2.4, opacity: 0, duration: 1.8, repeat: -1, ease: "power2.out" });
+        gsap.to(pulse, { scale: 2.5, opacity: 0, duration: 1.6, repeat: -1, ease: "power2.out" });
       }
     });
 
-    // ── Desktop: Horizontal Pinned Scroll ────────────────────────────────────
+    // ── Desktop (1024px+): High-Performance Pinned Horizontal Scroll ───────────
     mm.add("(min-width: 1024px)", () => {
       const container = scrollContainerRef.current!;
       const cards = cardsRef.current.filter((c): c is HTMLDivElement => c !== null);
 
       const getScrollAmount = () => -(container.scrollWidth - window.innerWidth);
-      // 1.5× buffer gives Ghost Border and scramble animations full time to complete
       const getEndOffset = () => `+=${container.scrollWidth * 1.5}`;
 
       tlPrimary = gsap.timeline({
         scrollTrigger: {
-          trigger:             sectionRef.current,
-          start:               "top top",
-          end:                 getEndOffset,
-          pin:                 true,
-          pinSpacing:          true,
-          scrub:               1.5,          // Viscous, high-end feel
-          invalidateOnRefresh: true,          // Recalculates cleanly on resize — no layout break
-          anticipatePin:       1,
-          onEnter:             fireOnActive,
-          onEnterBack:         fireOnActive,
+          trigger: sectionRef.current,
+          start: "top top",
+          end: getEndOffset,
+          pin: true,
+          pinSpacing: true,
+          scrub: 1.5,
+          invalidateOnRefresh: true,
+          anticipatePin: 1,
+          onEnter: fireOnActive,
+          onEnterBack: fireOnActive,
         },
       });
 
-      tlPrimary.to(container, { x: getScrollAmount, ease: "none" });
+      // Phase 1: Two-Phase Title Sequence (Scrubbed Exit)
+      // Title shrinks, fades, and moves left during the first 20% of the horizontal scroll
+      tlPrimary.to(
+        titleBlockRef.current,
+        {
+          opacity: 0,
+          scale: 0.75,
+          xPercent: -15, // Migrates slightly off stage left
+          duration: 0.2, // Relies on tlPrimary timeline ratio
+          ease: "power2.inOut",
+        },
+        0 // Starts immediately with horizontal scroll
+      );
 
-      // ── Title scramble — only fires once on section entry ─────────────────
+      // Phase 2: Horizontal Translation
+      // Container sweeps left
+      tlPrimary.to(container, { x: getScrollAmount, ease: "none" }, 0);
+
+      // ── Scramble Initial Hook — only reveals once upon viewport entry ────────
       ScrollTrigger.create({
         trigger: sectionRef.current,
-        start: "top 65%",
+        start: "top 60%",
         once: true,
         onEnter: () => {
-          gsap.to(tagRef.current, { autoAlpha: 1, y: 0, duration: 0.65, ease: "power3.out" });
+          gsap.to(tagRef.current, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" });
           gsap.to(titleRef.current, {
-            yPercent: 0, duration: 0.85, ease: "power4.out",
-            onComplete: () => { if (titleRef.current) scrambleText(titleRef.current); },
+            yPercent: 0,
+            duration: 1.0,
+            ease: "power4.out",
+            onComplete: () => {
+              if (titleRef.current) scrambleText(titleRef.current);
+            },
           });
         },
       });
 
-      // ── Velocity skew + aero-drag compression ─────────────────────────────
-      const proxy       = { skew: 0, scaleX: 1 };
-      const skewSetter  = gsap.quickSetter(cards, "skewX",  "deg");
+      // ── Skew & Compression Physics ──────────────────────────────────────────
+      const proxy = { skew: 0, scaleX: 1 };
+      const skewSetter = gsap.quickSetter(cards, "skewX", "deg");
       const scaleXSetter = gsap.quickSetter(cards, "scaleX");
-      const clamp       = gsap.utils.clamp(-9, 9);
-      const clampSX     = gsap.utils.clamp(0.97, 1);
+      const clamp = gsap.utils.clamp(-8, 8);
+      const clampSX = gsap.utils.clamp(0.96, 1);
 
       ScrollTrigger.create({
         trigger: sectionRef.current,
-        start:   "top top",
-        end:     getEndOffset,
+        start: "top top",
+        end: getEndOffset,
         onUpdate: (self) => {
-          const raw = self.getVelocity() / -200;
-          const skewVal  = clamp(raw);
-          const scaleVal = clampSX(1 - Math.abs(raw) * 0.004); // max ~2% squish
+          const raw = self.getVelocity() / -250;
+          const skewVal = clamp(raw);
+          const scaleVal = clampSX(1 - Math.abs(raw) * 0.005);
 
-          if (Math.abs(skewVal) > 0.06) {
+          if (Math.abs(skewVal) > 0.05) {
             gsap.to(proxy, {
-              skew:  skewVal,  scaleX: scaleVal,
-              overwrite: true,  duration: 0.08,
-              onUpdate: () => { skewSetter(proxy.skew); scaleXSetter(proxy.scaleX); },
+              skew: skewVal,
+              scaleX: scaleVal,
+              overwrite: true,
+              duration: 0.1,
+              onUpdate: () => {
+                skewSetter(proxy.skew);
+                scaleXSetter(proxy.scaleX);
+              },
             });
             gsap.to(proxy, {
-              skew: 0, scaleX: 1,
-              delay: 0.08, duration: 0.95, ease: "power3.out",
-              onUpdate: () => { skewSetter(proxy.skew); scaleXSetter(proxy.scaleX); },
+              skew: 0,
+              scaleX: 1,
+              delay: 0.1,
+              duration: 0.8,
+              ease: "power3.out",
+              onUpdate: () => {
+                skewSetter(proxy.skew);
+                scaleXSetter(proxy.scaleX);
+              },
             });
           }
         },
       });
 
-      // ── Per-card: Ghost draw, content stagger, skill cascade, focus inflate ─
+      // ── Container Animation Logic (The Focus Lens / DOF) ────────────────────
       cards.forEach((card) => {
-        const ghost  = card.querySelector(".ghost-border");
-        const body   = card.querySelectorAll(".card-body > *");
+        const ghost = card.querySelector(".ghost-border");
+        const activeBorder = card.querySelector(".active-outer-border");
+        const body = card.querySelectorAll(".card-body > *");
         const badges = card.querySelectorAll(".skill-badge");
 
+        // Focus Zone: Center of the screen ± 15%
         ScrollTrigger.create({
-          trigger:            card,
+          trigger: card,
           containerAnimation: tlPrimary!,
-          start:              "left 78%",
-          end:                "right 22%",
+          start: "left 75%",
+          end: "right 25%",
           onEnter: () => {
-            // Ghost border self-assembles clockwise
-            gsap.to(ghost, { strokeDashoffset: 0, duration: 1.5, ease: "power3.inOut" });
-            // Body content staggers in
-            gsap.to(body, { opacity: 1, y: 0, duration: 0.85, stagger: 0.09, ease: "power3.out", delay: 0.1 });
-            // Skill badges cascade up — "system boot" feel
+            // Hardware assembly sequence
+            gsap.to(ghost, { strokeDashoffset: 0, duration: 1.6, ease: "power3.inOut" });
+            gsap.to(body, { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.08, ease: "power3.out", delay: 0.1 });
+            
+            // Outer layer cyan border illuminates
+            gsap.to(activeBorder, { opacity: 0.4, duration: 1.2, ease: "power2.inOut", delay: 0.4 });
+
+            // Aero-badges "snap" into footer
             gsap.to(badges, {
-              opacity: 1, y: 0, scale: 1,
-              duration: 0.5, stagger: 0.055, ease: "back.out(1.6)", delay: 0.55,
+              autoAlpha: 1,
+              y: 0,
+              scale: 1,
+              duration: 0.6,
+              stagger: 0.05,
+              ease: "back.out(2.2)", // Snaps firmly past 1.0 and settles
+              delay: 0.45,
             });
-            // Center inflate with cyan glow
+
+            // Center Inflate & DOF resolving (sharpness)
             gsap.to(card, {
-              opacity: 1, scale: 1.0,
-              filter: "drop-shadow(0 0 32px rgba(143,245,255,0.14)) drop-shadow(0 8px 24px rgba(0,0,0,0.5))",
-              duration: 0.55, ease: "power3.out",
+              opacity: 1,
+              scale: 1.02,
+              filter: "blur(0px) drop-shadow(0 0 45px rgba(143,245,255,0.12)) drop-shadow(0 20px 40px rgba(0,0,0,0.6))",
+              duration: 0.6,
+              ease: "power3.out",
             });
           },
           onLeave: () => {
+            // Unfocus Right — drops to heavy DOF blur
+            gsap.to(activeBorder, { opacity: 0, duration: 0.4 });
             gsap.to(card, {
-              opacity: 0.42, scale: 0.9, filter: "none",
-              duration: 0.4, ease: "power2.in",
+              opacity: 0.35,
+              scale: 0.88,
+              filter: "blur(4px) drop-shadow(none)",
+              duration: 0.5,
+              ease: "power2.in",
             });
           },
           onEnterBack: () => {
+            // Focus Inflate back into center
+            gsap.to(activeBorder, { opacity: 0.4, duration: 0.4 });
             gsap.to(card, {
-              opacity: 1, scale: 1.0,
-              filter: "drop-shadow(0 0 32px rgba(143,245,255,0.14)) drop-shadow(0 8px 24px rgba(0,0,0,0.5))",
-              duration: 0.5, ease: "power3.out",
+              opacity: 1,
+              scale: 1.02,
+              filter: "blur(0px) drop-shadow(0 0 45px rgba(143,245,255,0.12)) drop-shadow(0 20px 40px rgba(0,0,0,0.6))",
+              duration: 0.6,
+              ease: "power3.out",
             });
           },
           onLeaveBack: () => {
-            gsap.to(card, {
-              opacity: 0.42, scale: 0.9, filter: "none",
-              duration: 0.4, ease: "power2.in",
+             // Unfocus Left
+             gsap.to(activeBorder, { opacity: 0, duration: 0.4 });
+             gsap.to(card, {
+              opacity: 0.35,
+              scale: 0.88,
+              filter: "blur(4px) drop-shadow(none)",
+              duration: 0.5,
+              ease: "power2.in",
             });
           },
         });
       });
 
-      // Single resize listener — only refreshes ScrollTrigger, never re-mounts context
       const onResize = () => ScrollTrigger.refresh();
       window.addEventListener("resize", onResize, { passive: true });
-
-      return () => {
-        window.removeEventListener("resize", onResize);
-      };
+      return () => window.removeEventListener("resize", onResize);
     });
 
-    // ── Mobile: Vertical snap stack ──────────────────────────────────────────
+    // ── Mobile: Vertical Cinematic Slide (<1024px) ───────────────────────────
     mm.add("(max-width: 1023px)", () => {
       const cards = cardsRef.current.filter((c): c is HTMLDivElement => c !== null);
 
-      // Reset desktop de-focus state so mobile cards display at full opacity
-      gsap.set(cards, { opacity: 1, scale: 1, filter: "none" });
+      // Strip DOF and scaling for standard vertical stack
+      gsap.set(cards, { opacity: 1, scale: 1, filter: "blur(0px)" });
+      gsap.set(titleBlockRef.current, { opacity: 1, scale: 1, xPercent: 0 });
 
+      // Title enters
       ScrollTrigger.create({
         trigger: sectionRef.current,
-        start: "top 82%",
+        start: "top 80%",
         once: true,
         onEnter: () => {
-          gsap.to(tagRef.current, { autoAlpha: 1, y: 0, duration: 0.65, ease: "power3.out" });
+          gsap.to(tagRef.current, { autoAlpha: 1, y: 0, duration: 0.7, ease: "power3.out" });
           gsap.to(titleRef.current, {
-            yPercent: 0, duration: 0.85, ease: "power4.out",
-            onComplete: () => { if (titleRef.current) scrambleText(titleRef.current); },
+            yPercent: 0,
+            duration: 0.9,
+            ease: "power4.out",
+            onComplete: () => {
+              if (titleRef.current) scrambleText(titleRef.current);
+            },
           });
         },
       });
 
       cards.forEach((card) => {
-        const ghost  = card.querySelector(".ghost-border");
-        const body   = card.querySelectorAll(".card-body > *");
+        const ghost = card.querySelector(".ghost-border");
+        const activeBorder = card.querySelector(".active-outer-border");
+        const body = card.querySelectorAll(".card-body > *");
         const badges = card.querySelectorAll(".skill-badge");
 
         ScrollTrigger.create({
           trigger: card,
-          start: "top 88%",
+          start: "top 85%",
           once: true,
           onEnter: () => {
-            gsap.to(ghost,  { strokeDashoffset: 0, duration: 1.4, ease: "power3.inOut" });
-            gsap.to(body,   { opacity: 1, y: 0, duration: 0.8, stagger: 0.09, ease: "power3.out", delay: 0.1 });
+            gsap.to(ghost, { strokeDashoffset: 0, duration: 1.5, ease: "power3.inOut" });
+            gsap.to(activeBorder, { opacity: 0.3, duration: 1.0 });
+            gsap.to(body, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.08, ease: "power3.out", delay: 0.1 });
             gsap.to(badges, {
-              opacity: 1, y: 0, scale: 1,
-              duration: 0.45, stagger: 0.055, ease: "back.out(1.6)", delay: 0.45,
+              autoAlpha: 1,
+              y: 0,
+              scale: 1,
+              duration: 0.5,
+              stagger: 0.05,
+              ease: "back.out(2.2)",
+              delay: 0.45,
             });
           },
         });
@@ -291,40 +409,47 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
       className="relative w-full min-h-screen lg:h-screen bg-[#0b0e14] lg:overflow-hidden flex flex-col lg:flex-row lg:items-center"
       style={{ willChange: "transform" }}
     >
-      {/* ── Lateral vignette — focuses eye on center card ─────────────────── */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-30"
-        style={{
-          background: `linear-gradient(to right,
-            rgba(11,14,20,0.92) 0%,
-            transparent 20%,
-            transparent 80%,
-            rgba(11,14,20,0.92) 100%)`,
-        }}
-      />
+      {/* ── Internal CSS for Diagnostics Scanline ───────────────────────────── */}
+      <style>{`
+        @keyframes scanline {
+          0% { transform: translateY(-100%); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translateY(100%); opacity: 0; }
+        }
+        .animate-scanline {
+          animation: scanline 3s linear infinite;
+        }
+      `}</style>
 
-      {/* ── Top-left title block ──────────────────────────────────────────── */}
-      <div className="relative lg:absolute lg:top-20 lg:left-20 z-20 px-8 pt-20 pb-6 lg:px-0 lg:pt-0 pointer-events-none">
-        <MagneticElement>
+      {/* ── Title Block Stage-Gate (Phase 1) ──────────────────────────────── */}
+      {/* 
+        Mobile: static/sticky document flow. 
+        Desktop: absolute lock, exits stage left via tlPrimary scrub in Phase 2.
+      */}
+      <div
+        ref={titleBlockRef}
+        className="relative lg:absolute lg:top-1/2 lg:-translate-y-1/2 lg:left-24 z-[40] px-8 pt-24 pb-12 lg:px-0 lg:pt-0 pointer-events-none"
+        style={{ willChange: "transform, opacity" }}
+      >
+        {/* Hovering Briefcase triggers all card pulses globally */}
+        <MagneticElement onHoverAction={triggerGlobalPulse}>
           <div
             ref={tagRef}
             className="mb-5 inline-flex items-center gap-2 px-4 py-1.5 rounded-full
                        bg-[var(--secondary)]/10 border border-[var(--secondary)]/20
-                       text-[var(--secondary)] text-[10px] font-bold tracking-[0.2em]
+                       text-[var(--secondary)] text-[10px] md:text-xs font-bold tracking-[0.2em]
                        uppercase badge-font backdrop-blur-md pointer-events-auto"
           >
-            <Briefcase size={13} /> {t.experience.tag}
+            <Briefcase size={14} /> {t.experience.tag}
           </div>
         </MagneticElement>
 
-        <h2
-          className="text-5xl md:text-7xl lg:text-8xl font-bold text-white tracking-tighter badge-font"
-        >
-          <div className="overflow-hidden pb-3">
+        <h2 className="text-6xl md:text-8xl lg:text-[7.5rem] font-bold text-white tracking-tighter badge-font">
+          <div className="overflow-hidden pb-4">
             <span
               ref={titleRef}
-              className="block uppercase italic"
+              className="block uppercase italic drop-shadow-[0_0_20px_rgba(255,255,255,0.15)]"
               data-final-text={t.experience.title}
             >
               {t.experience.title}
@@ -333,15 +458,20 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
         </h2>
       </div>
 
-      {/* ── Horizontal scroll track ───────────────────────────────────────── */}
+      {/* ── Horizontal Modules Track (Phase 2 & Center Focus) ───────────── */}
+      {/* 
+        Reduced starting padding on desktop (pl-[15vw] instead of 38vw) since 
+        the title will vacate the screen before the first card hits center.
+        Mobile keeps standard w-full tracking.
+      */}
       <div
         ref={scrollContainerRef}
         className="flex flex-col lg:flex-row flex-nowrap
-                   gap-10 lg:gap-14
-                   px-8 lg:pl-[38vw] lg:pr-[24vw]
+                   gap-10 lg:gap-[6vw]
+                   px-8 lg:pl-[15vw] lg:pr-[25vw]
                    pb-24 lg:pb-0
                    w-full lg:w-max
-                   lg:h-[74vh] lg:items-center
+                   lg:h-[76vh] lg:items-center
                    relative z-10"
         style={{ willChange: "transform" }}
       >
@@ -351,62 +481,66 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
             <div
               key={i}
               ref={(el) => { cardsRef.current[i] = el; }}
-              className="flex-none w-full transform-gpu cursor-default"
+              className="flex-none w-full transform-gpu cursor-default relative group"
               style={{
-                width: "clamp(340px, 44vw, 560px)",
-                height: "clamp(480px, 70vh, 800px)",
+                width: "clamp(340px, 46vw, 600px)", // Massive Scale
+                height: "clamp(480px, 74vh, 840px)",
                 transformOrigin: "center center",
                 willChange: "transform, opacity, filter",
               }}
             >
-              {/* ── Engineering Module shell ────────────────────────────── */}
+              {/* 
+                 Heavy-Spec Dual-Layer Shell:
+                 Outermost wrapper handles the drop shadow and the cyan "active" rim.
+                 Inner wrapper provides the 15% obsidian glass mass.
+              */}
               <div
-                className="relative w-full h-full flex flex-col rounded-[28px] overflow-hidden"
+                className="active-outer-border absolute inset-[-1.5px] rounded-[30px] z-0 pointer-events-none"
                 style={{
-                  background: "linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
-                  backdropFilter: "blur(24px)",
+                  background: "linear-gradient(to bottom right, var(--primary), rgba(143,245,255,0.05) 40%, transparent)",
+                  opacity: 0, // Fades in on active
+                }}
+              />
+              
+              <div
+                className="relative w-full h-full flex flex-col rounded-[28px] overflow-hidden bg-[#0b0e14]"
+                style={{
+                  background: "linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.012) 100%)",
+                  border: "1px solid rgba(255,255,255,0.04)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
+                  backdropFilter: "blur(30px)",
                 }}
               >
-                {/* ── Technical grid background layer ────────────────── */}
+                {/* ── Structural Diagnostic Scanline (3s recurrent cycle) ─── */}
+                <div
+                  className="absolute inset-x-0 h-[40%] bg-gradient-to-b from-transparent via-[var(--primary)]/10 to-transparent pointer-events-none animate-scanline mix-blend-screen opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                />
+
+                {/* ── Technical Grid Mesh ─── */}
                 <div
                   aria-hidden="true"
                   className="absolute inset-0 pointer-events-none"
                   style={{
                     backgroundImage: `
-                      linear-gradient(rgba(143,245,255,0.03) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(143,245,255,0.03) 1px, transparent 1px)
+                      linear-gradient(rgba(143,245,255,0.02) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(143,245,255,0.02) 1px, transparent 1px)
                     `,
                     backgroundSize: "36px 36px",
                     backgroundPosition: "center center",
-                    // Subtle "slower than card" parallax via group-hover — CSS only
-                    transition: "background-position 0.8s ease",
+                    transition: "background-position 0.8s ease-out",
                   }}
                 />
 
-                {/* Corner accent markers — HUD aesthetic */}
-                <div aria-hidden="true" className="absolute top-4 left-4 pointer-events-none">
-                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                    <path d="M0 18 L0 0 L18 0" stroke="rgba(143,245,255,0.25)" strokeWidth="1.2"/>
-                  </svg>
-                </div>
-                <div aria-hidden="true" className="absolute bottom-4 right-4 pointer-events-none">
-                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                    <path d="M18 0 L18 18 L0 18" stroke="rgba(143,245,255,0.25)" strokeWidth="1.2"/>
-                  </svg>
-                </div>
-
-                {/* Ghost border — pathLength normalises perimeter to 100 */}
+                {/* ── Ghost Border Pathing (Draws into frame edges) ─── */}
                 <svg
                   className="absolute inset-0 w-full h-full pointer-events-none"
                   preserveAspectRatio="none"
                 >
                   <rect
-                    x="1" y="1"
-                    width="calc(100% - 2px)"
-                    height="calc(100% - 2px)"
-                    rx="27" ry="27"
+                    x="2" y="2"
+                    width="calc(100% - 4px)"
+                    height="calc(100% - 4px)"
+                    rx="26" ry="26"
                     fill="none"
                     stroke="var(--primary)"
                     strokeWidth="1.5"
@@ -415,55 +549,71 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                     style={{
                       strokeDasharray: "100",
                       strokeDashoffset: "100",
-                      opacity: 0.45,
+                      opacity: 0.35,
                     }}
                   />
                 </svg>
 
-                {/* ── Card body ────────────────────────────────────────── */}
-                <div
-                  className="card-body relative z-10 flex flex-col h-full p-8 lg:p-10 gap-5"
-                >
-                  {/* Company badge */}
-                  <MagneticElement className="self-start">
+                {/* ── Telemetry Specs (Top Right HUD) ─── */}
+                <div className="absolute top-6 right-6 flex flex-col items-end gap-[2px] pointer-events-none badge-font opacity-40 mix-blend-plus-lighter">
+                  <span className="text-[9px] text-[var(--primary)] tracking-[0.2em]">SYS-MODULE: 0x0{i + 1}</span>
+                  <span className="text-[7.5px] text-white/60 tracking-[0.1em]" style={{ fontFamily: "monospace" }}>T-INDEX {Math.random().toString(36).substring(2,8).toUpperCase()}</span>
+                </div>
+
+                {/* Corner Data Markers */}
+                <div aria-hidden="true" className="absolute top-5 left-5 pointer-events-none">
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                    <path d="M0 22 L0 0 L22 0" stroke="rgba(143,245,255,0.2)" strokeWidth="1.5"/>
+                  </svg>
+                </div>
+                <div aria-hidden="true" className="absolute bottom-5 right-5 pointer-events-none">
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                    <path d="M22 0 L22 22 L0 22" stroke="rgba(143,245,255,0.2)" strokeWidth="1.5"/>
+                  </svg>
+                </div>
+
+                {/* ── Internal Module Information ─── */}
+                <div className="card-body relative z-[15] flex flex-col h-full p-8 lg:p-12 gap-6">
+                  {/* Company Identifier */}
+                  <div className="self-start mt-2">
                     <div
-                      className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full
-                                 bg-[var(--primary)]/12 text-[var(--primary)]
-                                 border border-[var(--primary)]/25
-                                 text-[10px] tracking-[0.15em] font-bold uppercase badge-font
-                                 shadow-[0_0_18px_rgba(143,245,255,0.08)]
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full
+                                 bg-[var(--primary)]/10 text-[var(--primary)]
+                                 border border-[var(--primary)]/30
+                                 text-[10px] lg:text-[11px] tracking-[0.2em] font-bold uppercase badge-font
+                                 shadow-[0_0_20px_rgba(143,245,255,0.08)]
                                  select-none cursor-default"
                     >
                       {item.company}
                     </div>
-                  </MagneticElement>
+                  </div>
 
-                  {/* Role */}
+                  {/* Operational Role */}
                   <h3
-                    className="text-2xl md:text-3xl lg:text-[1.85rem] font-black text-white
-                               tracking-tight leading-[1.05]"
+                    className="text-3xl md:text-4xl lg:text-[2.2rem] font-black text-white
+                               tracking-tight leading-[1.1] mt-2 drop-shadow-md"
                   >
                     {item.role}
                   </h3>
 
-                  {/* Description — monospace for "Systems" persona */}
+                  {/* Technical Analysis (Mono description) */}
                   <p
-                    className="text-white/40 leading-[1.75] text-[13px] lg:text-[13.5px] flex-1"
+                    className="text-white/45 leading-[1.8] text-[13.5px] lg:text-[14.5px] flex-1 mt-1 pr-4"
                     style={{ fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace" }}
                   >
                     {item.desc}
                   </p>
 
-                  {/* ── Tech-stack skill badges ───────────────────────── */}
-                  <div className="flex flex-wrap gap-2 pt-1">
+                  {/* ── Aero-Badge Cascade ─── */}
+                  <div className="flex flex-wrap gap-2.5 pt-4 pb-2">
                     {stack.map((skill) => (
                       <span
                         key={skill}
-                        className="skill-badge inline-flex items-center px-2.5 py-1 rounded-full
-                                   bg-[var(--primary)]/8 border border-[var(--primary)]/18
-                                   text-[var(--primary)]/80 text-[9px] font-bold uppercase
-                                   tracking-[0.14em] badge-font
-                                   shadow-[0_0_8px_rgba(143,245,255,0.04)]
+                        className="skill-badge inline-flex items-center px-3.5 py-1.5 rounded-full
+                                   bg-[#0b0e14] border-[1.2px] border-[var(--primary)]
+                                   text-[var(--primary)] text-[11px] font-bold uppercase
+                                   tracking-[0.2em] badge-font
+                                   shadow-[0_4px_12px_rgba(0,0,0,0.6),_inset_0_0_8px_rgba(143,245,255,0.1)]
                                    select-none"
                       >
                         {skill}
@@ -471,17 +621,17 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                     ))}
                   </div>
 
-                  {/* Divider + footer */}
+                  {/* System Footprint Divider */}
                   <div
-                    className="pt-5 border-t border-white/[0.05] flex items-center
-                               justify-between text-white/22 text-[9px] font-semibold
-                               uppercase tracking-widest"
+                    className="pt-6 border-t border-white/[0.08] flex items-center
+                               justify-between text-white/30 text-[9px] md:text-[10px] font-semibold
+                               uppercase tracking-[0.2em]"
                   >
                     <span>{item.date}</span>
-                    <span className="flex items-center gap-2.5">
-                      <span className="relative flex h-2 w-2">
-                        <span className="active-pulse absolute inline-flex h-full w-full rounded-full bg-[var(--primary)]" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--primary)]" />
+                    <span className="flex items-center gap-3">
+                      <span className="relative flex h-[10px] w-[10px]">
+                        <span className="active-pulse absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-75" />
+                        <span className="relative inline-flex rounded-full h-[10px] w-[10px] bg-[var(--primary)]" />
                       </span>
                       {t.experience.active}
                     </span>
@@ -493,16 +643,18 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
         })}
       </div>
 
-      {/* ── Scroll hint (desktop) ─────────────────────────────────────────── */}
+      {/* ── Desktop Viewport Vignette ─── */}
       <div
-        className="hidden lg:flex absolute bottom-9 left-1/2 -translate-x-1/2 z-20
-                   items-center gap-3 text-white/18 text-[9px] tracking-[0.26em]
-                   uppercase badge-font pointer-events-none select-none"
-      >
-        <div className="w-7 h-px bg-white/15" />
-        Scroll to explore
-        <div className="w-7 h-px bg-white/15" />
-      </div>
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-30 hidden lg:block"
+        style={{
+          background: `linear-gradient(to right,
+            rgba(11,14,20,0.95) 0%,
+            translate 10%,
+            transparent 90%,
+            rgba(11,14,20,0.95) 100%)`,
+        }}
+      />
     </section>
   );
 };
