@@ -87,14 +87,31 @@ function App() {
       </button>
 
       {/* Main content — never blurred/scaled by CSS; Hero handles its own entrance */}
-      <ReactLenis root options={{ lerp: 0.1, duration: 1.5, smoothWheel: true }}>
+      <ReactLenis
+        root
+        options={{
+          lerp:         0.05,     // "Weighted" feel — cinematic momentum
+          duration:     1.8,      // Full easing duration
+          smoothWheel:  true,
+          syncTouch:    false,    // Don't override native iOS momentum
+          infinite:     false,
+          // raf handled by Lenis internally; works correctly at 120Hz because
+          // Lenis uses requestAnimationFrame which matches display refresh rate
+        }}
+      >
         <main
           role="main"
           className="relative w-full overflow-hidden z-10"
-          // Keep it invisible via ARIA until hero is actually ready, but
-          // keep it in DOM so GSAP can measure DOM positions.
           aria-hidden={!heroReady}
         >
+          {/* Global edge vignette — focuses eye on center content */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none fixed inset-0 z-[50]"
+            style={{
+              background: `radial-gradient(ellipse 90% 90% at 50% 50%, transparent 55%, rgba(11,14,20,0.55) 100%)`,
+            }}
+          />
           <div className="relative z-10">
             <Sections language={lang} loaded={loaded} heroReady={heroReady} />
           </div>

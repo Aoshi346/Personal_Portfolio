@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -19,15 +19,29 @@ export default function Sections({
   loaded,
   heroReady,
 }: {
-  language:  Language;
-  loaded:    boolean;
+  language: Language;
+  loaded: boolean;
   heroReady: boolean;
 }) {
   const t = translations[language].sections;
   const containerRef = useRef<HTMLDivElement>(null);
+  const hudRef = useRef<HTMLDivElement>(null);
+  const hudBarRef = useRef<HTMLDivElement>(null);
+  const hudEdgeRef = useRef<HTMLDivElement>(null);
+  // ── Ref-based active section guard — prevents re-renders on every scroll tick
+  const activeSectionRef = useRef(1);
   const [activeSection, setActiveSection] = useState(1);
   const [time, setTime] = useState<Date | null>(null);
 
+  // Guard: only call setState when section index genuinely changes
+  const setActiveSectionSafe = useCallback((idx: number) => {
+    if (activeSectionRef.current !== idx) {
+      activeSectionRef.current = idx;
+      setActiveSection(idx);
+    }
+  }, []);
+
+  // ── Clock ──────────────────────────────────────────────────────────────────
   useEffect(() => {
     setTime(new Date());
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -42,190 +56,250 @@ export default function Sections({
       })
     : "Loading...";
 
+  // ── HUD progress bar — direct DOM mutation, zero React re-renders ─────────
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!hudBarRef.current || !hudEdgeRef.current) return;
+    const bar  = hudBarRef.current;
+    const edge = hudEdgeRef.current;
+    const onScroll = () => {
+      const pct = document.body.scrollHeight > window.innerHeight
+        ? (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100
+        : 0;
+      bar.style.width  = `${pct}%`;
+      edge.style.left  = `${pct}%`;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [loaded]);
 
-    const mm = gsap.matchMedia();
-    const ctx = gsap.context(() => {
-      gsap.defaults({ overwrite: "auto" });
-      const sections = Array.from(
-        containerRef.current?.querySelectorAll("section") ?? [],
-      );
+  // ── Active section tracking via callbacks ──────────────────────────────────
+  const handleSectionEnter = useCallback((idx: number) => setActiveSectionSafe(idx), [setActiveSectionSafe]);
 
-      sections.forEach((section, index) => {
-        const content = section.querySelector(".reveal-content");
-        const items = section.querySelectorAll(".stagger-item");
-        const revealTexts = section.querySelectorAll(".reveal-text");
+  // ── Section orchestration (avoids touching pinned sections) ────────────────
+  useEffect(() => {
+    if (!containerRef.current || !loaded) return;
 
-        const tl = gsap.timeline({
-          defaults: { ease: "power3.out" },
-          scrollTrigger: {
-            trigger: section,
-            start: "top 82%",
-            toggleActions: "play none none none",
-            once: true,
-            fastScrollEnd: true,
-            onEnter: () => setActiveSection(index + 1),
-            onEnterBack: () => setActiveSection(index + 1),
-          },
+    // Small delay to let pinned sections settle before measuring
+    const initTimer = setTimeout(() => {
+      const ctx = gsap.context(() => {
+        gsap.defaults({ overwrite: "auto" });
+
+        // ── Letterbox section transitions ────────────────────────────────────
+        // Applied only to non-Experience sections (section-1, 3, 4, 5)
+        // Experience handles its own pinning internally.
+        const transitionSections = Array.from(
+          containerRef.current?.querySelectorAll("section:not(#section-2)") ?? []
+        );
+
+        transitionSections.forEach((section) => {
+          const el = section as HTMLElement;
+
+          // Outgoing: scale down + fade as it leaves upward
+          gsap.to(el, {
+            scale: 0.96,
+            opacity: 0,
+            ease: "none",
+            scrollTrigger: {
+              trigger: el,
+              start: "center top",
+              end: "bottom top",
+              scrub: 0.6,
+            },
+          });
         });
 
-        if (revealTexts.length > 0) {
-          tl.fromTo(
-            revealTexts,
-            { y: "105%", rotate: 2 },
-            {
-              y: "0%",
-              rotate: 0,
-              duration: 0.54,
-              stagger: 0.085,
-              ease: "expo.out",
-            },
-          );
+        // ── Reveal animations for non-pinned sections ────────────────────────
+        const revealSections = Array.from(
+          containerRef.current?.querySelectorAll(
+            "section:not(#section-1):not(#section-2)"
+          ) ?? []
+        );
 
-          if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-            tl.call(
-              () => {
+        revealSections.forEach((section, index) => {
+          const revealTexts = section.querySelectorAll(".reveal-text");
+          const content = section.querySelector(".reveal-content");
+          const items = section.querySelectorAll(".stagger-item");
+
+          const tl = gsap.timeline({
+            defaults: { ease: "power3.out" },
+            scrollTrigger: {
+              trigger: section,
+              start: "top 80%",
+              toggleActions: "play none none none",
+              once: true,
+              fastScrollEnd: true,
+              onEnter: () => handleSectionEnter(index + 3), // sections 3, 4, 5
+            },
+          });
+
+          if (revealTexts.length > 0) {
+            tl.fromTo(
+              revealTexts,
+              { y: "105%", rotate: 2 },
+              { y: "0%", rotate: 0, duration: 0.54, stagger: 0.085, ease: "expo.out" }
+            );
+
+            if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+              tl.call(() => {
                 revealTexts.forEach((node, i) => {
                   const el = node as HTMLElement;
                   gsap.delayedCall(i * 0.06, () => scrambleText(el, 0.58));
                 });
-              },
-              [],
-              0.08,
-            );
+              }, [], 0.08);
+            }
           }
-        }
 
-        if (content) {
-          tl.fromTo(
-            content,
-            { y: 54, opacity: 0, rotateX: -8 },
-            {
-              y: 0,
-              opacity: 1,
-              rotateX: 0,
-              duration: 0.44,
-              ease: "power3.out",
-            },
-            "-=0.24",
-          );
-        }
-
-        if (items.length > 0) {
-          tl.fromTo(
-            items,
-            { y: 28, opacity: 0 },
-            {
-              y: 0,
-              opacity: 1,
-              duration: 0.4,
-              stagger: 0.045,
-              ease: "power3.out",
-            },
-            "-=0.26",
-          );
-
-          const ghostBorders = section.querySelectorAll(".ghost-border");
-          if (ghostBorders.length > 0) {
+          if (content) {
             tl.fromTo(
-              ghostBorders,
-              { strokeDashoffset: 1000, opacity: 0 },
-              {
-                strokeDashoffset: 0,
-                opacity: 0.5,
-                duration: 0.82,
-                ease: "power2.out",
-              },
-              "-=0.34",
+              content,
+              { y: 54, opacity: 0, rotateX: -8 },
+              { y: 0, opacity: 1, rotateX: 0, duration: 0.44 },
+              "-=0.24"
             );
           }
-        }
-      });
 
-      if (
-        loaded &&
-        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      ) {
-        gsap.to(".hero-cta", {
-          y: -5,
-          duration: 0.75,
-          ease: "sine.inOut",
-          repeat: -1,
-          yoyo: true,
-          scrollTrigger: {
-            trigger: "#section-1",
-            start: "top bottom",
-            end: "bottom top",
-            toggleActions: "play pause resume pause",
-          },
+          if (items.length > 0) {
+            tl.fromTo(
+              items,
+              { y: 28, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.4, stagger: 0.045 },
+              "-=0.26"
+            );
+
+            const ghostBorders = section.querySelectorAll(".ghost-border");
+            if (ghostBorders.length > 0) {
+              tl.fromTo(
+                ghostBorders,
+                { strokeDashoffset: 1000, opacity: 0 },
+                { strokeDashoffset: 0, opacity: 0.5, duration: 0.82, ease: "power2.out" },
+                "-=0.34"
+              );
+            }
+          }
         });
-      }
-    }, containerRef);
 
-    return () => {
-      ctx.revert();
-      mm.revert();
-    };
-  }, [loaded]);
+        // ── Hero section active tracking ─────────────────────────────────────
+        ScrollTrigger.create({
+          trigger: "#section-1",
+          start: "top 50%",
+          end: "bottom 50%",
+          onEnter: () => handleSectionEnter(1),
+          onEnterBack: () => handleSectionEnter(1),
+        });
+
+        // ── Experience section active tracking (pinned) ──────────────────────
+        // Detect entry into the pin via its own ID
+        ScrollTrigger.create({
+          trigger: "#section-2",
+          start: "top 50%",
+          onEnter: () => handleSectionEnter(2),
+          onEnterBack: () => handleSectionEnter(2),
+        });
+
+        // ── CTA idle bounce (only while hero is visible) ─────────────────────
+        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          gsap.to(".hero-cta", {
+            y: -5,
+            duration: 0.75,
+            ease: "sine.inOut",
+            repeat: -1,
+            yoyo: true,
+            scrollTrigger: {
+              trigger: "#section-1",
+              start: "top bottom",
+              end: "bottom top",
+              toggleActions: "play pause resume pause",
+            },
+          });
+        }
+
+        // ── Ensure triggers refresh after pinned section calculates its height
+        ScrollTrigger.refresh();
+      }, containerRef);
+
+      return () => ctx.revert();
+    }, 200); // Wait for Experience pin to register first
+
+    return () => clearTimeout(initTimer);
+  }, [loaded, handleSectionEnter]);
+
+  const navLabels = [
+    language === "en" ? "HOME" : "INICIO",
+    t.experience.tag,
+    t.skills.tag,
+    t.projects.tag,
+    t.contact.tag,
+  ];
 
   return (
     <div
       ref={containerRef}
       className="flex flex-col relative z-10 w-full bg-transparent"
     >
-      {/* HUD Navigation - Floating Island at the bottom */}
+      {/* ── HUD Navigation — single portal, progress-glow border ─────────── */}
       {typeof document !== "undefined" &&
         createPortal(
           <div
-            className={`fixed left-1/2 -translate-x-1/2 bottom-8 flex items-center gap-1 p-1.5 rounded-2xl bg-[#1c2028]/80 border border-white/10 backdrop-blur-2xl z-[100] transition-all duration-1000 shadow-2xl ${
+            ref={hudRef}
+            className={`fixed left-1/2 -translate-x-1/2 bottom-8 z-[100] transition-all duration-1000 ${
               loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"
             }`}
           >
-            {[1, 2, 3, 4, 5].map((num) => (
-              <button
-                key={num}
-                onClick={() => {
-                  const section = document.getElementById(`section-${num}`);
-                  if (section) section.scrollIntoView({ behavior: "smooth" });
-                }}
-                className={`px-4 py-2 rounded-xl transition-all duration-500 ease-out text-[10px] font-bold tracking-widest badge-font uppercase hover:bg-white/5 ${
-                  activeSection === num
-                    ? "bg-[var(--primary)] text-[#0b0e14]"
-                    : "text-white/40"
-                }`}
-                aria-label={`Scroll to section ${num}`}
+            {/* Progress glow bar above the HUD */}
+            <div className="relative">
+              <div
+                ref={hudRef}
+                className="flex items-center gap-1 p-1.5 rounded-2xl bg-[#1c2028]/85 border border-white/10 backdrop-blur-2xl shadow-2xl relative overflow-hidden"
               >
-                {num === 1
-                  ? language === "en"
-                    ? "HOME"
-                    : "INICIO"
-                  : num === 2
-                    ? t.experience.tag
-                    : num === 3
-                      ? t.skills.tag
-                      : num === 4
-                        ? t.projects.tag
-                        : t.contact.tag}
-              </button>
-            ))}
+                {/* Liquid progress fill — direct DOM ref, zero re-renders */}
+                <div
+                  ref={hudBarRef}
+                  className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-[var(--primary)]/14 to-[var(--primary)]/4 pointer-events-none transition-none"
+                  style={{ width: "0%" }}
+                />
+                {/* Glowing leading edge */}
+                <div
+                  ref={hudEdgeRef}
+                  className="absolute top-1 bottom-1 w-[2px] rounded-full bg-[var(--primary)]/70 shadow-[0_0_8px_rgba(143,245,255,0.9)] pointer-events-none transition-none"
+                  style={{ left: "0%" }}
+                />
+
+                {[1, 2, 3, 4, 5].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => {
+                      const section = document.getElementById(`section-${num}`);
+                      if (section) section.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className={`relative px-4 py-2 rounded-xl transition-all duration-400 ease-out text-[10px] font-bold tracking-widest badge-font uppercase hover:bg-white/5 z-10 ${
+                      activeSection === num
+                        ? "bg-[var(--primary)] text-[#0b0e14] shadow-[0_0_16px_rgba(143,245,255,0.3)]"
+                        : "text-white/40"
+                    }`}
+                    aria-label={`Scroll to section ${num}`}
+                  >
+                    {navLabels[num - 1]}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>,
-          document.body,
+          document.body
         )}
 
       <Hero language={language} isStarted={heroReady} />
-      <Experience language={language} />
+      <Experience language={language} onActive={() => handleSectionEnter(2)} />
       <Skills language={language} />
       <Projects language={language} />
       <Contact language={language} />
 
-      {/* Spacing & Live Footer */}
-      <div className="h-[26vh] relative">
-        <div className="fixed bottom-14 left-4 md:bottom-16 md:left-8 right-4 md:right-8 flex flex-row flex-wrap justify-between items-center gap-3 text-white/50 text-xs md:text-sm font-semibold tracking-widest uppercase z-[210] pointer-events-none">
+      {/* ── Live footer status bar ────────────────────────────────────────── */}
+      <div className="h-[20vh] relative">
+        <div className="fixed bottom-14 left-4 md:bottom-16 md:left-8 right-4 md:right-8 flex flex-row flex-wrap justify-between items-center gap-3 text-white/40 text-xs font-semibold tracking-widest uppercase z-[85] pointer-events-none">
           <span className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--primary)]"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--primary)] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--primary)]" />
             </span>
             {t.contact.based}{" "}
             {Intl.DateTimeFormat(language === "en" ? "en-US" : "es-ES")
@@ -234,44 +308,11 @@ export default function Sections({
               .pop()
               ?.replace("_", " ") || "Your City"}
           </span>
-
           <span>
             {formattedTime} {t.contact.time}
           </span>
         </div>
       </div>
-
-      {typeof document !== "undefined" &&
-        createPortal(
-          <div
-            className={`fixed left-1/2 -translate-x-1/2 bottom-8 flex items-center gap-1 p-1.5 rounded-2xl bg-[#1c2028]/80 border border-white/10 backdrop-blur-2xl z-[100] transition-all duration-1000 shadow-2xl ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
-          >
-            {[1, 2, 3, 4, 5].map((num) => (
-              <button
-                key={num}
-                onClick={() => {
-                  const section = document.getElementById(`section-${num}`);
-                  if (section) section.scrollIntoView({ behavior: "smooth" });
-                }}
-                className={`px-4 py-2 rounded-xl transition-all duration-500 ease-out text-[10px] font-bold tracking-widest badge-font uppercase hover:bg-white/5 ${activeSection === num ? "bg-[var(--primary)] text-[#0b0e14]" : "text-white/40"}`}
-                aria-label={`Scroll to section ${num}`}
-              >
-                {num === 1
-                  ? language === "en"
-                    ? "HOME"
-                    : "INICIO"
-                  : num === 2
-                    ? t.experience.tag
-                    : num === 3
-                      ? t.skills.tag
-                      : num === 4
-                        ? t.projects.tag
-                        : t.contact.tag}
-              </button>
-            ))}
-          </div>,
-          document.body,
-        )}
     </div>
   );
 }
