@@ -299,8 +299,8 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
 
         // ── Spotlight & Tilt Hover Effect ──
         if (inner) {
-          const setX = gsap.quickTo(inner, "rotateY", { ease: "power3", duration: 0.5 });
-          const setY = gsap.quickTo(inner, "rotateX", { ease: "power3", duration: 0.5 });
+          const setX = gsap.quickTo(inner, "rotationY", { ease: "power3", duration: 0.5 });
+          const setY = gsap.quickTo(inner, "rotationX", { ease: "power3", duration: 0.5 });
           
           const onMove = (e: MouseEvent) => {
             if (!window.matchMedia("(hover: hover)").matches) return;
