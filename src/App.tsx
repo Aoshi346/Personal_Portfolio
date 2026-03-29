@@ -1,9 +1,36 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { ReactLenis } from 'lenis/react'
+import { ReactLenis, useLenis } from 'lenis/react'
 import Sections from './components/dom/Sections'
 import Preloader from './components/dom/Preloader'
 import CustomCursor from './components/dom/CustomCursor'
 import { Language } from './constants/translations'
+
+// ── Scroll Manager ──────────────────────────────────────────────────────────
+// Handles initial scroll-top, scroll-restoration, and locking during preloading.
+// Must be a child of ReactLenis to access the useLenis hook.
+function ScrollManager({ loaded }: { loaded: boolean }) {
+  const lenis = useLenis();
+
+  useEffect(() => {
+    if (!lenis) return;
+
+    // 1. Force manual scroll restoration to prevent browser from jumping
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
+    // 2. Force scroll to top on first mount
+    window.scrollTo(0, 0);
+    lenis.scrollTo(0, { immediate: true });
+
+    // 3. Lock/Unlock scroll based on loading state
+    if (!loaded) lenis.stop();
+    else lenis.start();
+
+  }, [lenis, loaded]);
+
+  return null;
+}
 
 function App() {
   const [loaded, setLoaded]       = useState(false)
@@ -99,6 +126,9 @@ function App() {
           // Lenis uses requestAnimationFrame which matches display refresh rate
         }}
       >
+        {/* Forces scroll-top, manual restoration, and preload-stop */}
+        <ScrollManager loaded={loaded} />
+
         <main
           role="main"
           className="relative w-full overflow-hidden z-10"
