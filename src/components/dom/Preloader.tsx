@@ -2,163 +2,124 @@ import { useEffect, useState, useRef } from "react";
 import gsap from "gsap";
 
 interface PreloaderProps {
-  onComplete:   () => void;
-  /** Fires when the exit is ~80 % complete so Hero can begin early */
-  onHeroStart:  () => void;
-  language:     string;
+  onComplete:  () => void;
+  /** Fires at ~80 % of exit so Hero can begin its entrance early */
+  onHeroStart: () => void;
+  language:    string;
 }
 
 export default function Preloader({ onComplete, onHeroStart }: PreloaderProps) {
   const [progress, setProgress] = useState(0);
 
-  // Shutter panels
   const shutterTopRef = useRef<HTMLDivElement>(null);
   const shutterBotRef = useRef<HTMLDivElement>(null);
-
-  // "Hello World" SVG wrapper for glitch + flight
-  const svgWrapRef = useRef<HTMLDivElement>(null);
+  const svgWrapRef    = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let isCancelled = false;
 
-    /* ─── Boot sequence timeline ────────────────────────────────────────── */
     const tl = gsap.timeline();
 
-    // ── Step 0: initial state ──────────────────────────────────────────────
+    // ── Step 0 – Initial state ──────────────────────────────────────────────
     gsap.set(".preloader-bg", { opacity: 1 });
     gsap.set(shutterTopRef.current, { yPercent: 0 });
     gsap.set(shutterBotRef.current, { yPercent: 0 });
-    gsap.set(svgWrapRef.current,    { scale: 1, opacity: 0, y: 0, x: 0, filter: "none" });
+    gsap.set(svgWrapRef.current,    { scale: 1, opacity: 0, x: 0, y: 0, filter: "none" });
 
-    // ── Step 1: SVG entrance (draws each path, then fills) ─────────────────
+    // ── Step 1 – SVG stroke-draw entrance ───────────────────────────────────
     const paths = document.querySelectorAll(".hello-path");
     tl.set(paths, {
       strokeDasharray:  (_, t: SVGGeometryElement) => t.getTotalLength(),
       strokeDashoffset: (_, t: SVGGeometryElement) => t.getTotalLength(),
-      opacity:          0,
-      fill:             "none",
+      opacity: 0,
+      fill:    "none",
     });
-
     tl.to(svgWrapRef.current, { opacity: 1, duration: 0.25 });
-
     tl.to(paths, {
-      opacity:          1,
-      strokeDashoffset: 0,
-      duration:         0.22,
-      stagger:          0.08,
-      ease:             "power1.inOut",
+      opacity: 1, strokeDashoffset: 0,
+      duration: 0.22, stagger: 0.08, ease: "power1.inOut",
     }, "<0.1");
+    tl.to(paths, { fill: "white", duration: 0.2, ease: "power2.out" }, ">-0.03");
 
-    tl.to(paths, {
-      fill:     "white",
-      duration: 0.2,
-      ease:     "power2.out",
-    }, ">-0.03");
-
-    // ── Step 2: Fake progress bar ──────────────────────────────────────────
+    // ── Step 2 – Fake progress ──────────────────────────────────────────────
     tl.to({}, {
-      duration:  1.6,
-      onUpdate() {
-        if (!isCancelled) setProgress(Math.round(this.progress() * 100));
-      },
+      duration: 1.6,
+      onUpdate() { if (!isCancelled) setProgress(Math.round(this.progress() * 100)); },
     }, 0);
 
-    // ── Step 3: Hold beat then exit ────────────────────────────────────────
+    // ── Step 3 – Exit sequence ──────────────────────────────────────────────
     tl.addLabel("exitStart", "+=0.35");
 
-    // --- 3a. Chromatic-aberration glitch on the SVG ---
-    // We push R / G channels apart with CSS filter + a couple of fast micro-moves
+    // 3a. Chromatic-aberration glitch
     tl.to(svgWrapRef.current, {
       keyframes: [
         { filter: "drop-shadow(3px 0 0 rgba(255,0,80,0.8)) drop-shadow(-3px 0 0 rgba(0,200,255,0.8))", x:  4, duration: 0.04, ease: "none" },
-        { filter: "drop-shadow(-5px 0 0 rgba(255,0,80,0.8)) drop-shadow(5px 0 0 rgba(0,200,255,0.8))",  x: -4, duration: 0.04, ease: "none" },
-        { filter: "drop-shadow(2px 0 0 rgba(255,0,80,0.6)) drop-shadow(-2px 0 0 rgba(0,200,255,0.6))",  x:  2, duration: 0.04, ease: "none" },
+        { filter: "drop-shadow(-5px 0 0 rgba(255,0,80,0.8)) drop-shadow(5px 0 0 rgba(0,200,255,0.8))", x: -4, duration: 0.04, ease: "none" },
+        { filter: "drop-shadow(2px 0 0 rgba(255,0,80,0.6)) drop-shadow(-2px 0 0 rgba(0,200,255,0.6))", x:  2, duration: 0.04, ease: "none" },
         { filter: "none", x: 0, duration: 0.06, ease: "power2.out" },
       ],
     }, "exitStart");
 
-    // --- 3b. SVG scales down + moves toward hero name position (top-left) --
-    // It flies from center to top-left while alpha fades at 70 % of this tween
-    tl.to(svgWrapRef.current, {
-      scale:    0.08,
-      xPercent: -310,   // rough pixel shift toward left edge
-      yPercent: -420,   // rough pixel shift toward top-left
-      opacity:  0,
-      duration: 0.7,
-      ease:     "power4.in",
-    }, "exitStart+=0.18");
+    // 3b. SVG "flies" toward the Hero's signature anchor
+    //     We read the target from [data-sig-target] in the DOM.
+    const target = document.querySelector("[data-sig-target]") as HTMLElement | null;
+    const source = svgWrapRef.current;
 
-    // --- 3c. At 80 % of the shutter motion, signal Hero to start ----------
-    // Shutter starts at exitStart + 0.18, lasts 0.65 s → 80 % = +0.52
-    tl.call(() => {
-      if (!isCancelled) onHeroStart();
-    }, [], "exitStart+=0.52");
+    if (target && source) {
+      const srcRect = source.getBoundingClientRect();
+      const dstRect = target.getBoundingClientRect();
+      // Compute delta from center-of-source to center-of-target
+      const dx = (dstRect.left + dstRect.width / 2) - (srcRect.left + srcRect.width / 2);
+      const dy = (dstRect.top  + dstRect.height / 2) - (srcRect.top  + srcRect.height / 2);
+      const targetScale = dstRect.width / srcRect.width;
 
-    // --- 3d. Shutter panels split open ────────────────────────────────────
-    tl.to(shutterTopRef.current, {
-      yPercent: -100,
-      duration: 0.65,
-      ease:     "power4.inOut",
-    }, "exitStart+=0.22");
+      tl.to(svgWrapRef.current, {
+        x:        dx,
+        y:        dy,
+        scale:    targetScale,
+        opacity:  0,
+        duration: 0.72,
+        ease:     "power4.inOut",
+      }, "exitStart+=0.18");
+    } else {
+      // Fallback if target not yet in DOM (shouldn't happen, but defensive)
+      tl.to(svgWrapRef.current, {
+        scale: 0.1, opacity: 0, xPercent: -280, yPercent: -320,
+        duration: 0.72, ease: "power4.in",
+      }, "exitStart+=0.18");
+    }
 
-    tl.to(shutterBotRef.current, {
-      yPercent:  100,
-      duration:  0.65,
-      ease:      "power4.inOut",
-    }, "exitStart+=0.22");
+    // 3c. At ~80 % of shutter motion → signal Hero to begin
+    tl.call(() => { if (!isCancelled) onHeroStart(); }, [], "exitStart+=0.56");
 
-    // --- 3e. Final: kill the preloader bg after shutters are gone ----------
+    // 3d. Shutter panels split
+    tl.to(shutterTopRef.current, { yPercent: -100, duration: 0.68, ease: "power4.inOut" }, "exitStart+=0.22");
+    tl.to(shutterBotRef.current, { yPercent:  100, duration: 0.68, ease: "power4.inOut" }, "exitStart+=0.22");
+
+    // 3e. Final cleanup
     tl.to(".preloader-bg", {
-      opacity:  0,
-      duration: 0.15,
-      ease:     "none",
-      onComplete() {
-        if (!isCancelled) onComplete();
-      },
+      opacity: 0, duration: 0.12, ease: "none",
+      onComplete() { if (!isCancelled) onComplete(); },
     }, ">");
 
-    return () => {
-      isCancelled = true;
-      tl.kill();
-    };
+    return () => { isCancelled = true; tl.kill(); };
   }, [onComplete, onHeroStart]);
 
   return (
-    <div
-      className="preloader-bg fixed inset-0 z-[200] bg-[#0b0e14] flex flex-col items-center justify-center pointer-events-none"
-    >
-      {/* ── Shutter top panel ─────────────────────────────────────────────── */}
-      <div
-        ref={shutterTopRef}
-        aria-hidden="true"
+    <div className="preloader-bg fixed inset-0 z-[200] bg-[#0b0e14] flex flex-col items-center justify-center pointer-events-none">
+      <div ref={shutterTopRef} aria-hidden="true"
         className="absolute inset-x-0 top-0 h-1/2 bg-[#0b0e14] z-10"
-        style={{ transformOrigin: "top center" }}
-      />
-
-      {/* ── Shutter bottom panel ──────────────────────────────────────────── */}
-      <div
-        ref={shutterBotRef}
-        aria-hidden="true"
+        style={{ transformOrigin: "top center" }} />
+      <div ref={shutterBotRef} aria-hidden="true"
         className="absolute inset-x-0 bottom-0 h-1/2 bg-[#0b0e14] z-10"
-        style={{ transformOrigin: "bottom center" }}
-      />
+        style={{ transformOrigin: "bottom center" }} />
 
-      {/* ── "Hello World" SVG ─────────────────────────────────────────────── */}
-      <div
-        ref={svgWrapRef}
+      <div ref={svgWrapRef}
         className="mb-12 select-none px-4 relative z-20"
         style={{ willChange: "transform, opacity, filter" }}
-        aria-label="Hello World"
-        role="img"
-      >
-        <svg
-          width="586"
-          height="92"
-          viewBox="0 0 586 92"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full max-w-3xl h-auto"
-        >
+        aria-label="Hello World" role="img">
+        <svg width="586" height="92" viewBox="0 0 586 92" fill="none"
+          xmlns="http://www.w3.org/2000/svg" className="w-full max-w-3xl h-auto">
           <path className="hello-path" d="M95.04 68.832C95.872 68.832 96.512 69.216 96.96 69.984C97.472 70.752 97.728 71.808 97.728 73.152C97.728 75.648 97.12 77.632 95.904 79.104C89.568 86.848 82.816 90.72 75.648 90.72C69.44 90.72 64.48 88.32 60.768 83.52C57.056 78.72 55.2 71.84 55.2 62.88C55.2 60.704 55.296 58.528 55.488 56.352C51.264 57.12 46.656 57.696 41.664 58.08C38.336 58.336 36.064 58.496 34.848 58.56C33.568 65.088 31.776 73.088 29.472 82.56C28.128 88.128 25.568 90.912 21.792 90.912C17.696 90.912 15.648 89.056 15.648 85.344C15.648 84.512 15.808 83.36 16.128 81.888C18.304 73.12 20.032 65.696 21.312 59.616L16.704 59.808C14.592 59.808 13.056 59.456 12.096 58.752C11.136 57.984 10.656 56.768 10.656 55.104C10.656 52.992 11.264 51.456 12.48 50.496C13.696 49.472 15.712 48.896 18.528 48.768L23.616 48.576C25.28 39.552 26.112 32.672 26.112 27.936C26.112 24.928 25.664 22.88 24.768 21.792C23.872 20.704 22.688 20.16 21.216 20.16C16.736 20.16 11.68 23.904 6.048 31.392C5.216 32.48 4.288 33.024 3.264 33.024C2.368 33.024 1.6 32.608 0.96 31.776C0.32 30.944 0 29.888 0 28.608C0 26.624 0.8 24.512 2.4 22.272C5.216 18.368 8.768 15.168 13.056 12.672C17.344 10.112 21.696 8.832 26.112 8.832C30.272 8.832 33.472 10.272 35.712 13.152C38.016 15.968 39.168 20.384 39.168 26.4C39.168 31.712 38.4 38.912 36.864 48L46.272 47.52C50.304 47.328 53.76 47.008 56.64 46.56C57.792 39.52 59.552 32.928 61.92 26.784C64.288 20.64 67.232 15.648 70.752 11.808C74.272 7.968 78.208 6.048 82.56 6.048C85.76 6.048 88.288 7.328 90.144 9.888C92 12.384 92.928 15.68 92.928 19.776C92.928 35.648 84.832 46.656 68.64 52.8C68.448 55.36 68.352 58.016 68.352 60.768C68.352 67.488 69.184 72.256 70.848 75.072C72.512 77.888 74.848 79.296 77.856 79.296C80.48 79.296 82.88 78.624 85.056 77.28C87.232 75.872 89.696 73.504 92.448 70.176C93.216 69.28 94.08 68.832 95.04 68.832ZM82.08 14.4C80.672 14.4 79.168 15.68 77.568 18.24C76.032 20.8 74.56 24.288 73.152 28.704C71.744 33.12 70.624 37.952 69.792 43.2C74.912 41.088 78.688 38.08 81.12 34.176C83.552 30.272 84.768 25.248 84.768 19.104C84.768 17.632 84.512 16.48 84 15.648C83.488 14.816 82.848 14.4 82.08 14.4Z" stroke="white" strokeWidth="1" fillRule="evenodd"/>
           <path className="hello-path" d="M145.241 68.832C146.073 68.832 146.713 69.216 147.161 69.984C147.673 70.752 147.929 71.808 147.929 73.152C147.929 75.712 147.321 77.696 146.105 79.104C143.737 81.984 140.377 84.64 136.025 87.072C131.737 89.504 127.129 90.72 122.201 90.72C115.481 90.72 110.265 88.896 106.553 85.248C102.841 81.6 100.985 76.608 100.985 70.272C100.985 65.856 101.913 61.76 103.769 57.984C105.625 54.144 108.185 51.104 111.449 48.864C114.777 46.624 118.521 45.504 122.681 45.504C126.393 45.504 129.369 46.624 131.609 48.864C133.849 51.04 134.969 54.016 134.969 57.792C134.969 62.208 133.369 66.016 130.169 69.216C127.033 72.352 121.689 74.848 114.137 76.704C115.737 79.648 118.777 81.12 123.257 81.12C126.137 81.12 129.401 80.128 133.049 78.144C136.761 76.096 139.961 73.44 142.649 70.176C143.417 69.28 144.281 68.832 145.241 68.832ZM121.049 54.912C118.681 54.912 116.665 56.288 115.001 59.04C113.401 61.792 112.601 65.12 112.601 69.024V69.216C116.377 68.32 119.353 66.976 121.529 65.184C123.705 63.392 124.793 61.312 124.793 58.944C124.793 57.728 124.441 56.768 123.737 56.064C123.097 55.296 122.201 54.912 121.049 54.912Z" stroke="white" strokeWidth="1" fillRule="evenodd"/>
           <path className="hello-path" d="M176.497 68.832C177.329 68.832 177.969 69.216 178.417 69.984C178.929 70.752 179.185 71.808 179.185 73.152C179.185 75.712 178.577 77.696 177.361 79.104C174.609 82.496 171.601 85.28 168.337 87.456C165.137 89.632 161.489 90.72 157.393 90.72C151.761 90.72 147.569 88.16 144.817 83.04C142.129 77.92 140.785 71.296 140.785 63.168C140.785 55.36 141.777 46.464 143.761 36.48C145.809 26.496 148.785 17.92 152.689 10.752C156.657 3.584 161.361 0 166.801 0C169.873 0 172.273 1.44 174.001 4.32C175.793 7.136 176.689 11.2 176.689 16.512C176.689 24.128 174.577 32.96 170.353 43.008C166.129 53.056 160.401 63.008 153.169 72.864C153.617 75.488 154.353 77.376 155.377 78.528C156.401 79.616 157.745 80.16 159.409 80.16C162.033 80.16 164.337 79.424 166.321 77.952C168.305 76.416 170.833 73.824 173.905 70.176C174.673 69.28 175.537 68.832 176.497 68.832ZM164.689 9.50401C163.217 9.50401 161.553 12.16 159.697 17.472C157.841 22.784 156.209 29.376 154.801 37.248C153.393 45.12 152.625 52.672 152.497 59.904C157.041 52.416 160.657 44.928 163.345 37.44C166.033 29.888 167.377 23.008 167.377 16.8C167.377 11.936 166.481 9.50401 164.689 9.50401Z" stroke="white" strokeWidth="1" fillRule="evenodd"/>
@@ -173,22 +134,12 @@ export default function Preloader({ onComplete, onHeroStart }: PreloaderProps) {
         </svg>
       </div>
 
-      {/* ── Progress bar ──────────────────────────────────────────────────── */}
-      <div
-        className="absolute bottom-12 left-1/2 -translate-x-1/2 overflow-hidden w-48 h-[1px] bg-[#8ff5ff]/10 z-20"
-        aria-hidden="true"
-      >
-        <div
-          className="h-full bg-[#8ff5ff]/60 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(143,245,255,0.4)]"
-          style={{ width: `${progress}%` }}
-        />
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 overflow-hidden w-48 h-[1px] bg-[#8ff5ff]/10 z-20" aria-hidden="true">
+        <div className="h-full bg-[#8ff5ff]/60 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(143,245,255,0.4)]"
+          style={{ width: `${progress}%` }} />
       </div>
 
-      {/* ── HUD corner labels ─────────────────────────────────────────────── */}
-      <div
-        aria-hidden="true"
-        className="absolute bottom-12 right-8 badge-font text-[9px] tracking-[0.2em] text-white/20 uppercase z-20"
-      >
+      <div aria-hidden="true" className="absolute bottom-12 right-8 badge-font text-[9px] tracking-[0.2em] text-white/20 uppercase z-20">
         boot_seq — {String(progress).padStart(3, "0")}%
       </div>
     </div>

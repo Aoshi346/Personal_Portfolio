@@ -6,8 +6,7 @@ import { Language, translations } from "../../constants/translations";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ─── Hello World paths ────────────────────────────────────────────────────────
-// Extracted as a constant so they're defined once and reused.
+// ─── Shared path data ─────────────────────────────────────────────────────────
 const HELLO_PATHS = [
   "M95.04 68.832C95.872 68.832 96.512 69.216 96.96 69.984C97.472 70.752 97.728 71.808 97.728 73.152C97.728 75.648 97.12 77.632 95.904 79.104C89.568 86.848 82.816 90.72 75.648 90.72C69.44 90.72 64.48 88.32 60.768 83.52C57.056 78.72 55.2 71.84 55.2 62.88C55.2 60.704 55.296 58.528 55.488 56.352C51.264 57.12 46.656 57.696 41.664 58.08C38.336 58.336 36.064 58.496 34.848 58.56C33.568 65.088 31.776 73.088 29.472 82.56C28.128 88.128 25.568 90.912 21.792 90.912C17.696 90.912 15.648 89.056 15.648 85.344C15.648 84.512 15.808 83.36 16.128 81.888C18.304 73.12 20.032 65.696 21.312 59.616L16.704 59.808C14.592 59.808 13.056 59.456 12.096 58.752C11.136 57.984 10.656 56.768 10.656 55.104C10.656 52.992 11.264 51.456 12.48 50.496C13.696 49.472 15.712 48.896 18.528 48.768L23.616 48.576C25.28 39.552 26.112 32.672 26.112 27.936C26.112 24.928 25.664 22.88 24.768 21.792C23.872 20.704 22.688 20.16 21.216 20.16C16.736 20.16 11.68 23.904 6.048 31.392C5.216 32.48 4.288 33.024 3.264 33.024C2.368 33.024 1.6 32.608 0.96 31.776C0.32 30.944 0 29.888 0 28.608C0 26.624 0.8 24.512 2.4 22.272C5.216 18.368 8.768 15.168 13.056 12.672C17.344 10.112 21.696 8.832 26.112 8.832C30.272 8.832 33.472 10.272 35.712 13.152C38.016 15.968 39.168 20.384 39.168 26.4C39.168 31.712 38.4 38.912 36.864 48L46.272 47.52C50.304 47.328 53.76 47.008 56.64 46.56C57.792 39.52 59.552 32.928 61.92 26.784C64.288 20.64 67.232 15.648 70.752 11.808C74.272 7.968 78.208 6.048 82.56 6.048C85.76 6.048 88.288 7.328 90.144 9.888C92 12.384 92.928 15.68 92.928 19.776C92.928 35.648 84.832 46.656 68.64 52.8C68.448 55.36 68.352 58.016 68.352 60.768C68.352 67.488 69.184 72.256 70.848 75.072C72.512 77.888 74.848 79.296 77.856 79.296C80.48 79.296 82.88 78.624 85.056 77.28C87.232 75.872 89.696 73.504 92.448 70.176C93.216 69.28 94.08 68.832 95.04 68.832ZM82.08 14.4C80.672 14.4 79.168 15.68 77.568 18.24C76.032 20.8 74.56 24.288 73.152 28.704C71.744 33.12 70.624 37.952 69.792 43.2C74.912 41.088 78.688 38.08 81.12 34.176C83.552 30.272 84.768 25.248 84.768 19.104C84.768 17.632 84.512 16.48 84 15.648C83.488 14.816 82.848 14.4 82.08 14.4Z",
   "M145.241 68.832C146.073 68.832 146.713 69.216 147.161 69.984C147.673 70.752 147.929 71.808 147.929 73.152C147.929 75.712 147.321 77.696 146.105 79.104C143.737 81.984 140.377 84.64 136.025 87.072C131.737 89.504 127.129 90.72 122.201 90.72C115.481 90.72 110.265 88.896 106.553 85.248C102.841 81.6 100.985 76.608 100.985 70.272C100.985 65.856 101.913 61.76 103.769 57.984C105.625 54.144 108.185 51.104 111.449 48.864C114.777 46.624 118.521 45.504 122.681 45.504C126.393 45.504 129.369 46.624 131.609 48.864C133.849 51.04 134.969 54.016 134.969 57.792C134.969 62.208 133.369 66.016 130.169 69.216C127.033 72.352 121.689 74.848 114.137 76.704C115.737 79.648 118.777 81.12 123.257 81.12C126.137 81.12 129.401 80.128 133.049 78.144C136.761 76.096 139.961 73.44 142.649 70.176C143.417 69.28 144.281 68.832 145.241 68.832ZM121.049 54.912C118.681 54.912 116.665 56.288 115.001 59.04C113.401 61.792 112.601 65.12 112.601 69.024V69.216C116.377 68.32 119.353 66.976 121.529 65.184C123.705 63.392 124.793 61.312 124.793 58.944C124.793 57.728 124.441 56.768 123.737 56.064C123.097 55.296 122.201 54.912 121.049 54.912Z",
@@ -22,15 +21,16 @@ const HELLO_PATHS = [
   "M565.802 67.776C564.522 67.776 563.466 67.488 562.634 66.912C561.802 66.336 561.386 65.44 561.386 64.224L561.482 63.456C562.57 56.288 564.042 48.128 565.898 38.976C567.754 29.824 569.482 21.92 571.082 15.264C572.106 11.168 574.89 9.12 579.434 9.12C583.53 9.12 585.578 10.432 585.578 13.056C585.578 13.632 585.482 14.272 585.29 14.976C583.626 21.76 581.418 29.984 578.666 39.648C575.914 49.248 573.29 57.6 570.794 64.704C570.09 66.752 568.426 67.776 565.802 67.776ZM562.154 90.72C559.338 90.72 557.194 89.952 555.722 88.416C554.314 86.88 553.61 84.864 553.61 82.368C553.61 79.488 554.41 77.184 556.01 75.456C557.674 73.728 559.978 72.864 562.922 72.864C565.738 72.864 567.85 73.568 569.258 74.976C570.73 76.32 571.466 78.336 571.466 81.024C571.466 83.968 570.634 86.336 568.97 88.128C567.306 89.856 565.034 90.72 562.154 90.72Z",
 ];
 
+// ─── Touch detection (avoids costly mouse-move RAF on mobile) ────────────────
+const isTouchDevice = () =>
+  typeof window !== "undefined" &&
+  ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+
 // ─── Magnetic Icon ────────────────────────────────────────────────────────────
 const MagneticIcon = ({
-  href,
-  ariaLabel,
-  children,
+  href, ariaLabel, children,
 }: {
-  href: string;
-  ariaLabel: string;
-  children: React.ReactNode;
+  href: string; ariaLabel: string; children: React.ReactNode;
 }) => {
   const wrapRef = useRef<HTMLAnchorElement>(null);
   const innerRef = useRef<HTMLSpanElement>(null);
@@ -41,11 +41,15 @@ const MagneticIcon = ({
     const dx = e.clientX - (rect.left + rect.width / 2);
     const dy = e.clientY - (rect.top + rect.height / 2);
     if (Math.hypot(dx, dy) < 42)
-      gsap.to(innerRef.current, { x: dx * 0.36, y: dy * 0.36, duration: 0.28, ease: "power2.out", overwrite: "auto" });
+      gsap.to(innerRef.current, {
+        x: dx * 0.36, y: dy * 0.36, duration: 0.28, ease: "power2.out", overwrite: "auto",
+      });
   }, []);
 
   const onLeave = useCallback(() => {
-    gsap.to(innerRef.current, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1,0.4)", overwrite: "auto" });
+    gsap.to(innerRef.current, {
+      x: 0, y: 0, duration: 0.5, ease: "elastic.out(1,0.4)", overwrite: "auto",
+    });
   }, []);
 
   return (
@@ -59,7 +63,7 @@ const MagneticIcon = ({
   );
 };
 
-// ─── Hero ─────────────────────────────────────────────────────────────────────
+// ─── Hero component ───────────────────────────────────────────────────────────
 interface HeroProps {
   language: Language;
   isStarted: boolean;
@@ -73,7 +77,7 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
   const glowRef = useRef<HTMLDivElement>(null);
   const meshRef = useRef<SVGSVGElement>(null);
 
-  // Left col — text stack
+  // Left column – text
   const textColRef = useRef<HTMLDivElement>(null);
   const nameLineRef = useRef<HTMLSpanElement>(null);
   const roleLine1Ref = useRef<HTMLSpanElement>(null);
@@ -83,9 +87,9 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
   const ctaBtnRef = useRef<HTMLButtonElement>(null);
   const scrollHintRef = useRef<HTMLDivElement>(null);
 
-  // Right col — Hello World SVG
-  const sigRef = useRef<HTMLDivElement>(null);   // the wrapping div
-  const sigSvgRef = useRef<SVGSVGElement>(null);    // the actual SVG
+  // Right column – signature watermark (the transfer target)
+  const sigRef = useRef<HTMLDivElement>(null);
+  const sigSvgRef = useRef<SVGSVGElement>(null);
 
   // HUD
   const hudTRRef = useRef<HTMLDivElement>(null);
@@ -93,22 +97,27 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
   const hudBracketTRef = useRef<SVGSVGElement>(null);
   const hudBracketBRef = useRef<SVGSVGElement>(null);
 
-  // ── Phase 0: FOUC guard — set all to invisible immediately ───────────────
+  // ── Phase 0 – FOUC guard ─────────────────────────────────────────────────
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
+      // Text lines hidden below their masks
       gsap.set([nameLineRef.current, roleLine1Ref.current, roleLine2Ref.current],
         { yPercent: 110, rotate: 2 });
       gsap.set([tagRef.current, ctaGroupRef.current, scrollHintRef.current],
         { autoAlpha: 0, y: 20 });
       gsap.set(ctaBtnRef.current, { scale: 0.85, autoAlpha: 0 });
-      gsap.set(glowRef.current, { scale: 0.6, autoAlpha: 0 });
-      gsap.set(meshRef.current, { scale: 1.15, autoAlpha: 0, transformOrigin: "center center" });
 
-      // Signature SVG: starts invisible; will fade in after arriving
-      gsap.set(sigRef.current, { autoAlpha: 0, y: 18 });
-      // Name sits at center-screen offset — slides down to natural pos
+      // Atmospheric layers
+      gsap.set(glowRef.current, { scale: 0.6, autoAlpha: 0 });
+      gsap.set(meshRef.current, { scale: 1.15, autoAlpha: 0, transformOrigin: "center" });
+
+      // Signature: invisible until the preloader SVG "lands"
+      gsap.set(sigRef.current, { autoAlpha: 0, scale: 0.88 });
+
+      // Name starts offset toward viewport center (preloader position)
       gsap.set(nameLineRef.current, { y: "26vh", yPercent: 0, rotate: 0 });
 
+      // HUD elements
       gsap.set(
         [hudTRRef.current, hudBRRef.current, hudBracketTRef.current, hudBracketBRef.current],
         { autoAlpha: 0 }
@@ -117,66 +126,61 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
     return () => ctx.revert();
   }, []);
 
-  // ── Entrance animation (fires once isStarted = true) ─────────────────────
+  // ── Entrance timeline (fires when isStarted = true) ──────────────────────
   useEffect(() => {
     if (!isStarted) return;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
 
-      // ── Phase 1: Atmosphere ───────────────────────────────────────────────
-      tl.to(meshRef.current, { scale: 1, autoAlpha: 1, duration: 0.9, ease: "power3.out" }, 0);
-      tl.to(glowRef.current, { scale: 1, autoAlpha: 1, duration: 1.1, ease: "power2.out" }, 0.05);
+      // ── Atmosphere ──────────────────────────────────────────────────────
+      tl.to(meshRef.current, {
+        scale: 1, autoAlpha: 1, duration: 0.95, ease: "power3.out",
+      }, 0);
+      tl.to(glowRef.current, {
+        scale: 1, autoAlpha: 1, duration: 1.15, ease: "power2.out",
+      }, 0.05);
 
-      // ── Phase 2: Text reveals ─────────────────────────────────────────────
-      // Name slides from preloader-center down to its natural anchor
-      tl.to(nameLineRef.current, { y: 0, duration: 0.85, ease: "power4.out" }, 0.08);
+      // ── Name slides from preloader center → natural position ──────────
+      tl.to(nameLineRef.current, { y: 0, duration: 0.88 }, 0.06);
 
-      // Role lines lift from below
+      // ── Role lines lift from below ────────────────────────────────────
       tl.to([roleLine1Ref.current, roleLine2Ref.current], {
-        yPercent: 0, rotate: 0, duration: 1.0, stagger: 0.1, ease: "power4.out",
-      }, 0.22);
+        yPercent: 0, rotate: 0, duration: 1.0, stagger: 0.1,
+      }, 0.2);
 
-      // Tag + CTA group + scroll hint
-      tl.to(tagRef.current, { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.28);
-      tl.to(ctaGroupRef.current, { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out" }, 0.44);
-      tl.to(ctaBtnRef.current, { scale: 1, autoAlpha: 1, duration: 0.65, ease: "back.out(1.7)" }, 0.5);
-      tl.to(scrollHintRef.current, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.65);
+      // ── Tag ───────────────────────────────────────────────────────────
+      tl.to(tagRef.current, {
+        autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out",
+      }, 0.26);
 
-      // ── Phase 3: Signature SVG lands — the "handshake" moment ────────────
-      // Fades in as the preloader's flying SVG disappears behind the shutters.
-      tl.to(sigRef.current, { autoAlpha: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.35);
+      // ── Signature SVG "lands" — the visual handshake ──────────────────
+      // No stroke re-draw needed: the preloader already drew + filled it.
+      // We simply reveal the already-filled paths (object permanence).
+      tl.to(sigRef.current, {
+        autoAlpha: 1, scale: 1, duration: 0.72, ease: "power3.out",
+      }, 0.18);
 
-      // Draw the paths (re-running the handwriting animation at reduced speed)
-      const sigPaths = sigSvgRef.current?.querySelectorAll(".hero-sig-path");
-      if (sigPaths?.length) {
-        gsap.set(sigPaths, {
-          strokeDasharray: (_, el: SVGGeometryElement) => el.getTotalLength(),
-          strokeDashoffset: (_, el: SVGGeometryElement) => el.getTotalLength(),
-          fill: "none",
-          opacity: 1,
-        });
-        tl.to(sigPaths, {
-          strokeDashoffset: 0,
-          duration: 0.28,
-          stagger: 0.055,
-          ease: "power1.inOut",
-        }, 0.4);
-        // Fill in — reveal the filled letterforms slightly after strokes complete
-        tl.to(sigPaths, {
-          fill: "rgba(255,255,255,0.18)",
-          duration: 0.3,
-          ease: "power2.out",
-        }, ">-0.04");
-      }
+      // ── CTA group ─────────────────────────────────────────────────────
+      tl.to(ctaGroupRef.current, {
+        autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out",
+      }, 0.42);
+      tl.to(ctaBtnRef.current, {
+        scale: 1, autoAlpha: 1, duration: 0.65, ease: "back.out(1.7)",
+      }, 0.48);
+      tl.to(scrollHintRef.current, {
+        autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out",
+      }, 0.62);
 
-      // ── HUD: terminal blink-in ─────────────────────────────────────────────
+      // ── HUD: terminal blink-in via steps(5) ───────────────────────────
       [hudBracketTRef, hudBracketBRef, hudTRRef, hudBRRef].forEach((ref, i) => {
         if (!ref.current) return;
-        gsap.to(ref.current, { autoAlpha: 1, duration: 0.35, ease: "steps(5)", delay: 0.72 + i * 0.11 });
+        gsap.to(ref.current, {
+          autoAlpha: 1, duration: 0.35, ease: "steps(5)", delay: 0.7 + i * 0.11,
+        });
       });
 
-      // ── Idle float for CTA ────────────────────────────────────────────────
+      // ── CTA idle float ────────────────────────────────────────────────
       gsap.to(ctaBtnRef.current, {
         y: -5, duration: 1.9, ease: "sine.inOut", repeat: -1, yoyo: true, delay: 2.0,
       });
@@ -185,92 +189,126 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
     return () => ctx.revert();
   }, [isStarted]);
 
-  // ── Scroll-triggered parallax + hero exit ────────────────────────────────
+  // ── Scroll orchestration (3-layer parallax + hero exit + HUD lag) ────────
   useLayoutEffect(() => {
     if (!isStarted) return;
-    // Small delay so ScrollTrigger measures the right positions after entrance
+
+    // Tiny delay so GSAP measures post-entrance positions
     const timer = setTimeout(() => {
       const ctx = gsap.context(() => {
+        // ── Layer 1: Background mesh (slowest — "furthest away") ──────
+        gsap.to(meshRef.current, {
+          y: "-18%",
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top", end: "bottom top",
+            scrub: 1.4,
+          },
+        });
 
-        // ── Parallax: text col vs. signature SVG ─────────────────────────────
-        // Text column moves at 1× scroll speed (default).
-        // Signature SVG moves at 0.65× — creates "further away" depth illusion.
+        // ── Layer 2: Signature SVG (intermediate speed) ───────────────
         gsap.to(sigRef.current, {
-          y: "-12%",
+          y: "-10%",
           ease: "none",
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "top top",
-            end: "bottom top",
+            start: "top top", end: "bottom top",
             scrub: 1.2,
           },
         });
 
+        // ── Layer 3: Text column (fastest — "closest") ────────────────
         gsap.to(textColRef.current, {
-          y: "-6%",
+          y: "-5%",
           ease: "none",
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: 1.2,
+            start: "top top", end: "bottom top",
+            scrub: 1.0,
           },
         });
 
-        // ── Hero exit: content scales + fades as user leaves section-1 ───────
+        // ── Hero exit: fade + scale ───────────────────────────────────
         gsap.to(sectionRef.current, {
-          opacity: 0,
-          scale: 0.97,
+          opacity: 0, scale: 0.97,
           ease: "none",
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "center top",     // starts fading when section center hits top
-            end: "bottom top",
+            start: "center top", end: "bottom top",
             scrub: 0.8,
           },
         });
 
-        // ── SVG paths glow / de-construct on exit ─────────────────────────────
+        // ── SVG de-construct on exit — glow then fade ─────────────────
         const sigPaths = sigSvgRef.current?.querySelectorAll(".hero-sig-path");
         if (sigPaths?.length) {
           gsap.to(sigPaths, {
             opacity: 0.04,
-            filter: "drop-shadow(0 0 6px rgba(143,245,255,0.6))",
+            filter: "drop-shadow(0 0 8px rgba(143,245,255,0.7))",
             ease: "none",
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: "40% top",
-              end: "bottom top",
+              start: "35% top", end: "bottom top",
               scrub: 0.6,
             },
           });
         }
 
-      }, sectionRef);
-      return () => ctx.revert();
-    }, 80);
+        // ── HUD magnetic lag: slight delay as they scroll out ─────────
+        [hudTRRef.current, hudBRRef.current,
+        hudBracketTRef.current, hudBracketBRef.current].forEach((el) => {
+          if (!el) return;
+          gsap.to(el, {
+            y: "-30%", autoAlpha: 0,
+            ease: "none",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "30% top", end: "65% top",
+              scrub: 2.0,   // High scrub = "magnetic lag" — they trail behind
+            },
+          });
+        });
 
-    return () => clearTimeout(timer);
+      }, sectionRef);
+
+      // Cleanup needs to be captured by the timer's closure
+      const cleanup = () => ctx.revert();
+      timerCleanup.current = cleanup;
+    }, 100);
+
+    const timerCleanup = { current: null as (() => void) | null };
+    return () => {
+      clearTimeout(timer);
+      timerCleanup.current?.();
+    };
   }, [isStarted]);
 
-  // ── Mouse parallax (glow + mesh) ─────────────────────────────────────────
+  // ── Mouse parallax (glow + mesh) — disabled on touch ─────────────────────
   useLayoutEffect(() => {
+    if (isTouchDevice()) return;
+
     let rafId = 0, tx = 0, ty = 0, cx = 0, cy = 0;
     const onMove = (e: MouseEvent) => {
       tx = e.clientX / window.innerWidth - 0.5;
       ty = e.clientY / window.innerHeight - 0.5;
     };
     const tick = () => {
-      cx += (tx - cx) * 0.06; cy += (ty - cy) * 0.06;
+      cx += (tx - cx) * 0.06;
+      cy += (ty - cy) * 0.06;
       if (glowRef.current) gsap.set(glowRef.current, { xPercent: cx * 18, yPercent: cy * 12 });
       if (meshRef.current) gsap.set(meshRef.current, { xPercent: cx * -8, yPercent: cy * -5 });
       rafId = requestAnimationFrame(tick);
     };
     window.addEventListener("mousemove", onMove, { passive: true });
     rafId = requestAnimationFrame(tick);
-    return () => { window.removeEventListener("mousemove", onMove); cancelAnimationFrame(rafId); };
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
+  // ── Derived content ──────────────────────────────────────────────────────
   const roleWords = t.role.split(" ");
   const roleLine1 = roleWords[0];
   const roleLine2 = roleWords.slice(1).join(" ");
@@ -284,7 +322,7 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
       className="relative h-screen flex items-center overflow-hidden bg-transparent"
       style={{ willChange: "transform, opacity" }}
     >
-      {/* ── Grain overlay ────────────────────────────────────────────────── */}
+      {/* ── Grain overlay ────────────────────────────────────────────── */}
       <div aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-20 opacity-[0.055] grain-layer"
         style={{
@@ -293,7 +331,7 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
         }}
       />
 
-      {/* ── Glow ─────────────────────────────────────────────────────────── */}
+      {/* ── Ambient glow ─────────────────────────────────────────────── */}
       <div ref={glowRef} aria-hidden="true" className="pointer-events-none absolute z-0"
         style={{
           top: "8%", left: "-8%",
@@ -303,11 +341,11 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
         }}
       />
 
-      {/* ── Background mesh ──────────────────────────────────────────────── */}
+      {/* ── Background mesh (layer 1 — slowest parallax) ─────────────── */}
       <svg ref={meshRef} aria-hidden="true"
         className="pointer-events-none absolute right-[-2%] top-[6%] z-0"
         width="680" height="640" viewBox="0 0 680 640" fill="none"
-        style={{ willChange: "transform, opacity", transformOrigin: "center center" }}>
+        style={{ willChange: "transform, opacity", transformOrigin: "center" }}>
         <defs>
           <pattern id="hero-grid" width="40" height="40" patternUnits="userSpaceOnUse">
             <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.6" />
@@ -326,11 +364,11 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
         <circle cx="340" cy="320" r="340" stroke="rgba(255,89,227,0.035)" strokeWidth="0.5" fill="none" />
       </svg>
 
-      {/* ── Two-column layout ────────────────────────────────────────────── */}
+      {/* ── Two-column layout ────────────────────────────────────────── */}
       <div className="relative z-10 w-full h-full flex items-center justify-between
                       px-8 sm:px-14 md:px-20 gap-8 lg:gap-0">
 
-        {/* ── Left column: text ────────────────────────────────────────── */}
+        {/* ── Left column: text stack (layer 3 — fastest) ──────────── */}
         <div ref={textColRef} className="flex flex-col justify-center max-w-2xl flex-shrink-0"
           style={{ willChange: "transform" }}>
 
@@ -347,7 +385,7 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
             </span>
           </div>
 
-          {/* Name — "information replacement" */}
+          {/* Name — information replacement from preloader center */}
           <h1 className="mb-3 overflow-hidden">
             <span ref={nameLineRef}
               className="block badge-font font-black uppercase italic text-[var(--primary)] will-change-transform"
@@ -369,16 +407,13 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
             )}
           </h2>
 
-          {/* CTA group */}
+          {/* CTA group — no bio */}
           <div ref={ctaGroupRef} className="flex flex-wrap items-center gap-5">
-            <button
-              ref={ctaBtnRef}
-              aria-label="View work"
+            <button ref={ctaBtnRef} aria-label="View work"
               onClick={() => document.getElementById("section-4")?.scrollIntoView({ behavior: "smooth" })}
               className="hero-cta relative group px-8 py-4 rounded-xl font-bold text-[#0b0e14] bg-white
                 shadow-[0_0_40px_rgba(143,245,255,0.18)] hover:shadow-[0_0_64px_rgba(143,245,255,0.35)]
-                transition-shadow duration-500 flex items-center gap-2 overflow-hidden"
-            >
+                transition-shadow duration-500 flex items-center gap-2 overflow-hidden">
               <span aria-hidden="true"
                 className="absolute inset-0 -translate-x-full group-hover:translate-x-full
                            transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent"/>
@@ -407,33 +442,29 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
           </div>
         </div>
 
-        {/* ── Right column: Hello World signature ──────────────────────── */}
+        {/* ── Right column: Hello World signature (layer 2) ─────────── */}
+        {/*
+          data-sig-target: the Preloader reads this via querySelector
+          to compute exact flight coordinates for the coordinate transfer.
+        */}
         <div
           ref={sigRef}
+          data-sig-target
           aria-hidden="true"
           className="hidden lg:flex items-center justify-center flex-1 min-w-0"
           style={{ willChange: "transform, opacity" }}
         >
-          {/*
-            Container that constrains the SVG to the right-column negative space.
-            The SVG viewBox is 586×92 — very wide and shallow. We rotate it ~-12°
-            to look like a handwritten signature anchored next to the h2.
-          */}
-          <div className="relative" style={{ transform: "rotate(-11deg)", transformOrigin: "center center" }}>
-            {/* Faint background glow behind the signature */}
+          <div className="relative" style={{ transform: "rotate(-11deg)", transformOrigin: "center" }}>
+            {/* Faint bloom behind signature */}
             <div aria-hidden="true" className="absolute inset-0 pointer-events-none"
               style={{
                 background: "radial-gradient(ellipse at 50% 50%, rgba(143,245,255,0.06) 0%, transparent 70%)",
-                filter: "blur(32px)",
-                transform: "scale(1.4)",
+                filter: "blur(32px)", transform: "scale(1.4)",
               }}
             />
             <svg
               ref={sigSvgRef}
-              width="586"
-              height="92"
-              viewBox="0 0 586 92"
-              fill="none"
+              width="586" height="92" viewBox="0 0 586 92" fill="none"
               xmlns="http://www.w3.org/2000/svg"
               className="w-full h-auto"
               style={{
@@ -442,14 +473,11 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
               }}
             >
               {HELLO_PATHS.map((d, i) => (
-                <path
-                  key={i}
-                  className="hero-sig-path"
-                  d={d}
-                  stroke="rgba(255,255,255,0.55)"
-                  strokeWidth="1"
+                <path key={i} className="hero-sig-path" d={d}
+                  stroke="rgba(255,255,255,0.35)" strokeWidth="1"
+                  fill="rgba(255,255,255,0.14)"
                   fillRule="evenodd"
-                  style={{ willChange: "stroke-dashoffset, opacity, filter" }}
+                  style={{ willChange: "opacity, filter" }}
                 />
               ))}
             </svg>
@@ -457,23 +485,25 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
         </div>
       </div>
 
-      {/* ── HUD decorations — steps() flicker ────────────────────────────── */}
-
+      {/* ── HUD elements ─────────────────────────────────────────────── */}
       <div ref={hudBRRef} aria-hidden="true"
         className="pointer-events-none absolute bottom-12 right-14 hidden md:block
-                   badge-font text-[10px] tracking-[0.18em] text-white/10 uppercase">
+                   badge-font text-[10px] tracking-[0.18em] text-white/10 uppercase"
+        style={{ willChange: "transform, opacity" }}>
         v1.0.0 — portfolio
       </div>
 
       <svg ref={hudBracketTRef} aria-hidden="true"
         className="pointer-events-none absolute top-8 left-8"
-        width="28" height="28" viewBox="0 0 28 28">
+        width="28" height="28" viewBox="0 0 28 28"
+        style={{ willChange: "transform, opacity" }}>
         <path d="M0 28 L0 0 L28 0" stroke="var(--primary)" strokeWidth="1.5" fill="none" opacity="0.12" />
       </svg>
 
       <svg ref={hudBracketBRef} aria-hidden="true"
         className="pointer-events-none absolute bottom-8 right-8"
-        width="28" height="28" viewBox="0 0 28 28">
+        width="28" height="28" viewBox="0 0 28 28"
+        style={{ willChange: "transform, opacity" }}>
         <path d="M28 0 L28 28 L0 28" stroke="var(--primary)" strokeWidth="1.5" fill="none" opacity="0.12" />
       </svg>
     </section>
