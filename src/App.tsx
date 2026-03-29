@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { ReactLenis } from '@studio-freight/react-lenis'
+import { ReactLenis } from 'lenis/react'
 import Sections from './components/dom/Sections'
 import Preloader from './components/dom/Preloader'
 import CustomCursor from './components/dom/CustomCursor'
