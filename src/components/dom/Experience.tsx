@@ -7,14 +7,12 @@ import { scrambleText } from "../../utils/textEffects";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ─── Per-role tech stack (static — avoids bloating translations) ──────────────
 const ROLE_STACK: string[][] = [
   ["Algorithms", "SQL", "C++", "Python", "Architecture"],
   ["Django", "React", "TypeScript", "Linux", "SQL"],
   ["React", "Next.js", "Django", "REST", "Tailwind"],
 ];
 
-// ─── Magnetic Element ─────────────────────────────────────────────────────────
 const MagneticElement = ({
   children,
   className = "",
@@ -81,7 +79,6 @@ const MagneticElement = ({
   );
 };
 
-// ─── Experience Cinematic Industrial Module ────────────────────────────────────
 interface ExperienceProps {
   language: Language;
   onActive?: () => void;
@@ -93,11 +90,11 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
   const sectionRef = useRef<HTMLElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const titleBlockRef = useRef<HTMLDivElement>(null);
+  const titleWrapRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLSpanElement>(null);
   const tagRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  // ── Stable onActive logic ───────────────────────────────────────────────────
   const onActiveRef = useRef(onActive);
   onActiveRef.current = onActive;
   const activeCalledRef = useRef(false);
@@ -109,8 +106,6 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
     }
   }, []);
 
-  // ── Magnetic Anchor Global Pulse ────────────────────────────────────────────
-  // Triggers a flash across all ghost borders concurrently
   const triggerGlobalPulse = useCallback(() => {
     gsap.fromTo(
       ".ghost-border",
@@ -134,9 +129,17 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
     const mm = gsap.matchMedia();
 
     // ── Pre-boot Initial States ───────────────────────────────────────────────
-    gsap.set(titleRef.current, { yPercent: 110 });
+    // Title starts as an outline (transparent fill, cyan stroke)
+    gsap.set(titleRef.current, { 
+      yPercent: 110, 
+      color: "transparent", 
+      webkitTextStroke: "1px var(--primary)" 
+    });
     gsap.set(tagRef.current, { autoAlpha: 0, y: 20 });
-    gsap.set(titleBlockRef.current, { transformOrigin: "left center" });
+    gsap.set(titleWrapRef.current, { transformOrigin: "left center" });
+
+    const hudBrackets = sectionRef.current.querySelectorAll(".title-hud-bracket");
+    gsap.set(hudBrackets, { opacity: 0, scale: 0.8 });
 
     cardsRef.current.forEach((card) => {
       if (!card) return;
@@ -147,12 +150,9 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
       const pulse = card.querySelector(".active-pulse");
 
       gsap.set(ghost, { strokeDashoffset: 100 });
-      gsap.set(activeBorder, { opacity: 0 }); // Ultra-thin active outer border
+      gsap.set(activeBorder, { opacity: 0 });
       gsap.set(body, { opacity: 0, y: 30 });
-      // Aero-badges start fully scaled down and invisible
       gsap.set(badges, { autoAlpha: 0, scale: 0.2, y: 15 });
-      
-      // DOF state off-center default: Scaled down, blurred heavily
       gsap.set(card, { opacity: 0.35, scale: 0.88, filter: "blur(4px)" });
 
       if (pulse) {
@@ -183,37 +183,56 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
         },
       });
 
-      // Phase 1: Two-Phase Title Sequence (Scrubbed Exit)
-      // Title shrinks, fades, and moves left during the first 20% of the horizontal scroll
+      // ── Phase 2: The Recess (Title Watermark) ──────────────────────────────
+      // Title expands and fades to form a watermark over the first 15% of scrub
       tlPrimary.to(
-        titleBlockRef.current,
+        titleWrapRef.current,
         {
-          opacity: 0,
-          scale: 0.75,
-          xPercent: -15, // Migrates slightly off stage left
-          duration: 0.2, // Relies on tlPrimary timeline ratio
+          opacity: 0.05,
+          scale: 1.6, // Massive screen-filling watermark
+          xPercent: 5, // Slight drift right
+          duration: 0.15, // 15% of timeline duration
           ease: "power2.inOut",
         },
-        0 // Starts immediately with horizontal scroll
+        0
       );
 
-      // Phase 2: Horizontal Translation
-      // Container sweeps left
+      // HUD Brackets fade out completely as the title recesses
+      tlPrimary.to(
+        hudBrackets,
+        { opacity: 0, scale: 1.2, duration: 0.15, ease: "power2.out" },
+        0
+      );
+
+      // ── Horizontal Translation ─────────────────────────────────────────────
       tlPrimary.to(container, { x: getScrollAmount, ease: "none" }, 0);
 
-      // ── Scramble Initial Hook — only reveals once upon viewport entry ────────
+      // ── Phase 1: The Entrance (Scramble Hook) ──────────────────────────────
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top 60%",
         once: true,
         onEnter: () => {
+          gsap.to(hudBrackets, { opacity: 1, scale: 1, duration: 0.5, stagger: 0.1, ease: "back.out(2)" });
           gsap.to(tagRef.current, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power3.out" });
+          
           gsap.to(titleRef.current, {
             yPercent: 0,
             duration: 1.0,
             ease: "power4.out",
             onComplete: () => {
-              if (titleRef.current) scrambleText(titleRef.current);
+              if (titleRef.current) {
+                // Scramble the text
+                scrambleText(titleRef.current);
+                // The "Outline-to-Solid" Power-On fill
+                gsap.to(titleRef.current, {
+                  color: "#ffffff",
+                  webkitTextStroke: "0px transparent",
+                  duration: 0.8,
+                  ease: "power2.inOut",
+                  delay: 0.4, // Wait for scramble to finish
+                });
+              }
             },
           });
         },
@@ -261,39 +280,31 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
         },
       });
 
-      // ── Container Animation Logic (The Focus Lens / DOF) ────────────────────
+      // ── DOF & Hardware Initialization ──────────────────────────────────────
       cards.forEach((card) => {
         const ghost = card.querySelector(".ghost-border");
         const activeBorder = card.querySelector(".active-outer-border");
         const body = card.querySelectorAll(".card-body > *");
         const badges = card.querySelectorAll(".skill-badge");
 
-        // Focus Zone: Center of the screen ± 15%
         ScrollTrigger.create({
           trigger: card,
           containerAnimation: tlPrimary!,
           start: "left 75%",
           end: "right 25%",
           onEnter: () => {
-            // Hardware assembly sequence
             gsap.to(ghost, { strokeDashoffset: 0, duration: 1.6, ease: "power3.inOut" });
             gsap.to(body, { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.08, ease: "power3.out", delay: 0.1 });
-            
-            // Outer layer cyan border illuminates
             gsap.to(activeBorder, { opacity: 0.4, duration: 1.2, ease: "power2.inOut", delay: 0.4 });
-
-            // Aero-badges "snap" into footer
             gsap.to(badges, {
               autoAlpha: 1,
               y: 0,
               scale: 1,
               duration: 0.6,
               stagger: 0.05,
-              ease: "back.out(2.2)", // Snaps firmly past 1.0 and settles
+              ease: "back.out(2.2)",
               delay: 0.45,
             });
-
-            // Center Inflate & DOF resolving (sharpness)
             gsap.to(card, {
               opacity: 1,
               scale: 1.02,
@@ -303,37 +314,16 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
             });
           },
           onLeave: () => {
-            // Unfocus Right — drops to heavy DOF blur
             gsap.to(activeBorder, { opacity: 0, duration: 0.4 });
-            gsap.to(card, {
-              opacity: 0.35,
-              scale: 0.88,
-              filter: "blur(4px) drop-shadow(none)",
-              duration: 0.5,
-              ease: "power2.in",
-            });
+            gsap.to(card, { opacity: 0.35, scale: 0.88, filter: "blur(4px) drop-shadow(none)", duration: 0.5, ease: "power2.in" });
           },
           onEnterBack: () => {
-            // Focus Inflate back into center
             gsap.to(activeBorder, { opacity: 0.4, duration: 0.4 });
-            gsap.to(card, {
-              opacity: 1,
-              scale: 1.02,
-              filter: "blur(0px) drop-shadow(0 0 45px rgba(143,245,255,0.12)) drop-shadow(0 20px 40px rgba(0,0,0,0.6))",
-              duration: 0.6,
-              ease: "power3.out",
-            });
+            gsap.to(card, { opacity: 1, scale: 1.02, filter: "blur(0px) drop-shadow(0 0 45px rgba(143,245,255,0.12)) drop-shadow(0 20px 40px rgba(0,0,0,0.6))", duration: 0.6, ease: "power3.out" });
           },
           onLeaveBack: () => {
-             // Unfocus Left
              gsap.to(activeBorder, { opacity: 0, duration: 0.4 });
-             gsap.to(card, {
-              opacity: 0.35,
-              scale: 0.88,
-              filter: "blur(4px) drop-shadow(none)",
-              duration: 0.5,
-              ease: "power2.in",
-            });
+             gsap.to(card, { opacity: 0.35, scale: 0.88, filter: "blur(4px) drop-shadow(none)", duration: 0.5, ease: "power2.in" });
           },
         });
       });
@@ -347,11 +337,10 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
     mm.add("(max-width: 1023px)", () => {
       const cards = cardsRef.current.filter((c): c is HTMLDivElement => c !== null);
 
-      // Strip DOF and scaling for standard vertical stack
       gsap.set(cards, { opacity: 1, scale: 1, filter: "blur(0px)" });
-      gsap.set(titleBlockRef.current, { opacity: 1, scale: 1, xPercent: 0 });
+      gsap.set(titleWrapRef.current, { opacity: 1, scale: 1, xPercent: 0 });
 
-      // Title enters
+      // Title Initial Entrance
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top 80%",
@@ -363,10 +352,26 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
             duration: 0.9,
             ease: "power4.out",
             onComplete: () => {
-              if (titleRef.current) scrambleText(titleRef.current);
+              if (titleRef.current) {
+                scrambleText(titleRef.current);
+                gsap.to(titleRef.current, { color: "#ffffff", webkitTextStroke: "0px transparent", duration: 0.8, delay: 0.4 });
+              }
             },
           });
         },
+      });
+
+      // Mobile Sticky Title Blur-Fade (Progressive)
+      // As the first card climbs towards the sticky title, the title fades into the background.
+      ScrollTrigger.create({
+        trigger: scrollContainerRef.current,
+        start: "top 180px", // Trigger when first card is 180px from top
+        end: "top 40px",    // Finish when card is 40px from top
+        scrub: true,
+        animation: gsap.fromTo(titleWrapRef.current, 
+          { opacity: 1, filter: "blur(0px)", scale: 1 }, 
+          { opacity: 0.2, filter: "blur(8px)", scale: 0.95, ease: "none" }
+        )
       });
 
       cards.forEach((card) => {
@@ -383,15 +388,7 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
             gsap.to(ghost, { strokeDashoffset: 0, duration: 1.5, ease: "power3.inOut" });
             gsap.to(activeBorder, { opacity: 0.3, duration: 1.0 });
             gsap.to(body, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.08, ease: "power3.out", delay: 0.1 });
-            gsap.to(badges, {
-              autoAlpha: 1,
-              y: 0,
-              scale: 1,
-              duration: 0.5,
-              stagger: 0.05,
-              ease: "back.out(2.2)",
-              delay: 0.45,
-            });
+            gsap.to(badges, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.05, ease: "back.out(2.2)", delay: 0.45 });
           },
         });
       });
@@ -409,7 +406,6 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
       className="relative w-full min-h-screen lg:h-screen bg-[#0b0e14] lg:overflow-hidden flex flex-col lg:flex-row lg:items-center"
       style={{ willChange: "transform" }}
     >
-      {/* ── Internal CSS for Diagnostics Scanline ───────────────────────────── */}
       <style>{`
         @keyframes scanline {
           0% { transform: translateY(-100%); opacity: 0; }
@@ -420,55 +416,72 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
         .animate-scanline {
           animation: scanline 3s linear infinite;
         }
+        @keyframes pulse-bracket {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 1; filter: drop-shadow(0 0 4px var(--primary)); }
+        }
+        .hud-ping-1 { animation: pulse-bracket 2s ease-in-out infinite; }
+        .hud-ping-2 { animation: pulse-bracket 2s ease-in-out infinite 0.5s; }
+        .hud-ping-3 { animation: pulse-bracket 2s ease-in-out infinite 1s; }
+        .hud-ping-4 { animation: pulse-bracket 2s ease-in-out infinite 1.5s; }
       `}</style>
 
-      {/* ── Title Block Stage-Gate (Phase 1) ──────────────────────────────── */}
-      {/* 
-        Mobile: static/sticky document flow. 
-        Desktop: absolute lock, exits stage left via tlPrimary scrub in Phase 2.
-      */}
+      {/* ── Title Block Stage-Gate (Phase 1 & Phase 3) ────────────────────── */}
       <div
         ref={titleBlockRef}
-        className="relative lg:absolute lg:top-1/2 lg:-translate-y-1/2 lg:left-24 z-[40] px-8 pt-24 pb-12 lg:px-0 lg:pt-0 pointer-events-none"
-        style={{ willChange: "transform, opacity" }}
+        className="sticky lg:absolute top-16 lg:top-1/2 lg:-translate-y-1/2 left-0 lg:left-24 z-0 px-8 pt-12 pb-6 lg:px-0 lg:pt-0 pointer-events-none"
       >
-        {/* Hovering Briefcase triggers all card pulses globally */}
-        <MagneticElement onHoverAction={triggerGlobalPulse}>
-          <div
-            ref={tagRef}
-            className="mb-5 inline-flex items-center gap-2 px-4 py-1.5 rounded-full
-                       bg-[var(--secondary)]/10 border border-[var(--secondary)]/20
-                       text-[var(--secondary)] text-[10px] md:text-xs font-bold tracking-[0.2em]
-                       uppercase badge-font backdrop-blur-md pointer-events-auto"
-          >
-            <Briefcase size={14} /> {t.experience.tag}
-          </div>
-        </MagneticElement>
+        {/* titleWrapRef is what actually scales and fades, so mobile blur applies correctly */}
+        <div ref={titleWrapRef} style={{ willChange: "transform, opacity, filter" }} className="relative">
+          
+          {/* Telemetry HUD Brackets */}
+          <div className="title-hud-bracket hud-ping-1 absolute -top-4 -left-6 lg:-left-8 w-4 h-4 border-t-2 border-l-2 border-[var(--primary)] pointer-events-none" />
+          <div className="title-hud-bracket hud-ping-2 absolute -top-4 -right-2 lg:-right-8 w-4 h-4 border-t-2 border-r-2 border-[var(--primary)] pointer-events-none" />
+          <div className="title-hud-bracket hud-ping-3 absolute -bottom-4 -left-6 lg:-left-8 w-4 h-4 border-b-2 border-l-2 border-[var(--primary)] pointer-events-none" />
+          <div className="title-hud-bracket hud-ping-4 absolute -bottom-4 -right-2 lg:-right-8 w-4 h-4 border-b-2 border-r-2 border-[var(--primary)] pointer-events-none" />
 
-        <h2 className="text-6xl md:text-8xl lg:text-[7.5rem] font-bold text-white tracking-tighter badge-font">
-          <div className="overflow-hidden pb-4">
-            <span
-              ref={titleRef}
-              className="block uppercase italic drop-shadow-[0_0_20px_rgba(255,255,255,0.15)]"
-              data-final-text={t.experience.title}
+          <MagneticElement onHoverAction={triggerGlobalPulse}>
+            <div
+              ref={tagRef}
+              className="mb-5 inline-flex items-center gap-2 px-4 py-1.5 rounded-full
+                         bg-[var(--secondary)]/10 border border-[var(--secondary)]/20
+                         text-[var(--secondary)] text-[10px] md:text-xs font-bold tracking-[0.2em]
+                         uppercase badge-font backdrop-blur-md pointer-events-auto"
             >
-              {t.experience.title}
-            </span>
-          </div>
-        </h2>
+              <Briefcase size={14} /> {t.experience.tag}
+            </div>
+          </MagneticElement>
+
+          <h2 className="text-6xl md:text-8xl lg:text-[7.5rem] font-bold tracking-tighter badge-font drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+            <div className="overflow-hidden pb-4">
+              <span
+                ref={titleRef}
+                className="block uppercase italic"
+                data-final-text={t.experience.title}
+                style={{
+                  // The solid fill transition is handled via GSAP onComplete
+                  willChange: "color, -webkit-text-stroke",
+                }}
+              >
+                {t.experience.title}
+              </span>
+            </div>
+          </h2>
+
+        </div>
       </div>
 
       {/* ── Horizontal Modules Track (Phase 2 & Center Focus) ───────────── */}
       {/* 
-        Reduced starting padding on desktop (pl-[15vw] instead of 38vw) since 
-        the title will vacate the screen before the first card hits center.
-        Mobile keeps standard w-full tracking.
+        Z-Index: 10 ensures cards float strictly ON TOP of the recessed watermark title.
+        pl-[50vw] on desktop forces the first card to wait entirely off-screen
+        until the user begins scrubbing, allowing the watermark transition to execute beautifully.
       */}
       <div
         ref={scrollContainerRef}
         className="flex flex-col lg:flex-row flex-nowrap
                    gap-10 lg:gap-[6vw]
-                   px-8 lg:pl-[15vw] lg:pr-[25vw]
+                   px-8 lg:pl-[50vw] lg:pr-[25vw]
                    pb-24 lg:pb-0
                    w-full lg:w-max
                    lg:h-[76vh] lg:items-center
@@ -483,22 +496,17 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
               ref={(el) => { cardsRef.current[i] = el; }}
               className="flex-none w-full transform-gpu cursor-default relative group"
               style={{
-                width: "clamp(340px, 46vw, 600px)", // Massive Scale
+                width: "clamp(340px, 46vw, 600px)",
                 height: "clamp(480px, 74vh, 840px)",
                 transformOrigin: "center center",
                 willChange: "transform, opacity, filter",
               }}
             >
-              {/* 
-                 Heavy-Spec Dual-Layer Shell:
-                 Outermost wrapper handles the drop shadow and the cyan "active" rim.
-                 Inner wrapper provides the 15% obsidian glass mass.
-              */}
               <div
                 className="active-outer-border absolute inset-[-1.5px] rounded-[30px] z-0 pointer-events-none"
                 style={{
                   background: "linear-gradient(to bottom right, var(--primary), rgba(143,245,255,0.05) 40%, transparent)",
-                  opacity: 0, // Fades in on active
+                  opacity: 0,
                 }}
               />
               
@@ -511,12 +519,10 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                   backdropFilter: "blur(30px)",
                 }}
               >
-                {/* ── Structural Diagnostic Scanline (3s recurrent cycle) ─── */}
                 <div
                   className="absolute inset-x-0 h-[40%] bg-gradient-to-b from-transparent via-[var(--primary)]/10 to-transparent pointer-events-none animate-scanline mix-blend-screen opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 />
 
-                {/* ── Technical Grid Mesh ─── */}
                 <div
                   aria-hidden="true"
                   className="absolute inset-0 pointer-events-none"
@@ -531,7 +537,6 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                   }}
                 />
 
-                {/* ── Ghost Border Pathing (Draws into frame edges) ─── */}
                 <svg
                   className="absolute inset-0 w-full h-full pointer-events-none"
                   preserveAspectRatio="none"
@@ -546,21 +551,15 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                     strokeWidth="1.5"
                     pathLength="100"
                     className="ghost-border"
-                    style={{
-                      strokeDasharray: "100",
-                      strokeDashoffset: "100",
-                      opacity: 0.35,
-                    }}
+                    style={{ strokeDasharray: "100", strokeDashoffset: "100", opacity: 0.35 }}
                   />
                 </svg>
 
-                {/* ── Telemetry Specs (Top Right HUD) ─── */}
                 <div className="absolute top-6 right-6 flex flex-col items-end gap-[2px] pointer-events-none badge-font opacity-40 mix-blend-plus-lighter">
                   <span className="text-[9px] text-[var(--primary)] tracking-[0.2em]">SYS-MODULE: 0x0{i + 1}</span>
                   <span className="text-[7.5px] text-white/60 tracking-[0.1em]" style={{ fontFamily: "monospace" }}>T-INDEX {Math.random().toString(36).substring(2,8).toUpperCase()}</span>
                 </div>
 
-                {/* Corner Data Markers */}
                 <div aria-hidden="true" className="absolute top-5 left-5 pointer-events-none">
                   <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
                     <path d="M0 22 L0 0 L22 0" stroke="rgba(143,245,255,0.2)" strokeWidth="1.5"/>
@@ -572,9 +571,7 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                   </svg>
                 </div>
 
-                {/* ── Internal Module Information ─── */}
                 <div className="card-body relative z-[15] flex flex-col h-full p-8 lg:p-12 gap-6">
-                  {/* Company Identifier */}
                   <div className="self-start mt-2">
                     <div
                       className="inline-flex items-center gap-2 px-4 py-2 rounded-full
@@ -588,7 +585,6 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                     </div>
                   </div>
 
-                  {/* Operational Role */}
                   <h3
                     className="text-3xl md:text-4xl lg:text-[2.2rem] font-black text-white
                                tracking-tight leading-[1.1] mt-2 drop-shadow-md"
@@ -596,7 +592,6 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                     {item.role}
                   </h3>
 
-                  {/* Technical Analysis (Mono description) */}
                   <p
                     className="text-white/45 leading-[1.8] text-[13.5px] lg:text-[14.5px] flex-1 mt-1 pr-4"
                     style={{ fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace" }}
@@ -604,7 +599,6 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                     {item.desc}
                   </p>
 
-                  {/* ── Aero-Badge Cascade ─── */}
                   <div className="flex flex-wrap gap-2.5 pt-4 pb-2">
                     {stack.map((skill) => (
                       <span
@@ -621,7 +615,6 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                     ))}
                   </div>
 
-                  {/* System Footprint Divider */}
                   <div
                     className="pt-6 border-t border-white/[0.08] flex items-center
                                justify-between text-white/30 text-[9px] md:text-[10px] font-semibold
