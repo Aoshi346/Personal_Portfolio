@@ -215,7 +215,7 @@ export default function Sections({
 
         // ── Ensure triggers refresh after pinned section calculates its height
         ScrollTrigger.refresh();
-      }, containerRef);
+      }, containerRef.current || undefined);
 
       return () => ctx.revert();
     }, 200); // Wait for Experience pin to register first

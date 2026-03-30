@@ -186,7 +186,7 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
       gsap.to(ctaBtnRef.current, {
         y: -5, duration: 1.9, ease: "sine.inOut", repeat: -1, yoyo: true, delay: 2.0,
       });
-    }, sectionRef);
+    }, sectionRef.current || undefined);
 
     return () => ctx.revert();
   }, [isStarted]);

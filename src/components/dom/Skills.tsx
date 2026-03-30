@@ -105,19 +105,19 @@ const CARD_STYLES = `
 // ─────────────────────────────────────────────────────────────────────────────
 // SkillCard Component
 // ─────────────────────────────────────────────────────────────────────────────
-const SkillCard = ({
-  skill, desc, isActive, onHover, isMobile,
-  registerHandle, expandedMobile, onMobileExpand,
+// ─────────────────────────────────────────────────────────────────────────────
+// SkillCardDesktop Component
+// ─────────────────────────────────────────────────────────────────────────────
+const SkillCardDesktop = ({
+  skill, desc, isActive, onHover, registerHandle,
 }: {
   skill: SkillData; desc: string; isActive: boolean;
-  onHover: (s: SkillData) => void; isMobile: boolean;
+  onHover: (s: SkillData) => void;
   registerHandle: (name: string, h: CardHandle) => void;
-  expandedMobile: string | null; onMobileExpand: (name: string | null) => void;
 }) => {
   const cardRef     = useRef<HTMLDivElement>(null);
   const innerRef    = useRef<HTMLDivElement>(null);
   const iconWrapRef = useRef<HTMLDivElement>(null);
-  const accordRef   = useRef<HTMLDivElement>(null);
 
   // Register dim handle
   useLayoutEffect(() => {
@@ -130,40 +130,46 @@ const SkillCard = ({
 
   // 3D tilt + magnetic drift — (hover: hover) gated
   useLayoutEffect(() => {
-    if (!innerRef.current || !cardRef.current) return;
+    const cardEl = cardRef.current;
+    const innerEl = innerRef.current;
+    const iconEl = iconWrapRef.current;
+    if (!cardEl || !innerEl || !iconEl) return;
+
     const mm = gsap.matchMedia();
     mm.add("(hover: hover)", () => {
-      const xTo  = gsap.quickTo(innerRef.current, "x",         { duration: 0.4, ease: "power3", overwrite: "auto" });
-      const yTo  = gsap.quickTo(innerRef.current, "y",         { duration: 0.4, ease: "power3", overwrite: "auto" });
-      const rxTo = gsap.quickTo(innerRef.current, "rotationX", { duration: 0.5, ease: "power3", overwrite: "auto" });
-      const ryTo = gsap.quickTo(innerRef.current, "rotationY", { duration: 0.5, ease: "power3", overwrite: "auto" });
-      const ixTo = gsap.quickTo(iconWrapRef.current, "x", { duration: 0.35, ease: "power3", overwrite: "auto" });
-      const iyTo = gsap.quickTo(iconWrapRef.current, "y", { duration: 0.35, ease: "power3", overwrite: "auto" });
+      const xTo  = gsap.quickTo(innerEl, "x",         { duration: 0.4, ease: "power3", overwrite: "auto" });
+      const yTo  = gsap.quickTo(innerEl, "y",         { duration: 0.4, ease: "power3", overwrite: "auto" });
+      const rxTo = gsap.quickTo(innerEl, "rotationX", { duration: 0.5, ease: "power3", overwrite: "auto" });
+      const ryTo = gsap.quickTo(innerEl, "rotationY", { duration: 0.5, ease: "power3", overwrite: "auto" });
+      const ixTo = gsap.quickTo(iconEl,  "x",         { duration: 0.35, ease: "power3", overwrite: "auto" });
+      const iyTo = gsap.quickTo(iconEl,  "y",         { duration: 0.35, ease: "power3", overwrite: "auto" });
 
       const onMove = (e: MouseEvent) => {
-        const r = cardRef.current!.getBoundingClientRect();
+        if (!cardEl) return;
+        const r = cardEl.getBoundingClientRect();
         const dx = e.clientX - (r.left + r.width / 2);
         const dy = e.clientY - (r.top  + r.height / 2);
         const nx = dx / (r.width / 2); const ny = dy / (r.height / 2);
         xTo(Math.max(-8, Math.min(8, dx * 0.12))); yTo(Math.max(-8, Math.min(8, dy * 0.12)));
         rxTo(Math.max(-8, Math.min(8, -ny * 8)));  ryTo(Math.max(-8, Math.min(8, nx * 8)));
         ixTo(Math.max(-5, Math.min(5, dx * 0.04))); iyTo(Math.max(-5, Math.min(5, dy * 0.04)));
-        cardRef.current!.style.setProperty("--mx", `${e.clientX - r.left}px`);
-        cardRef.current!.style.setProperty("--my", `${e.clientY - r.top}px`);
+        cardEl.style.setProperty("--mx", `${e.clientX - r.left}px`);
+        cardEl.style.setProperty("--my", `${e.clientY - r.top}px`);
       };
       const onLeave = () => { xTo(0); yTo(0); rxTo(0); ryTo(0); ixTo(0); iyTo(0); };
-      const onDown  = () => gsap.to(innerRef.current, { scale: 0.96, duration: 0.12, ease: "power2.in",  overwrite: "auto" });
-      const onUp    = () => gsap.to(innerRef.current, { scale: 1,    duration: 0.4,  ease: "back.out(2)", overwrite: "auto" });
+      const onDown  = () => { if (innerEl) gsap.to(innerEl, { scale: 0.96, duration: 0.12, ease: "power2.in",  overwrite: "auto" }); };
+      const onUp    = () => { if (innerEl) gsap.to(innerEl, { scale: 1,    duration: 0.4,  ease: "back.out(2)", overwrite: "auto" }); };
 
-      cardRef.current!.addEventListener("mousemove", onMove);
-      cardRef.current!.addEventListener("mouseleave", onLeave);
-      cardRef.current!.addEventListener("mousedown", onDown);
-      cardRef.current!.addEventListener("mouseup",   onUp);
+      cardEl.addEventListener("mousemove", onMove);
+      cardEl.addEventListener("mouseleave", onLeave);
+      cardEl.addEventListener("mousedown", onDown);
+      cardEl.addEventListener("mouseup",   onUp);
+
       return () => {
-        cardRef.current?.removeEventListener("mousemove", onMove);
-        cardRef.current?.removeEventListener("mouseleave", onLeave);
-        cardRef.current?.removeEventListener("mousedown", onDown);
-        cardRef.current?.removeEventListener("mouseup",   onUp);
+        cardEl.removeEventListener("mousemove", onMove);
+        cardEl.removeEventListener("mouseleave", onLeave);
+        cardEl.removeEventListener("mousedown", onDown);
+        cardEl.removeEventListener("mouseup",   onUp);
       };
     });
     return () => mm.revert();
@@ -186,19 +192,6 @@ const SkillCard = ({
       });
   }, [isActive]);
 
-  // Mobile accordion
-  const isExpanded = expandedMobile === skill.name;
-  useLayoutEffect(() => {
-    if (!accordRef.current) return;
-    gsap.to(accordRef.current, {
-      height: isExpanded ? accordRef.current.scrollHeight : 0,
-      opacity: isExpanded ? 1 : 0,
-      duration: isExpanded ? 0.38 : 0.26,
-      ease: isExpanded ? "power3.out" : "power3.in",
-      overwrite: "auto",
-    });
-  }, [isExpanded]);
-
   const handleMouseEnter = () => {
     onHover({ ...skill, desc });
     gsap.to(cardRef.current, { backgroundColor: "rgba(255,255,255,0.035)", duration: 0.25, ease: "power2.out" });
@@ -214,27 +207,6 @@ const SkillCard = ({
   };
 
   const Icon = skill.icon;
-
-  if (isMobile) {
-    return (
-      <div className="rounded-2xl bg-[#0d1117] border border-white/10 overflow-hidden">
-        <button
-          onClick={() => onMobileExpand(isExpanded ? null : skill.name)}
-          className="w-full p-5 flex items-center gap-4 cursor-pointer"
-        >
-          <div className="text-white/50"><Icon size={26} /></div>
-          <span className="text-white/70 text-sm font-semibold tracking-wide flex-1 text-left">{skill.name}</span>
-          <div style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}>
-            <ChevronDown size={16} className="text-white/30" />
-          </div>
-        </button>
-        <div ref={accordRef} style={{ height: 0, opacity: 0, overflow: "hidden" }}>
-          <p className="px-5 pb-5 text-white/50 text-sm leading-relaxed">{desc}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div
       ref={cardRef}
@@ -249,6 +221,49 @@ const SkillCard = ({
           <Icon size={32} />
         </div>
         <span className="text-white/60 text-sm font-semibold tracking-wide">{skill.name}</span>
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SkillCardMobile Component
+// ─────────────────────────────────────────────────────────────────────────────
+const SkillCardMobile = ({
+  skill, desc, expandedMobile, onMobileExpand,
+}: {
+  skill: SkillData; desc: string;
+  expandedMobile: string | null; onMobileExpand: (name: string | null) => void;
+}) => {
+  const accordRef = useRef<HTMLDivElement>(null);
+  const isExpanded = expandedMobile === skill.name;
+  
+  useLayoutEffect(() => {
+    if (!accordRef.current) return;
+    gsap.to(accordRef.current, {
+      height: isExpanded ? "auto" : 0,
+      opacity: isExpanded ? 1 : 0,
+      duration: isExpanded ? 0.38 : 0.26,
+      ease: isExpanded ? "power3.out" : "power3.in",
+      overwrite: "auto",
+    });
+  }, [isExpanded]);
+
+  const Icon = skill.icon;
+  return (
+    <div className="rounded-2xl bg-[#0d1117] border border-white/10 overflow-hidden">
+      <button
+        onClick={() => onMobileExpand(isExpanded ? null : skill.name)}
+        className="w-full p-5 flex items-center gap-4 cursor-pointer min-h-[80px]"
+      >
+        <div className="text-white/50"><Icon size={26} /></div>
+        <span className="text-white/70 text-[clamp(13px,1.2vw,14px)] font-semibold tracking-wide flex-1 text-left">{skill.name}</span>
+        <div style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}>
+          <ChevronDown size={16} className="text-white/30" />
+        </div>
+      </button>
+      <div ref={accordRef} style={{ height: 0, opacity: 0, overflow: "hidden" }}>
+        <p className="px-5 pb-5 text-white/50 text-[clamp(13px,1.2vw,14px)] leading-relaxed">{desc}</p>
       </div>
     </div>
   );
@@ -412,7 +427,6 @@ export const Skills = ({ language }: { language: Language }) => {
   // phase 2: useLayoutEffect([renderedSkill]) fires entrance animation (guaranteed post-render)
   const [renderedSkill,   setRenderedSkill]   = useState<SkillData>({ ...SKILLS[0], desc: initialDesc });
   const [activeSkillName, setActiveSkillName] = useState<string>(SKILLS[0].name);
-  const [isMobileView,    setIsMobileView]    = useState(false);
   const [expandedMobile,  setExpandedMobile]  = useState<string | null>(null);
 
   // Latest requested skill — written synchronously in handleHover
@@ -432,24 +446,19 @@ export const Skills = ({ language }: { language: Language }) => {
   const cardHandles  = useRef<Record<string, CardHandle>>({});
   const registerHandle = useCallback((name: string, h: CardHandle) => { cardHandles.current[name] = h; }, []);
 
-  // ── Mobile detection ──────────────────────────────────────────────────────
-  useLayoutEffect(() => {
-    const mm = gsap.matchMedia();
-    mm.add("(max-width: 767px)", () => { setIsMobileView(true);  return () => setIsMobileView(false); });
-    mm.add("(min-width: 768px)", () => { setIsMobileView(false); return () => setIsMobileView(true); });
-    return () => mm.revert();
-  }, []);
-
   // ── Terminal 3D tilt — tracks mouse anywhere in section ──────────────────
   useLayoutEffect(() => {
-    if (!terminalRef.current || !sectionRef.current) return;
+    const termEl = terminalRef.current;
+    const sectEl = sectionRef.current;
+    if (!termEl || !sectEl) return;
+
     const mm = gsap.matchMedia();
     mm.add("(hover: hover)", () => {
-      const rxTo = gsap.quickTo(terminalRef.current, "rotationX", { duration: 0.6, ease: "power3", overwrite: "auto" });
-      const ryTo = gsap.quickTo(terminalRef.current, "rotationY", { duration: 0.6, ease: "power3", overwrite: "auto" });
+      const rxTo = gsap.quickTo(termEl, "rotationX", { duration: 0.6, ease: "power3", overwrite: "auto" });
+      const ryTo = gsap.quickTo(termEl, "rotationY", { duration: 0.6, ease: "power3", overwrite: "auto" });
 
       const onMove = (e: MouseEvent) => {
-        const r  = sectionRef.current!.getBoundingClientRect();
+        const r  = sectEl.getBoundingClientRect();
         const nx = (e.clientX - (r.left + r.width  / 2)) / (r.width  / 2);
         const ny = (e.clientY - (r.top  + r.height / 2)) / (r.height / 2);
         ryTo(nx * 4);
@@ -457,11 +466,11 @@ export const Skills = ({ language }: { language: Language }) => {
       };
       const onLeave = () => { rxTo(0); ryTo(0); };
 
-      sectionRef.current!.addEventListener("mousemove",  onMove);
-      sectionRef.current!.addEventListener("mouseleave", onLeave);
+      sectEl.addEventListener("mousemove",  onMove);
+      sectEl.addEventListener("mouseleave", onLeave);
       return () => {
-        sectionRef.current?.removeEventListener("mousemove",  onMove);
-        sectionRef.current?.removeEventListener("mouseleave", onLeave);
+        sectEl.removeEventListener("mousemove",  onMove);
+        sectEl.removeEventListener("mouseleave", onLeave);
       };
     });
     return () => mm.revert();
@@ -469,29 +478,30 @@ export const Skills = ({ language }: { language: Language }) => {
 
   // ── Boot sequence (once on scroll into view) ──────────────────────────────
   useLayoutEffect(() => {
-    if (!sectionRef.current || !terminalRef.current || !contentRef.current) return;
-
-    // Set initial hidden states
-    gsap.set(terminalRef.current, { scale: 0.9, opacity: 0 });
-    gsap.set(contentRef.current,  { opacity: 0 });
+    const termEl = terminalRef.current;
+    const contEl = contentRef.current;
+    const sectEl = sectionRef.current;
+    if (!termEl || !contEl || !sectEl) return;
 
     ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start:   "top 70%",
+      trigger: sectEl,
+      start:   "top 75%",
+      invalidateOnRefresh: true,
       once:    true,
       onEnter: () => {
         const tl = gsap.timeline();
-        // Terminal scales up
-        tl.to(terminalRef.current, {
-          scale: 1, opacity: 1, duration: 0.7, ease: "power3.out",
-        })
-          // Cursor blinks 3×, then content fades in
-          .to(contentRef.current, {
-            opacity: 1, duration: 0.4, ease: "power2.out",
-          }, "+=0.2");
+        tl.fromTo(termEl, 
+          { scale: 0.9, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.7, ease: "power3.out" }
+        )
+        .fromTo(contEl, 
+          { opacity: 0 },
+          { opacity: 1, duration: 0.4, ease: "power2.out" }, 
+          "+=0.2"
+        );
       },
     });
-    return () => ScrollTrigger.getAll().forEach(st => { if (st.vars.trigger === sectionRef.current) st.kill(); });
+    return () => ScrollTrigger.getAll().forEach(st => { if (st.vars.trigger === sectEl) st.kill(); });
   }, []);
 
   // ── PHASE 1: handleHover — only triggers fade-out then setRenderedSkill ───
@@ -579,7 +589,7 @@ export const Skills = ({ language }: { language: Language }) => {
       <div className="reveal-content w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center relative z-10">
 
         {/* ── LEFT: Systems Terminal (hidden on mobile) ────────────────────── */}
-        <div className="hidden lg:block select-none" style={{ perspective: "800px" }}>
+        <div className="hidden lg:flex flex-col select-none w-full max-w-[600px] h-[500px]" style={{ perspective: "800px" }}>
           <TerminalWindow
             skill={renderedSkill}
             terminalRef={terminalRef}
@@ -606,21 +616,35 @@ export const Skills = ({ language }: { language: Language }) => {
             </div>
           </h2>
 
+          {/* Desktop Grid */}
           <div
-            className={isMobileView ? "flex flex-col gap-3" : "grid grid-cols-2 md:grid-cols-3 gap-4"}
-            onMouseLeave={isMobileView ? undefined : handleGridLeave}
+            className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-4"
+            onMouseLeave={handleGridLeave}
           >
             {SKILLS.map((skill) => {
               const desc = t.skillDescriptions[skill.name as keyof typeof t.skillDescriptions] || "";
               return (
-                <SkillCard
+                <SkillCardDesktop
                   key={skill.name}
                   skill={{ ...skill, desc }}
                   desc={desc}
                   isActive={activeSkillName === skill.name}
                   onHover={handleHover}
-                  isMobile={isMobileView}
                   registerHandle={registerHandle}
+                />
+              );
+            })}
+          </div>
+
+          {/* Mobile Accordion */}
+          <div className="flex flex-col gap-3 md:hidden">
+            {SKILLS.map((skill) => {
+              const desc = t.skillDescriptions[skill.name as keyof typeof t.skillDescriptions] || "";
+              return (
+                <SkillCardMobile
+                  key={`mobile-${skill.name}`}
+                  skill={{ ...skill, desc }}
+                  desc={desc}
                   expandedMobile={expandedMobile}
                   onMobileExpand={setExpandedMobile}
                 />
