@@ -404,31 +404,62 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
         },
       });
 
-      // Mobile Sticky Title Blur-Fade (Progressive)
-      // As the first card climbs towards the sticky title, the title fades into the background.
-      ScrollTrigger.create({
-        trigger: scrollContainerRef.current,
-        start: "top 180px", // Trigger when first card is 180px from top
-        end: "top 40px",    // Finish when card is 40px from top
-        scrub: true,
-        animation: gsap.fromTo(titleWrapRef.current, 
-          { opacity: 1, filter: "blur(0px)", scale: 1 }, 
-          { opacity: 0.2, filter: "blur(8px)", scale: 0.95, ease: "none" }
-        )
-      });
+      // Phase 3: Mobile Title — fully clear the stage as first card hits center
+      // Fades to opacity 0 and translates upward so cards can dominate the viewport
+      const firstCard = cards[0];
+      if (firstCard) {
+        ScrollTrigger.create({
+          trigger: firstCard,
+          start: "center 75%", // title starts exiting when first card is halfway up
+          end: "center 40%",   // fully gone by the time card hits upper third
+          scrub: true,
+          animation: gsap.fromTo(
+            titleWrapRef.current,
+            { opacity: 1, y: 0, filter: "blur(0px)", scale: 1 },
+            { opacity: 0, y: -40, filter: "blur(8px)", scale: 0.95, ease: "none" }
+          ),
+        });
+      }
 
+      // Phase 2: Center-Focus "Depth of Field" — cinematic vertical carousel effect
+      // Each card starts dimmed/blurred and scales into focus as it hits the viewport center
       cards.forEach((card) => {
         const body = card.querySelectorAll(".card-body > *");
         const badges = card.querySelectorAll(".skill-badge");
 
+        // ── One-time entrance: reveal body text & badges when card first scrolls in ──
         ScrollTrigger.create({
           trigger: card,
-          start: "top 85%",
+          start: "top 90%",
           once: true,
           onEnter: () => {
-            gsap.to(card, { boxShadow: "0 0 80px rgba(143,245,255,0.05)", duration: 1.0 });
             gsap.to(body, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.08, ease: "power3.out", delay: 0.1 });
-            gsap.to(badges, { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "power3.out", delay: 0.45 });
+            gsap.to(badges, { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "power3.out", delay: 0.4 });
+          },
+        });
+
+        // ── Scrubbed Center-Focus DOF: off-center = dim/blur, center = sharp/vivid ──
+        gsap.set(card, { scale: 0.95, opacity: 0.4, filter: "blur(2px)" });
+
+        ScrollTrigger.create({
+          trigger: card,
+          start: "center 80%",  // card center enters focus zone from the bottom
+          end: "center 20%",   // card center exits focus zone off the top
+          scrub: true,
+          toggleActions: "play reverse play reverse",
+          onUpdate: (self) => {
+            // progress 0→0.5 = coming into focus, 0.5→1 = leaving focus
+            const p = self.progress;
+            // peak sharpness at progress 0.5 (card dead-center in viewport)
+            const focusCurve = 1 - Math.abs(p - 0.5) * 2; // 0 at edges, 1 at center
+            const scale = 0.95 + focusCurve * 0.05;         // 0.95 → 1.0
+            const opacity = 0.4 + focusCurve * 0.6;          // 0.4  → 1.0
+            const blur = (1 - focusCurve) * 2;               // 2px  → 0px
+            const shadow = focusCurve > 0.8
+              ? `0 0 80px rgba(143,245,255,${(focusCurve - 0.8) * 0.25})`
+              : "none";
+
+            gsap.set(card, { scale, opacity, filter: `blur(${blur}px)`, boxShadow: shadow });
           },
         });
       });
@@ -534,10 +565,8 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
             <div
               key={i}
               ref={(el) => { cardsRef.current[i] = el; }}
-              className="flex-none w-full transform-gpu cursor-default relative group"
+              className="flex-none w-full lg:w-[clamp(340px,46vw,600px)] h-auto lg:h-[clamp(480px,74vh,840px)] transform-gpu cursor-default relative group"
               style={{
-                width: "clamp(340px, 46vw, 600px)",
-                height: "clamp(480px, 74vh, 840px)",
                 transformOrigin: "center center",
                 willChange: "transform, opacity, filter",
                 perspective: "1200px",
@@ -575,7 +604,7 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                   style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 100%)" }}
                 />
 
-                <div className="card-body relative z-[15] flex flex-col h-full p-8 lg:p-12 gap-6">
+                <div className="card-body relative z-[15] flex flex-col h-full p-6 sm:p-8 lg:p-12 gap-6">
                   <div className="self-start mt-2">
                     <div
                       className="inline-flex items-center gap-2 px-4 py-2 rounded-full
@@ -607,9 +636,9 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                       return (
                       <MagneticElement key={skill} radius={60} strength={0.25}>
                         <span
-                          className="skill-badge inline-flex items-center gap-2 px-4 py-2 rounded-full
+                          className="skill-badge inline-flex items-center gap-1.5 px-3 py-1.5 lg:px-4 lg:py-2 rounded-full
                                      bg-[#0b0e14] border border-white/10
-                                     text-white/60 text-[13px] font-medium uppercase
+                                     text-white/60 text-[11px] lg:text-[13px] font-medium uppercase
                                      select-none cursor-pointer transition-colors"
                           onMouseEnter={(e) => {
                             gsap.to(e.currentTarget, { backgroundColor: "rgba(255,255,255,0.1)", color: "#ffffff", scale: 1.05, duration: 0.3, ease: "power2.out" });
