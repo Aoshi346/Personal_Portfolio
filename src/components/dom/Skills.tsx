@@ -254,12 +254,13 @@ const SkillCardMobile = ({
     <div className="rounded-2xl bg-[#0d1117] border border-white/10 overflow-hidden">
       <button
         onClick={() => onMobileExpand(isExpanded ? null : skill.name)}
-        className="w-full p-5 flex items-center gap-4 cursor-pointer min-h-[80px]"
+        className="no-cursor-snap group w-full p-5 flex items-center gap-4 cursor-pointer min-h-[80px]
+                   transition-colors duration-300 active:bg-white/[0.04] md:hover:bg-white/[0.04]"
       >
         <div className="text-white/50"><Icon size={26} /></div>
-        <span className="text-white/70 text-[clamp(13px,1.2vw,14px)] font-semibold tracking-wide flex-1 text-left">{skill.name}</span>
+        <span className="text-white/80 text-[clamp(13px,1.2vw,14px)] font-semibold tracking-wide flex-1 text-left">{skill.name}</span>
         <div style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}>
-          <ChevronDown size={16} className="text-white/30" />
+          <ChevronDown size={16} className="text-white/40 group-active:text-white/80 transition-colors" />
         </div>
       </button>
       <div ref={accordRef} style={{ height: 0, opacity: 0, overflow: "hidden" }}>

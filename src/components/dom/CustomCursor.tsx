@@ -67,8 +67,11 @@ export default function CustomCursor() {
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const isClickable = target.closest('a, button, [role="button"], input, select, textarea, .cursor-pointer') as HTMLElement;
-      
+      let isClickable = target.closest('a, button, [role="button"], input, select, textarea, .cursor-pointer') as HTMLElement | null;
+
+      // Exclusion protocol: opt-out elements inside .no-cursor-snap are ignored
+      if (isClickable && isClickable.closest('.no-cursor-snap')) { isClickable = null; }
+
       if (isClickable) {
         activeTarget = isClickable;
         targetRect = isClickable.getBoundingClientRect();
@@ -89,8 +92,11 @@ export default function CustomCursor() {
         
         // Check if cursor is still physically over the target after scroll
         const elementAtPoint = document.elementFromPoint(lastX, lastY) as HTMLElement;
-        const stillHovering = elementAtPoint?.closest('a, button, [role="button"], input, select, textarea, .cursor-pointer');
-        
+        let stillHovering = elementAtPoint?.closest('a, button, [role="button"], input, select, textarea, .cursor-pointer') as HTMLElement | null;
+
+        // Exclusion protocol: same no-cursor-snap check as handleMouseOver
+        if (stillHovering && stillHovering.closest('.no-cursor-snap')) { stillHovering = null; }
+
         if (!stillHovering || stillHovering !== activeTarget) {
           activeTarget = null;
           targetRect = null;
