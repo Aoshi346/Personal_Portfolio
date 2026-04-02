@@ -1,7 +1,7 @@
-import { useLayoutEffect, useRef, useCallback, useState } from "react";
+import { useLayoutEffect, useEffect, useRef, useCallback, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Mail, Linkedin, Github, Terminal, Send, Loader2, Check } from "lucide-react";
+import { Mail, Linkedin, Github, Terminal, Send, Loader2, Check, AlertCircle } from "lucide-react";
 import emailjs from "@emailjs/browser";
 import { Language, translations } from "../../constants/translations";
 
@@ -132,6 +132,67 @@ const MailField = ({
   );
 };
 
+// ── Notification Banner (Haptic Toast) ───────────────────────────────────────
+type BannerState = "success" | "error" | "hidden";
+
+const NotificationBanner = ({
+  state, onClose,
+}: {
+  state: BannerState;
+  onClose: () => void;
+}) => {
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const isVisible = state !== "hidden";
+
+  // Entrance spring physics
+  useLayoutEffect(() => {
+    if (!bannerRef.current || !isVisible) return;
+    gsap.fromTo(
+      bannerRef.current,
+      { y: 20, opacity: 0, scale: 0.9 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.55, ease: "elastic.out(1, 0.6)" }
+    );
+  }, [isVisible]);
+
+  // Auto-dismiss: 4s hold → exit tween → call onClose
+  useEffect(() => {
+    if (!isVisible) return;
+    const timer = setTimeout(() => {
+      if (!bannerRef.current) { onClose(); return; }
+      gsap.to(bannerRef.current, {
+        y: 10, opacity: 0, scale: 0.95,
+        duration: 0.35, ease: "power2.in",
+        onComplete: onClose,
+      });
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [isVisible, onClose]);
+
+  if (!isVisible) return null;
+
+  const isSuccess = state === "success";
+
+  return (
+    <div
+      ref={bannerRef}
+      role="status"
+      aria-live="polite"
+      className={`absolute bottom-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-full backdrop-blur-md shadow-xl border whitespace-nowrap pointer-events-none ${
+        isSuccess
+          ? "bg-[#28c840]/10 border-[#28c840]/25 text-[#28c840] shadow-[#28c840]/10"
+          : "bg-[#ff5f57]/10 border-[#ff5f57]/25 text-[#ff5f57] shadow-[#ff5f57]/10"
+      }`}
+    >
+      {isSuccess
+        ? <Check size={15} strokeWidth={2.5} />
+        : <AlertCircle size={15} strokeWidth={2.5} />}
+      <span className="text-xs font-semibold tracking-wide">
+        {isSuccess ? "Message securely delivered." : "Transmission failed. Please try again."}
+      </span>
+    </div>
+  );
+};
+
 // ── Main component ────────────────────────────────────────────────────────────
 export const Contact = ({ language }: { language: Language }) => {
   const t     = translations[language].sections;
@@ -154,14 +215,19 @@ export const Contact = ({ language }: { language: Language }) => {
   const isAnimatingRef = useRef(false);
 
   // Form submit state
-  type SubmitState = "idle" | "sending" | "success" | "error";
+  type SubmitState = "idle" | "sending";
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
+  const [bannerState, setBannerState] = useState<BannerState>("hidden");
   const planeIconRef = useRef<SVGSVGElement>(null);
 
   // Form state
   const [fromEmail, setFromEmail] = useState("");
   const [subject,   setSubject]   = useState("");
   const [message,   setMessage]   = useState("");
+
+  const handleBannerClose = useCallback(() => {
+    setBannerState("hidden");
+  }, []);
 
   // ── ScrollTrigger reveal + infinite marquee ──────────────────────────────
   useLayoutEffect(() => {
@@ -240,26 +306,18 @@ export const Contact = ({ language }: { language: Language }) => {
         { from_email: fromEmail, subject, message },
         EMAILJS_PUBLIC_KEY
       );
-      
-      setSubmitState("success");
-      
-      // Reset after success
-      setTimeout(() => {
-        setSubmitState("idle");
-        setFromEmail(""); setSubject(""); setMessage("");
-        if (planeIconRef.current) {
-          gsap.set(planeIconRef.current, { x: 0, y: 0, opacity: 1 });
-        }
-      }, 3000);
-      
+      // Button returns to idle immediately — banner takes over
+      setSubmitState("idle");
+      setBannerState("success");
+      setFromEmail(""); setSubject(""); setMessage("");
+      if (planeIconRef.current)
+        gsap.set(planeIconRef.current, { x: 0, y: 0, opacity: 1 });
+
     } catch {
-      setSubmitState("error");
-      setTimeout(() => {
-        setSubmitState("idle");
-        if (planeIconRef.current) {
-          gsap.set(planeIconRef.current, { x: 0, y: 0, opacity: 1 });
-        }
-      }, 3000);
+      setSubmitState("idle");
+      setBannerState("error");
+      if (planeIconRef.current)
+        gsap.set(planeIconRef.current, { x: 0, y: 0, opacity: 1 });
     }
   }, [fromEmail, subject, message, submitState]);
 
@@ -407,6 +465,9 @@ export const Contact = ({ language }: { language: Language }) => {
                 />
               </div>
 
+              {/* Floating Haptic Banner */}
+              <NotificationBanner state={bannerState} onClose={handleBannerClose} />
+
               {/* Footer + Send Button */}
               <div className="flex items-center justify-end px-6 py-4 border-t border-white/5 bg-white/[0.01]">
                 <button
@@ -420,20 +481,8 @@ export const Contact = ({ language }: { language: Language }) => {
                       <Send ref={planeIconRef} size={15} className="relative z-10 ml-1" />
                     </>
                   )}
-                  
                   {submitState === "sending" && (
                     <Loader2 size={16} className="animate-spin text-black" />
-                  )}
-                  
-                  {submitState === "success" && (
-                    <>
-                      <Check size={16} className="text-black" />
-                      <span>Sent!</span>
-                    </>
-                  )}
-                  
-                  {submitState === "error" && (
-                    <span>Retry</span>
                   )}
                 </button>
               </div>
