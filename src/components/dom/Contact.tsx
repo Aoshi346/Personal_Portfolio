@@ -14,6 +14,11 @@ const EMAILJS_SERVICE_ID  = import.meta.env.VITE_EMAILJS_SERVICE_ID;
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
 const EMAILJS_PUBLIC_KEY  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
+// Initialize EmailJS once at the entry point for better reliability
+if (EMAILJS_PUBLIC_KEY) {
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+}
+
 // Glitch phases for copy feedback
 const GLITCH_PHASE_1 = "0x4F50454E 0x464F5220 0x434F4C4C";
 const GLITCH_PHASE_2 = "> [SYS_MSG: COPIED_TO_CLIPBOARD]";
