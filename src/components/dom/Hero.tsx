@@ -321,7 +321,7 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
       ref={sectionRef}
       id="section-1"
       aria-label="Hero – Introduction"
-      className="relative h-screen flex items-center overflow-hidden bg-transparent"
+      className="relative h-[100dvh] flex items-center overflow-hidden bg-transparent"
       style={{ willChange: "transform, opacity" }}
     >
       {/* ── Grain overlay ────────────────────────────────────────────── */}
