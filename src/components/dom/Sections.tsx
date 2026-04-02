@@ -56,21 +56,36 @@ export default function Sections({
       })
     : "Loading...";
 
-  // ── HUD progress bar — direct DOM mutation, zero React re-renders ─────────
-  useEffect(() => {
-    if (!hudBarRef.current || !hudEdgeRef.current) return;
-    const bar  = hudBarRef.current;
-    const edge = hudEdgeRef.current;
-    const onScroll = () => {
-      const pct = document.body.scrollHeight > window.innerHeight
-        ? (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100
-        : 0;
-      bar.style.width  = `${pct}%`;
-      edge.style.left  = `${pct}%`;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [loaded]);
+  // ── activeSection update guard ──
+  const updateHudVisuals = useCallback((idx: number) => {
+    setActiveSectionSafe(idx);
+    
+    // Snap the liquid progress bar to the exact button coordinates
+    if (!hudRef.current || !hudBarRef.current || !hudEdgeRef.current) return;
+    const buttons = Array.from(hudRef.current.querySelectorAll("button"));
+    const btn = buttons[idx - 1]; // 1-indexed
+    if (!btn) return;
+
+    // Calculate left/width percentages relative to the whole HUD
+    const containerWidth = hudRef.current.offsetWidth;
+    // Map visual progress to the right edge of the current button
+    const targetWidth = btn.offsetLeft + btn.offsetWidth;
+    const pct = (targetWidth / containerWidth) * 100;
+
+    // Smoothly animate the liquid bar to strictly match the selected section
+    gsap.to(hudBarRef.current, {
+      width: `${pct}%`,
+      duration: 0.6,
+      ease: "power3.out",
+      overwrite: "auto"
+    });
+    gsap.to(hudEdgeRef.current, {
+      left: `${pct}%`,
+      duration: 0.6,
+      ease: "power3.out",
+      overwrite: "auto"
+    });
+  }, [setActiveSectionSafe]);
 
   // ── Active section tracking via callbacks ──────────────────────────────────
   const handleSectionEnter = useCallback((idx: number) => setActiveSectionSafe(idx), [setActiveSectionSafe]);
@@ -128,7 +143,6 @@ export default function Sections({
               toggleActions: "play none none none",
               once: true,
               fastScrollEnd: true,
-              onEnter: () => handleSectionEnter(index + 3), // sections 3, 4, 5
             },
           });
 
@@ -178,22 +192,15 @@ export default function Sections({
           }
         });
 
-        // ── Hero section active tracking ─────────────────────────────────────
-        ScrollTrigger.create({
-          trigger: "#section-1",
-          start: "top 50%",
-          end: "bottom 50%",
-          onEnter: () => handleSectionEnter(1),
-          onEnterBack: () => handleSectionEnter(1),
-        });
-
-        // ── Experience section active tracking (pinned) ──────────────────────
-        // Detect entry into the pin via its own ID
-        ScrollTrigger.create({
-          trigger: "#section-2",
-          start: "top 50%",
-          onEnter: () => handleSectionEnter(2),
-          onEnterBack: () => handleSectionEnter(2),
+        // ── Global Section Tracking (Reliable Up/Down) ───────────────────────
+        [1, 2, 3, 4, 5].forEach((num) => {
+          ScrollTrigger.create({
+            trigger: `#section-${num}`,
+            start: "top 50%",       // Section becomes active when its top hits center
+            end: "bottom 50%",      // Section ceases being active when its bottom hits center
+            onEnter: () => updateHudVisuals(num),
+            onEnterBack: () => updateHudVisuals(num),
+          });
         });
 
         // ── CTA idle bounce (only while hero is visible) ─────────────────────

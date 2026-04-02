@@ -7,7 +7,7 @@ import { Language, translations } from "../../constants/translations";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const EMAIL = "aoshi_blanco@outlook.com";
+const EMAIL = "a.blanco1501@gmail.com";
 
 // ── EmailJS config — fill in your own IDs ───────────────────────────────────
 const EMAILJS_SERVICE_ID  = "YOUR_SERVICE_ID";
