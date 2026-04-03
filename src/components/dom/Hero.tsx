@@ -427,8 +427,8 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
             <span aria-hidden="true" className="h-8 w-px bg-white/10" />
 
             <div className="flex items-center gap-5">
-              <MagneticIcon href="https://github.com" ariaLabel="GitHub Profile"><Github size={22} /></MagneticIcon>
-              <MagneticIcon href="https://linkedin.com" ariaLabel="LinkedIn Profile"><Linkedin size={22} /></MagneticIcon>
+              <MagneticIcon href="https://github.com/Aoshi346" ariaLabel="GitHub Profile"><Github size={22} /></MagneticIcon>
+              <MagneticIcon href="https://www.linkedin.com/in/aoshi-blanco-sanz-14119b2b7/?locale=es" ariaLabel="LinkedIn Profile"><Linkedin size={22} /></MagneticIcon>
             </div>
           </div>
 

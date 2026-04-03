@@ -405,9 +405,9 @@ export const Contact = ({ language }: { language: Language }) => {
 
             {/* Social links */}
             <div ref={socialsRef} className="flex items-center gap-10">
-              <SocialLink href="https://linkedin.com" icon={Linkedin} label="LinkedIn" />
+              <SocialLink href="https://www.linkedin.com/in/aoshi-blanco-sanz-14119b2b7/?locale=es" icon={Linkedin} label="LinkedIn" />
               <div className="w-px h-5 bg-white/10 flex-shrink-0" />
-              <SocialLink href="https://github.com"   icon={Github}   label="GitHub"   />
+              <SocialLink href="https://github.com/Aoshi346"   icon={Github}   label="GitHub"   />
               <div className="w-px h-5 bg-white/10 flex-shrink-0" />
               <SocialLink href={`mailto:${EMAIL}`}    icon={Mail}     label="Email"    />
             </div>
