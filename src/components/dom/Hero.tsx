@@ -92,7 +92,6 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
   const sigSvgRef = useRef<SVGSVGElement>(null);
 
   // HUD
-  const hudTRRef = useRef<HTMLDivElement>(null);
   const hudBRRef = useRef<HTMLDivElement>(null);
   const hudBracketTRef = useRef<SVGSVGElement>(null);
   const hudBracketBRef = useRef<SVGSVGElement>(null);
@@ -120,7 +119,7 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
 
       // HUD elements
       const hudElements = [
-        hudTRRef.current, hudBRRef.current, 
+        hudBRRef.current, 
         hudBracketTRef.current, hudBracketBRef.current
       ].filter(Boolean);
       if (hudElements.length) gsap.set(hudElements, { autoAlpha: 0 });
@@ -175,7 +174,7 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
       }, 0.62);
 
       // ── HUD: terminal blink-in via steps(5) ───────────────────────────
-      [hudBracketTRef, hudBracketBRef, hudTRRef, hudBRRef].forEach((ref, i) => {
+      [hudBracketTRef, hudBracketBRef, hudBRRef].forEach((ref, i) => {
         if (!ref.current) return;
         gsap.to(ref.current, {
           autoAlpha: 1, duration: 0.35, ease: "steps(5)", delay: 0.7 + i * 0.11,
@@ -258,7 +257,7 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
         }
 
         // ── HUD magnetic lag: slight delay as they scroll out ─────────
-        [hudTRRef.current, hudBRRef.current,
+        [hudBRRef.current,
         hudBracketTRef.current, hudBracketBRef.current].forEach((el) => {
           if (!el) return;
           gsap.to(el, {
@@ -489,13 +488,7 @@ export const Hero = ({ language, isStarted }: HeroProps) => {
       </div>
 
       {/* ── HUD elements ─────────────────────────────────────────────── */}
-      <div ref={hudTRRef} aria-hidden="true"
-        className="pointer-events-none absolute top-8 right-14 hidden md:flex flex-col items-end gap-1
-                   text-[10px] tracking-[0.18em] text-white/15 badge-font uppercase"
-        style={{ willChange: "transform, opacity" }}>
-        <span>Systems Eng.</span>
-        <span className="text-[var(--primary)]/30">9th Semester</span>
-      </div>
+
 
       <div ref={hudBRRef} aria-hidden="true"
         className="pointer-events-none absolute bottom-12 right-14 hidden md:block

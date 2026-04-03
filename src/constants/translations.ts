@@ -5,7 +5,7 @@ export const translations = {
     hero: {
       tag: "AVAILABLE FOR PROJECTS",
       role: "FULL-STACK DEVELOPER",
-      bio: "Systems Engineering student specialized in building modern, high-performance web architectures. Focused on creating agile, stunning, and highly functional user interfaces with React, Django, and modern cloud technologies.",
+      bio: "Full-stack developer specialized in building modern, high-performance web architectures. Focused on creating agile, stunning, and highly functional user interfaces with React, Django, and modern cloud technologies.",
       viewWork: "View Work",
       letsTalk: "Let's Talk",
     },
@@ -15,12 +15,6 @@ export const translations = {
         title: "Experience",
         active: "Active",
         roles: [
-          {
-            role: "Systems Engineering (9th Semester)",
-            company: "Universidad Santa María",
-            date: "2022 - Present",
-            desc: "Building a rigorous technical foundation with a focus on Database Architecture, Advanced Programming Logic, and Algorithms. Developing deep analytical skills to design scalable software architectures and translate theoretical models into high-performance digital solutions.",
-          },
           {
             role: "B2C Customer Insights Intern",
             company: "Telefónica Venezolana C.A.",
@@ -81,7 +75,7 @@ export const translations = {
     hero: {
       tag: "DISPONIBLE PARA PROYECTOS",
       role: "FULL-STACK DEVELOPER",
-      bio: "Estudiante de Ingeniería de Sistemas especializado en la construcción de arquitecturas web modernas y de alto rendimiento. Enfocado en crear interfaces de usuario ágiles, atractivas y altamente funcionales con React, Django y tecnologías modernas.",
+      bio: "Desarrollador Full-stack especializado en la construcción de arquitecturas web modernas y de alto rendimiento. Enfocado en crear interfaces de usuario ágiles, atractivas y altamente funcionales con React, Django y tecnologías modernas.",
       viewWork: "Ver Proyectos",
       letsTalk: "Hablemos",
     },
@@ -91,12 +85,6 @@ export const translations = {
         title: "Experiencia",
         active: "Activo",
         roles: [
-          {
-            role: "Ingeniería de Sistemas (9no Semestre)",
-            company: "Universidad Santa María",
-            date: "2022 - Actualidad",
-            desc: "Construyendo una base técnica rigurosa con un enfoque en Arquitectura de Bases de Datos, Lógica de Programación Avanzada y Algoritmos. Desarrollando habilidades analíticas profundas para diseñar arquitecturas de software escalables y traducir modelos teóricos en soluciones digitales de alto rendimiento.",
-          },
           {
             role: "Pasante de Conocimiento al Cliente B2C",
             company: "Telefónica Venezolana C.A.",
