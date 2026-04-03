@@ -131,7 +131,7 @@ const CaseStudyModal = ({
     >
       <div
         ref={modalRef}
-        className="w-[90vw] max-w-6xl h-[85vh] bg-[#0d1117] rounded-3xl border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.6)] flex flex-col lg:flex-row overflow-hidden"
+        className="w-[90vw] max-w-6xl h-[85vh] bg-[#07090d]/40 backdrop-blur-md rounded-3xl border-t border-white/20 border-x border-white/[0.04] border-b-transparent shadow-[0_0_80px_rgba(0,0,0,0.6)] flex flex-col lg:flex-row overflow-hidden"
       >
         {/* Left Side: Gallery Carousel (60% on desktop, ~40vh on mobile) */}
         <div className="relative w-full lg:w-[60%] h-[40vh] lg:h-full bg-black shrink-0 group/gallery">
@@ -183,7 +183,7 @@ const CaseStudyModal = ({
         </div>
 
         {/* Right Side: The Brief (40% width on desktop) */}
-        <div className="w-full lg:w-[40%] h-full flex flex-col bg-[#0d1117] relative z-20">
+        <div className="w-full lg:w-[40%] h-full flex flex-col bg-[#07090d]/10 backdrop-blur-md relative z-20">
           
           {/* Sticky Header */}
           <div className="flex items-start justify-between p-6 md:p-8 border-b border-white/[0.05] shrink-0">
@@ -206,7 +206,7 @@ const CaseStudyModal = ({
           {/* Scrollable Content */}
           <div ref={scrollAreaRef} className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
             
-            <p className="text-white/60 leading-relaxed text-sm md:text-base mb-8 whitespace-pre-wrap">
+            <p className="text-white/70 leading-relaxed text-sm md:text-base mb-8 whitespace-pre-wrap">
               {project.longDesc}
             </p>
 
@@ -500,7 +500,7 @@ export const Projects = ({ language }: { language: Language }) => {
           <div className="stagger-item mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase badge-font backdrop-blur-md">
             <Layout size={14} /> {t.projects.tag}
           </div>
-          <h2 className="stagger-item text-5xl md:text-7xl font-bold text-white mb-16 tracking-tighter badge-font uppercase italic">
+          <h2 className="stagger-item text-5xl md:text-7xl font-bold text-white mb-16 tracking-tighter badge-font uppercase italic drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
             <div className="overflow-hidden">
               <span className="block reveal-text">{t.projects.title}</span>
             </div>
@@ -536,7 +536,7 @@ export const Projects = ({ language }: { language: Language }) => {
                 </svg>
 
                 <div
-                  className="proj-card-inner relative w-full rounded-[24px] bg-[#0d1117] border border-white/10 overflow-hidden flex flex-col cursor-pointer no-cursor-snap"
+                  className="proj-card-inner relative w-full rounded-[24px] bg-[#07090d]/40 backdrop-blur-md border-t border-white/20 border-x border-white/[0.04] border-b-transparent overflow-hidden flex flex-col cursor-pointer no-cursor-snap"
                   style={{ willChange: "transform", transformStyle: "preserve-3d" }}
                   onClick={() => setSelectedProject(project)}
                 >
@@ -544,14 +544,14 @@ export const Projects = ({ language }: { language: Language }) => {
                   <div
                     className="pointer-events-none absolute inset-0 z-[5] opacity-0 transition-opacity duration-500 group-hover:opacity-100 rounded-[24px]"
                     style={{
-                      background: "radial-gradient(circle 500px at var(--mouse-x, -1000px) var(--mouse-y, -1000px), rgba(255,255,255,0.06) 0%, transparent 60%)",
+                      background: "radial-gradient(circle 500px at var(--mouse-x, -1000px) var(--mouse-y, -1000px), rgba(143,245,255,0.08) 0%, transparent 60%)",
                     }}
                   />
 
                   {/* ── Media Viewport ─────────────────────────────────────── */}
                   <div
                     ref={(el) => { meshRefs.current[i] = el; }}
-                    className="relative w-full overflow-hidden bg-[#161b22] rounded-t-[24px]"
+                    className="relative w-full overflow-hidden bg-white/[0.02] rounded-t-[24px]"
                     style={{ height: "220px" }}
                   >
                     {/* z-0 Mesh fallback */}
@@ -611,7 +611,7 @@ export const Projects = ({ language }: { language: Language }) => {
                     <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight badge-font">
                       {project.title}
                     </h3>
-                    <p className="text-white/50 text-base leading-relaxed flex-1">
+                    <p className="text-white/70 text-base leading-relaxed flex-1">
                       {project.desc}
                     </p>
 
@@ -641,14 +641,14 @@ export const Projects = ({ language }: { language: Language }) => {
               style={{ perspective: "1200px" }}
             >
               <div
-                className="proj-card-inner relative w-full rounded-[24px] bg-[#0d1117] border border-white/10 overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 p-10 md:p-14 cursor-default"
+                className="proj-card-inner relative w-full rounded-[24px] bg-[#07090d]/40 backdrop-blur-md border-t border-white/20 border-x border-white/[0.04] border-b-transparent overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 p-10 md:p-14 cursor-default"
                 style={{ willChange: "transform", transformStyle: "preserve-3d" }}
               >
                 {/* Spotlight */}
                 <div
                   className="pointer-events-none absolute inset-0 z-[5] opacity-0 transition-opacity duration-500 group-hover:opacity-100 rounded-[24px]"
                   style={{
-                    background: "radial-gradient(circle 600px at var(--mouse-x, -1000px) var(--mouse-y, -1000px), rgba(255,255,255,0.05) 0%, transparent 60%)",
+                    background: "radial-gradient(circle 600px at var(--mouse-x, -1000px) var(--mouse-y, -1000px), rgba(143,245,255,0.08) 0%, transparent 60%)",
                   }}
                 />
                 <div
@@ -677,7 +677,7 @@ export const Projects = ({ language }: { language: Language }) => {
                   <h3 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight badge-font">
                     {t.projects.personalized.title}
                   </h3>
-                  <p className="text-white/50 text-lg md:text-xl font-light leading-relaxed mb-10 group-hover:text-white/70 transition-colors duration-500">
+                  <p className="text-white/70 text-lg md:text-xl font-light leading-relaxed mb-10 group-hover:text-white transition-colors duration-500">
                     {t.projects.personalized.desc}
                   </p>
                   <div className="flex flex-wrap gap-4">

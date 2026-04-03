@@ -526,7 +526,7 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
             </div>
           </MagneticElement>
 
-          <h2 className="text-6xl md:text-8xl lg:text-[7.5rem] font-bold tracking-tighter badge-font drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+          <h2 className="text-6xl md:text-8xl lg:text-[7.5rem] font-bold tracking-tighter badge-font drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
             <div className="overflow-hidden pb-4">
               <span
                 ref={titleRef}
@@ -576,7 +576,7 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
               }}
             >
               <div
-                className="card-inner relative w-full h-full flex flex-col rounded-[28px] bg-[#0d1117] border border-white/10"
+                className="card-inner relative w-full h-full flex flex-col rounded-[28px] bg-[#07090d]/40 backdrop-blur-md border-t border-white/20 border-x border-white/[0.04] border-b-transparent"
                 style={{
                   willChange: "transform",
                   transformStyle: "preserve-3d",
@@ -586,7 +586,7 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                 <div
                   className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100 rounded-[28px] overflow-hidden"
                   style={{
-                    background: "radial-gradient(circle 500px at var(--mouse-x, -1000px) var(--mouse-y, -1000px), rgba(255,255,255,0.06) 0%, transparent 60%)",
+                    background: "radial-gradient(circle 500px at var(--mouse-x, -1000px) var(--mouse-y, -1000px), rgba(143,245,255,0.08) 0%, transparent 60%)",
                   }}
                 />
 
@@ -628,7 +628,7 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
                   </h3>
 
                   <p
-                    className="text-white/50 leading-relaxed text-[16px] flex-1 mt-1 pr-4"
+                    className="text-white/70 leading-relaxed text-[16px] flex-1 mt-1 pr-4"
                   >
                     {item.desc}
                   </p>

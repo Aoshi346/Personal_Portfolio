@@ -200,7 +200,7 @@ const SkillCardDesktop = ({
   };
   const handleMouseLeave = () => {
     if (!isActive) {
-      gsap.to(cardRef.current, { backgroundColor: "#0d1117", duration: 0.3, ease: "power2.out" });
+      gsap.to(cardRef.current, { backgroundColor: "rgba(7,9,13,0.4)", duration: 0.3, ease: "power2.out" });
       if (iconWrapRef.current)
         gsap.to(iconWrapRef.current, { scale: 1, rotation: 0, color: "rgba(255,255,255,0.4)", duration: 0.3, ease: "power2.out" });
     }
@@ -212,7 +212,7 @@ const SkillCardDesktop = ({
       ref={cardRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="skc p-0.5 rounded-2xl bg-[#0d1117] border border-white/10
+      className="skc p-0.5 rounded-2xl bg-[#07090d]/40 backdrop-blur-md border-t border-white/20 border-x border-white/[0.04] border-b-transparent
                  shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] cursor-pointer transform-gpu"
       style={{ "--mx": "-300px", "--my": "-300px" } as React.CSSProperties}
     >
@@ -251,7 +251,7 @@ const SkillCardMobile = ({
 
   const Icon = skill.icon;
   return (
-    <div className="rounded-2xl bg-[#0d1117] border border-white/10 overflow-hidden">
+    <div className="rounded-2xl bg-[#07090d]/40 backdrop-blur-md border-t border-white/20 border-x border-white/[0.04] border-b-transparent overflow-hidden">
       <button
         onClick={() => onMobileExpand(isExpanded ? null : skill.name)}
         className="no-cursor-snap group w-full p-5 flex items-center gap-4 cursor-pointer min-h-[80px]
@@ -264,7 +264,7 @@ const SkillCardMobile = ({
         </div>
       </button>
       <div ref={accordRef} style={{ height: 0, opacity: 0, overflow: "hidden" }}>
-        <p className="px-5 pb-5 text-white/50 text-[clamp(13px,1.2vw,14px)] leading-relaxed">{desc}</p>
+        <p className="px-5 pb-5 text-white/70 text-[clamp(13px,1.2vw,14px)] leading-relaxed">{desc}</p>
       </div>
     </div>
   );
@@ -297,8 +297,8 @@ const TerminalWindow = ({
   return (
     <div
       ref={terminalRef}
-      className="w-full rounded-2xl overflow-hidden border border-white/10
-                 bg-[#0b0e14] shadow-[0_0_60px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.04)]"
+      className="w-full rounded-2xl overflow-hidden border-t border-white/20 border-x border-white/[0.04] border-b-transparent
+                 bg-[#07090d]/40 backdrop-blur-md shadow-[0_0_60px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.04)]"
       style={{ willChange: "transform", minHeight: "380px", perspective: "800px" }}
     >
       {/* ── Terminal header bar ────────────────────────────────────────────── */}
@@ -369,7 +369,7 @@ const TerminalWindow = ({
                 <span className="text-white/20 select-none shrink-0 mt-px" style={{ fontSize: "clamp(9px, 0.75vw, 10px)" }}>
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <span className="text-white/55 leading-[1.7] line-clamp-2">
+                <span className="text-white/70 leading-[1.7] line-clamp-2">
                   {sentence}{i < skill.desc.split(". ").filter(Boolean).length - 1 ? "." : ""}
                 </span>
               </div>
@@ -610,7 +610,7 @@ export const Skills = ({ language }: { language: Language }) => {
             <Cpu size={14} /> {t.skills.tag}
           </div>
 
-          <h2 className="stagger-item text-5xl md:text-7xl font-bold text-white mb-8 italic uppercase badge-font tracking-tighter">
+          <h2 className="stagger-item text-5xl md:text-7xl font-bold text-white mb-8 italic uppercase badge-font tracking-tighter drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
             <div className="overflow-hidden">
               <span className="block reveal-text">{t.skills.title}</span>
             </div>

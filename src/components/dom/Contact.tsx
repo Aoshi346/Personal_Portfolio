@@ -364,13 +364,13 @@ export const Contact = ({ language }: { language: Language }) => {
           {/* ── LEFT: Email + Social ─────────────────────────────────────── */}
           <div className="lg:col-span-5 relative z-10">
             <h2 ref={titleRef}
-              className="badge-font font-black tracking-tighter text-white leading-[0.92] mb-6"
+              className="badge-font font-black tracking-tighter text-white leading-[0.92] mb-6 drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]"
               style={{ fontSize: "clamp(2.6rem, 6.5vw, 5rem)", opacity: 0 }}>
               {heroT.letsTalk}
             </h2>
 
             <p ref={subtitleRef}
-              className="text-white/40 font-light leading-relaxed mb-12 max-w-sm"
+              className="text-white/70 font-light leading-relaxed mb-12 max-w-sm"
               style={{ fontSize: "clamp(0.95rem, 1.8vw, 1.15rem)", opacity: 0 }}>
               {language === "en"
                 ? "I'm always open to discussing new projects, creative ideas, or being part of your visions."
@@ -423,7 +423,7 @@ export const Contact = ({ language }: { language: Language }) => {
           <div ref={formColRef} className="lg:col-span-7" style={{ opacity: 0 }}>
             <form
               onSubmit={handleSubmit}
-              className="relative flex flex-col bg-[#161b22]/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] overflow-hidden h-[500px]"
+              className="relative flex flex-col bg-[#07090d]/40 backdrop-blur-xl border-t border-white/20 border-x border-white/[0.04] border-b-transparent rounded-2xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] overflow-hidden h-[500px]"
             >
               {/* Header bar (macOS dots) */}
               <div className="flex items-center px-4 h-12 border-b border-white/10 bg-white/[0.02]">
@@ -442,8 +442,8 @@ export const Contact = ({ language }: { language: Language }) => {
               <div className="flex flex-col bg-transparent">
                 {/* Static To */}
                 <div className="flex items-center gap-4 px-6 min-h-[44px] border-b border-white/5 disabled select-none">
-                  <span className="text-sm text-white/40 w-16 flex-shrink-0">To:</span>
-                  <span className="text-sm text-white/60">{EMAIL}</span>
+                  <span className="text-sm text-white/50 w-16 flex-shrink-0">To:</span>
+                  <span className="text-sm text-white/80">{EMAIL}</span>
                 </div>
 
                 <MailField
