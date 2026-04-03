@@ -3,6 +3,7 @@ import { ReactLenis, useLenis } from 'lenis/react'
 import Sections from './components/dom/Sections'
 import Preloader from './components/dom/Preloader'
 import CustomCursor from './components/dom/CustomCursor'
+import SceneBackground from './components/r3f/SceneBackground'
 import { Language } from './constants/translations'
 
 // ── Scroll Manager ──────────────────────────────────────────────────────────
@@ -50,6 +51,8 @@ function App() {
 
   return (
     <>
+      <SceneBackground />
+
       {/* Preloader stays in DOM until onComplete, fires onHeroStart at 80 % */}
       {!loaded && (
         <Preloader
