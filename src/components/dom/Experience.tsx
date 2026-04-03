@@ -477,7 +477,7 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
     <section
       ref={sectionRef}
       id="section-2"
-      className="relative w-full min-h-[100dvh] lg:h-[100dvh] bg-[#0b0e14] lg:overflow-hidden flex flex-col lg:flex-row lg:items-center"
+      className="relative w-full min-h-[100dvh] lg:h-[100dvh] bg-transparent lg:overflow-hidden flex flex-col lg:flex-row lg:items-center"
       style={{ willChange: "transform" }}
     >
       <style>{`
