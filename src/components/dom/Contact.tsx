@@ -1,7 +1,7 @@
 import { useLayoutEffect, useEffect, useRef, useCallback, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Mail, Linkedin, Github, Terminal, Send, Loader2, Check, AlertCircle } from "lucide-react";
+import { Mail, Linkedin, Github, Terminal, Send, Loader2, Check, AlertCircle, type LucideIcon } from "lucide-react";
 import emailjs from "@emailjs/browser";
 import { Language, translations } from "../../constants/translations";
 
@@ -79,7 +79,7 @@ const MagneticWrap = ({
 };
 
 // ── Social link ──────────────────────────────────────────────────────────────
-const SocialLink = ({ href, icon: Icon, label }: { href: string; icon: React.ElementType; label: string }) => {
+const SocialLink = ({ href, icon: Icon, label }: { href: string; icon: LucideIcon; label: string }) => {
   const wrapRef  = useRef<HTMLAnchorElement>(null);
   const innerRef = useRef<HTMLSpanElement>(null);
 

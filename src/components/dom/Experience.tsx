@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Briefcase, Database, Terminal, Code2, Network, Blocks, Globe, Palette, Binary } from "lucide-react";
+import { Briefcase, Database, Terminal, Code2, Network, Blocks, Globe, Palette, Binary, type LucideIcon } from "lucide-react";
 import { Language, translations } from "../../constants/translations";
 import { scrambleText } from "../../utils/textEffects";
 
@@ -13,7 +13,7 @@ const ROLE_STACK: string[][] = [
   ["React", "Next.js", "Django", "REST", "Tailwind"],
 ];
 
-const SKILL_ICONS: Record<string, React.ElementType> = {
+const SKILL_ICONS: Record<string, LucideIcon> = {
   "Algorithms": Binary,
   "SQL": Database,
   "C++": Terminal,
