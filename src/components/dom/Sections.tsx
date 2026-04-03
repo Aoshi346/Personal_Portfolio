@@ -130,7 +130,7 @@ export default function Sections({
           ) ?? []
         );
 
-        revealSections.forEach((section, index) => {
+        revealSections.forEach((section) => {
           const revealTexts = section.querySelectorAll(".reveal-text");
           const content = section.querySelector(".reveal-content");
           const items = section.querySelectorAll(".stagger-item");
@@ -228,7 +228,7 @@ export default function Sections({
     }, 200); // Wait for Experience pin to register first
 
     return () => clearTimeout(initTimer);
-  }, [loaded, handleSectionEnter]);
+  }, [loaded, handleSectionEnter, updateHudVisuals]);
 
   const navLabels = [
     language === "en" ? "HOME" : "INICIO",

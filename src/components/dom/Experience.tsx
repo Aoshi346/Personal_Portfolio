@@ -67,7 +67,7 @@ const MagneticElement = ({
         overwrite: "auto",
       });
     }
-  }, []);
+  }, [radius, strength]);
 
   const onEnter = useCallback(() => {
     if (onHoverAction) onHoverAction();
@@ -115,8 +115,11 @@ export const Experience = ({ language, onActive }: ExperienceProps) => {
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   const onActiveRef = useRef(onActive);
-  onActiveRef.current = onActive;
   const activeCalledRef = useRef(false);
+
+  useLayoutEffect(() => {
+    onActiveRef.current = onActive;
+  }, [onActive]);
 
   const fireOnActive = useCallback(() => {
     if (!activeCalledRef.current) {

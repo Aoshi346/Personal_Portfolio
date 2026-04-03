@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { ReactLenis, useLenis } from 'lenis/react'
 import Sections from './components/dom/Sections'
 import Preloader from './components/dom/Preloader'

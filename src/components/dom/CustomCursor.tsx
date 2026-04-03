@@ -3,14 +3,12 @@ import gsap from 'gsap';
 
 export default function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [isTouchDevice] = useState(() => 
+    typeof window !== 'undefined' && window.matchMedia('(hover: none) and (pointer: coarse)').matches
+  );
 
   useEffect(() => {
-    // Detect touch screens
-    if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
-      setIsTouchDevice(true);
-      return;
-    }
+    if (isTouchDevice) return;
 
     const cursor = cursorRef.current;
     if (!cursor) return;
@@ -120,7 +118,7 @@ export default function CustomCursor() {
       window.removeEventListener('mouseout', handleMouseOut);
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [isTouchDevice]);
 
   if (isTouchDevice) {
     return null; // Disabled visually and computationally on mobile phones

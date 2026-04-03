@@ -78,7 +78,7 @@ const CODE_SNIPPETS: Record<string, { lines: { token: string; color: string; ita
 };
 
 // ─── Types ───────────────────────────────────────────────────────────────────
-type SkillData = { name: string; icon: any; desc: string };
+type SkillData = { name: string; icon: React.ElementType; desc: string };
 type CardHandle = { dim: () => void; undim: () => void };
 
 // ─── Card + terminal styles ───────────────────────────────────────────────────
@@ -293,7 +293,6 @@ const TerminalWindow = ({
   const filename   = FILE_EXT[skill.name] ?? "module.ts";
   const snippet    = CODE_SNIPPETS[skill.name];
   const Icon       = skill.icon;
-  const isActive   = true; // always rendered in active context
 
   return (
     <div

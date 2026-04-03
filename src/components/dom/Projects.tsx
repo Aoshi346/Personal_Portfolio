@@ -89,7 +89,6 @@ const CaseStudyModal = ({
   useEffect(() => {
     if (project && modalRef.current && backdropRef.current) {
       document.body.style.overflow = "hidden";
-      setCurrentImageIndex(0);
 
       gsap.fromTo(backdropRef.current,
         { autoAlpha: 0 },
@@ -722,6 +721,7 @@ export const Projects = ({ language }: { language: Language }) => {
       
       {/* ── Render Case Study Modal via Portal ───────────────────────────── */}
       <CaseStudyModal 
+        key={selectedProject?.title}
         project={selectedProject} 
         onClose={() => setSelectedProject(null)} 
       />
